@@ -602,6 +602,18 @@ void shutdownScreen() {
 }
 
 /*
+Function: createRequiredDirectories
+Purpose: Creates required folders for build output and virtual disk storage.
+Parameters: None.
+Returns: Nothing.
+*/
+void createRequiredDirectories() {
+    system("mkdir -p build");
+    system("mkdir -p data");
+    system("mkdir -p data/virtual_disk");
+}
+
+/*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
 Parameters: argc and argv for command-line resource input.
@@ -614,7 +626,7 @@ int main(int argc, char* argv[]) {
     int choice;
 
     bootScreen();
-
+    createRequiredDirectories();
     if (!getHardwareResourcesFromCommandLine(argc, argv, ram, hdd, cores)) {
         return 1;
     }
