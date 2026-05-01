@@ -9,6 +9,7 @@
 #include "resource_manager.h"
 #include "process_manager.h"
 #include "task_catalog.h"
+#include "ready_queue.h"
 
 using namespace std;
 
@@ -142,6 +143,7 @@ void showMainMenu() {
     cout << "9. Test Process State Update\n";
     cout << "10. Test PCB Removal\n";
     cout << "11. Run Scheduler\n";
+    cout << "12. Show Ready Queues\n";
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }
@@ -396,7 +398,8 @@ Returns: Nothing.
 void launchTaskUsingIPCForkTest(
     TaskCatalog &taskCatalog,
     ProcessManager &processManager,
-    ResourceManager &resourceManager
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager
 ) {
     int taskID;
     TaskInfo selectedTask;
@@ -517,18 +520,29 @@ void launchTaskUsingIPCForkTest(
             request.coresRequired
         );
 
-        processManager.createPCB(
-            pid,
-            request.processName,
-            static_cast<ProcessType>(request.processType),
-            request.priority,
-            request.ramRequired,
-            request.hddRequired,
-            request.coresRequired
-        );
+       processManager.createPCB(
+    pid,
+    request.processName,
+    static_cast<ProcessType>(request.processType),
+    request.priority,
+    request.ramRequired,
+    request.hddRequired,
+    request.coresRequired
+);
 
-        processManager.updateProcessState(pid, READY_STATE);
-        processManager.updateProcessState(pid, RUNNING_STATE);
+processManager.updateProcessState(pid, READY_STATE);
+
+readyQueueManager.addProcessToReadyQueue(
+    pid,
+    request.processName,
+    static_cast<ProcessType>(request.processType),
+    request.priority
+);
+
+cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
+readyQueueManager.displayReadyQueues();
+
+processManager.updateProcessState(pid, RUNNING_STATE);
     } else {
         response.granted = 0;
 
@@ -604,6 +618,7 @@ int main(int argc, char* argv[]) {
     ResourceManager resourceManager(ram, hdd, cores);
     ProcessManager processManager;
     TaskCatalog taskCatalog;
+    ReadyQueueManager readyQueueManager;
 
     cout << "\nAMS OS resources initialized successfully.\n";
     cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
@@ -623,8 +638,13 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 3:
-                launchTaskUsingIPCForkTest(taskCatalog, processManager, resourceManager);
-                break;
+    		launchTaskUsingIPCForkTest(
+       			taskCatalog,
+        		processManager,
+        		resourceManager,
+        		readyQueueManager
+    			);
+    		break;
 
             case 4:
                 resourceManager.displayResources();
@@ -657,7 +677,9 @@ int main(int argc, char* argv[]) {
             case 11:
                 showComingSoonMessage("Scheduler");
                 break;
-
+	    case 12:
+	        readyQueueManager.displayReadyQueues();
+	        break;
             case 0:
                 shutdownScreen();
                 break;
