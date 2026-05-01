@@ -470,26 +470,25 @@ void launchTaskUsingIPCForkTest(
         }
 
         cout << "[CHILD PROCESS] Resource request granted by kernel.\n";
-        cout << "[CHILD PROCESS] Starting simulated execution for: "
-             << selectedTask.taskName << "\n";
+	cout << "[CHILD PROCESS] Loading task executable using exec.\n";
+	cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
 
-        for (int i = 1; i <= 4; i++) {
-            cout << "[CHILD PROCESS] " << selectedTask.taskName
-                 << " is running... step " << i << "/4\n";
-            sleep(1);
-        }
+	execl(
+   	 selectedTask.executablePath.c_str(),
+    	selectedTask.executablePath.c_str(),
+    	selectedTask.taskName.c_str(),
+    	NULL
+	);
 
-        cout << "[CHILD PROCESS] " << selectedTask.taskName
-             << " execution completed.\n";
+	perror("[CHILD PROCESS] exec failed");
+	exit(1);
+}
 
-        exit(0);
-    }
-
-    close(requestPipe[1]);
-    close(responsePipe[0]);
+   	close(requestPipe[1]);
+   	close(responsePipe[0]);
 
     IPCResourceRequest request;
-    IPCResourceResponse response;
+   IPCResourceResponse response;
 
     memset(&request, 0, sizeof(request));
     memset(&response, 0, sizeof(response));
