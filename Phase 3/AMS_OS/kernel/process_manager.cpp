@@ -1,4 +1,5 @@
 #include "process_manager.h"
+#include <iomanip>
 
 /*
 Function: ProcessManager
@@ -157,31 +158,42 @@ Parameters: None.
 Returns: Nothing.
 */
 void ProcessManager::displayPCBTable() {
-    cout << "\n==================== PCB TABLE ====================\n";
+    cout << "\n======================================= PCB TABLE =======================================\n";
 
     if (processTable.empty()) {
         cout << "No process exists in the PCB table.\n";
-        cout << "===================================================\n";
+        cout << "=========================================================================================\n";
         return;
     }
 
-    cout << "PID\tName\t\tType\t\tState\t\tPriority\tRAM\tHDD\tCPU\n";
-    cout << "---------------------------------------------------\n";
+    cout << left
+         << setw(8)  << "PID"
+         << setw(20) << "Name"
+         << setw(18) << "Type"
+         << setw(15) << "State"
+         << setw(10) << "Priority"
+         << setw(10) << "RAM"
+         << setw(10) << "HDD"
+         << setw(6)  << "CPU" << "\n";
+
+    cout << "-----------------------------------------------------------------------------------------\n";
 
     for (auto process : processTable) {
         PCB pcb = process.second;
 
-        cout << pcb.pid << "\t"
-             << pcb.processName << "\t\t"
-             << getProcessTypeName(pcb.processType) << "\t"
-             << getProcessStateName(pcb.processState) << "\t\t"
-             << pcb.priority << "\t\t"
-             << pcb.ramRequired << "MB\t"
-             << pcb.hddRequired << "MB\t"
-             << pcb.coresRequired << "\n";
+        cout << left
+             << setw(8)  << pcb.pid
+             << setw(20) << pcb.processName
+             << setw(18) << getProcessTypeName(pcb.processType)
+             << setw(15) << getProcessStateName(pcb.processState)
+             << setw(10) << pcb.priority
+             << setw(10) << (to_string(pcb.ramRequired) + "MB")
+             << setw(10) << (to_string(pcb.hddRequired) + "MB")
+             << setw(6)  << pcb.coresRequired
+             << "\n";
     }
 
-    cout << "===================================================\n";
+    cout << "=========================================================================================\n";
 }
 
 /*
@@ -194,19 +206,14 @@ string ProcessManager::getProcessTypeName(ProcessType type) {
     switch (type) {
         case SYSTEM_PROCESS:
             return "System";
-
         case INTERACTIVE_PROCESS:
             return "Interactive";
-
         case BACKGROUND_PROCESS:
             return "Background";
-
         case AUTO_RUNNING_PROCESS:
             return "Auto";
-
         case KERNEL_PROCESS:
             return "Kernel";
-
         default:
             return "Unknown";
     }
@@ -222,19 +229,14 @@ string ProcessManager::getProcessStateName(ProcessState state) {
     switch (state) {
         case NEW_STATE:
             return "NEW";
-
         case READY_STATE:
             return "READY";
-
         case RUNNING_STATE:
             return "RUNNING";
-
         case BLOCKED_STATE:
             return "BLOCKED";
-
         case TERMINATED_STATE:
             return "TERMINATED";
-
         default:
             return "UNKNOWN";
     }

@@ -1,4 +1,5 @@
 #include "task_catalog.h"
+#include <iomanip>
 
 /*
 Function: TaskCatalog
@@ -87,28 +88,38 @@ Parameters: None.
 Returns: Nothing.
 */
 void TaskCatalog::displayAvailableTasks() {
-    cout << "\n==================== AMS OS TASK CATALOG ====================\n";
+    cout << "\n============================== AMS OS TASK CATALOG ==============================\n";
 
     if (taskList.empty()) {
         cout << "No tasks are available in the task catalog.\n";
-        cout << "=============================================================\n";
+        cout << "=================================================================================\n";
         return;
     }
 
-    cout << "ID\tTask Name\t\tType\t\tPriority\tRAM\tHDD\tCPU\n";
-    cout << "-------------------------------------------------------------\n";
+    cout << left
+         << setw(6)  << "ID"
+         << setw(20) << "Task Name"
+         << setw(18) << "Type"
+         << setw(10) << "Priority"
+         << setw(10) << "RAM"
+         << setw(10) << "HDD"
+         << setw(6)  << "CPU" << "\n";
+
+    cout << "---------------------------------------------------------------------------------\n";
 
     for (TaskInfo task : taskList) {
-        cout << task.taskID << "\t"
-             << task.taskName << "\t\t"
-             << getProcessTypeName(task.processType) << "\t"
-             << task.priority << "\t\t"
-             << task.ramRequired << "MB\t"
-             << task.hddRequired << "MB\t"
-             << task.coresRequired << "\n";
+        cout << left
+             << setw(6)  << task.taskID
+             << setw(20) << task.taskName
+             << setw(18) << getProcessTypeName(task.processType)
+             << setw(10) << task.priority
+             << setw(10) << (to_string(task.ramRequired) + "MB")
+             << setw(10) << (to_string(task.hddRequired) + "MB")
+             << setw(6)  << task.coresRequired
+             << "\n";
     }
 
-    cout << "=============================================================\n";
+    cout << "=================================================================================\n";
 }
 
 /*
@@ -177,19 +188,14 @@ string TaskCatalog::getProcessTypeName(ProcessType type) {
     switch (type) {
         case SYSTEM_PROCESS:
             return "System";
-
         case INTERACTIVE_PROCESS:
             return "Interactive";
-
         case BACKGROUND_PROCESS:
             return "Background";
-
         case AUTO_RUNNING_PROCESS:
             return "Auto";
-
         case KERNEL_PROCESS:
             return "Kernel";
-
         default:
             return "Unknown";
     }

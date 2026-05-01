@@ -1,6 +1,10 @@
 #include <iostream>
 #include <unistd.h>
 #include <limits>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <cstdlib>
+
 #include "resource_manager.h"
 #include "process_manager.h"
 #include "task_catalog.h"
@@ -95,7 +99,7 @@ void showMainMenu() {
     cout << "\n========== AMS OS MAIN MENU ==========\n";
     cout << "1. Show Task Catalog\n";
     cout << "2. Show Task Details\n";
-    cout << "3. Select Task for Launch Test\n";
+    cout << "3. Launch Task Using Fork Test\n";
     cout << "4. Show Resources\n";
     cout << "5. Test Resource Allocation\n";
     cout << "6. Test Resource Release\n";
@@ -171,19 +175,14 @@ ProcessType getProcessTypeFromChoice(int choice) {
     switch (choice) {
         case 1:
             return SYSTEM_PROCESS;
-
         case 2:
             return INTERACTIVE_PROCESS;
-
         case 3:
             return BACKGROUND_PROCESS;
-
         case 4:
             return AUTO_RUNNING_PROCESS;
-
         case 5:
             return KERNEL_PROCESS;
-
         default:
             return INTERACTIVE_PROCESS;
     }
@@ -199,19 +198,14 @@ ProcessState getProcessStateFromChoice(int choice) {
     switch (choice) {
         case 1:
             return NEW_STATE;
-
         case 2:
             return READY_STATE;
-
         case 3:
             return RUNNING_STATE;
-
         case 4:
             return BLOCKED_STATE;
-
         case 5:
             return TERMINATED_STATE;
-
         default:
             return READY_STATE;
     }
@@ -310,37 +304,6 @@ void testPCBRemoval(ProcessManager &processManager) {
 }
 
 /*
-Function: showSelectedTaskLaunchTest
-Purpose: Displays task metadata and confirms that selected task is ready for future fork/exec implementation.
-Parameters: TaskCatalog object reference.
-Returns: Nothing.
-*/
-void showSelectedTaskLaunchTest(TaskCatalog &taskCatalog) {
-    int taskID;
-    TaskInfo selectedTask;
-
-    cout << "\n========== TASK LAUNCH TEST ==========\n";
-    taskCatalog.displayAvailableTasks();
-
-    taskID = getValidatedInteger("Enter Task ID to select: ");
-
-    if (!taskCatalog.getTaskByID(taskID, selectedTask)) {
-        cout << "\nInvalid Task ID. No task found.\n";
-        return;
-    }
-
-    cout << "\nTask selected successfully.\n";
-    cout << "Task Name: " << selectedTask.taskName << "\n";
-    cout << "Type: " << taskCatalog.getProcessTypeName(selectedTask.processType) << "\n";
-    cout << "RAM Required: " << selectedTask.ramRequired << " MB\n";
-    cout << "HDD Required: " << selectedTask.hddRequired << " MB\n";
-    cout << "CPU Required: " << selectedTask.coresRequired << "\n";
-    cout << "Executable Path: " << selectedTask.executablePath << "\n";
-
-    cout << "\nThis task metadata will be used in the next step when fork-based process creation is added.\n";
-}
-
-/*
 Function: showTaskDetailsMenu
 Purpose: Allows user to view complete details of a selected task.
 Parameters: TaskCatalog object reference.
@@ -355,6 +318,125 @@ void showTaskDetailsMenu(TaskCatalog &taskCatalog) {
     taskID = getValidatedInteger("Enter Task ID to view details: ");
 
     taskCatalog.displayTaskDetails(taskID);
+}
+
+/*
+Function: launchTaskUsingForkTest
+Purpose: Selects a task from the catalog, allocates resources, creates a child process using fork,
+         creates a PCB using the real child PID, waits for completion, then releases resources.
+Parameters: TaskCatalog, ProcessManager, and ResourceManager object references.
+Returns: Nothing.
+*/
+void launchTaskUsingForkTest(
+    TaskCatalog &taskCatalog,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager
+) {
+    int taskID;
+    TaskInfo selectedTask;
+
+    cout << "\n========== LAUNCH TASK USING FORK TEST ==========\n";
+    taskCatalog.displayAvailableTasks();
+
+    taskID = getValidatedInteger("Enter Task ID to launch: ");
+
+    if (!taskCatalog.getTaskByID(taskID, selectedTask)) {
+        cout << "\nInvalid Task ID. No task found.\n";
+        return;
+    }
+
+    cout << "\nSelected Task Information\n";
+    cout << "Task Name: " << selectedTask.taskName << "\n";
+    cout << "Task Type: " << taskCatalog.getProcessTypeName(selectedTask.processType) << "\n";
+    cout << "RAM Required: " << selectedTask.ramRequired << " MB\n";
+    cout << "HDD Required: " << selectedTask.hddRequired << " MB\n";
+    cout << "CPU Required: " << selectedTask.coresRequired << "\n";
+
+    if (!resourceManager.checkResources(
+            selectedTask.ramRequired,
+            selectedTask.hddRequired,
+            selectedTask.coresRequired
+        )) {
+        cout << "\n[AMS OS] Task launch denied due to insufficient resources.\n";
+        resourceManager.displayResources();
+        return;
+    }
+
+    cout << "\n[AMS OS] Resources available. Allocating resources before process creation.\n";
+
+    if (!resourceManager.allocateResources(
+            selectedTask.ramRequired,
+            selectedTask.hddRequired,
+            selectedTask.coresRequired
+        )) {
+        return;
+    }
+
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        cout << "\n[AMS OS] Fork failed. Unable to create child process.\n";
+        resourceManager.releaseResources(
+            selectedTask.ramRequired,
+            selectedTask.hddRequired,
+            selectedTask.coresRequired
+        );
+        return;
+    }
+
+    if (pid == 0) {
+        cout << "\n[CHILD PROCESS] Child created successfully.\n";
+        cout << "[CHILD PROCESS] PID: " << getpid() << "\n";
+        cout << "[CHILD PROCESS] Parent PID: " << getppid() << "\n";
+        cout << "[CHILD PROCESS] Simulating task execution for: " << selectedTask.taskName << "\n";
+
+        for (int i = 1; i <= 4; i++) {
+            cout << "[CHILD PROCESS] " << selectedTask.taskName
+                 << " is running... step " << i << "/4\n";
+            sleep(1);
+        }
+
+        cout << "[CHILD PROCESS] " << selectedTask.taskName << " execution completed.\n";
+        exit(0);
+    } else {
+        cout << "\n[PARENT PROCESS] Child process created successfully.\n";
+        cout << "[PARENT PROCESS] Child PID: " << pid << "\n";
+
+        processManager.createPCB(
+            pid,
+            selectedTask.taskName,
+            selectedTask.processType,
+            selectedTask.priority,
+            selectedTask.ramRequired,
+            selectedTask.hddRequired,
+            selectedTask.coresRequired
+        );
+
+        processManager.updateProcessState(pid, READY_STATE);
+        processManager.updateProcessState(pid, RUNNING_STATE);
+
+        cout << "\n[PARENT PROCESS] Current PCB Table after child creation:\n";
+        processManager.displayPCBTable();
+
+        int status;
+        waitpid(pid, &status, 0);
+
+        cout << "\n[PARENT PROCESS] Child process execution finished.\n";
+
+        processManager.updateProcessState(pid, TERMINATED_STATE);
+
+        cout << "\n[PARENT PROCESS] Releasing resources.\n";
+        resourceManager.releaseResources(
+            selectedTask.ramRequired,
+            selectedTask.hddRequired,
+            selectedTask.coresRequired
+        );
+
+        processManager.removeProcess(pid);
+
+        cout << "\n[PARENT PROCESS] Final resource status after cleanup:\n";
+        resourceManager.displayResources();
+    }
 }
 
 /*
@@ -415,7 +497,7 @@ int main() {
                 break;
 
             case 3:
-                showSelectedTaskLaunchTest(taskCatalog);
+                launchTaskUsingForkTest(taskCatalog, processManager, resourceManager);
                 break;
 
             case 4:
