@@ -73,18 +73,44 @@ Purpose: Takes RAM, HDD, and CPU core values from the user.
 Parameters: References to RAM, HDD, and CPU core variables.
 Returns: true if valid resources are entered, otherwise false.
 */
-bool getHardwareResources(int &ram, int &hdd, int &cores) {
-    cout << "\n========== HARDWARE RESOURCE SETUP ==========\n";
-
-    ram = getValidatedInteger("Enter RAM in MB: ");
-    hdd = getValidatedInteger("Enter Hard Drive in MB: ");
-    cores = getValidatedInteger("Enter CPU Cores: ");
-
-    if (ram <= 0 || hdd <= 0 || cores <= 0) {
-        cout << "\nInvalid hardware resources entered.\n";
-        cout << "AMS OS cannot start with zero or negative resources.\n";
+/*
+Function: getHardwareResourcesFromCommandLine
+Purpose: Reads RAM, HDD, and CPU cores from command-line arguments before OS starts.
+Parameters: argc, argv, and references to RAM, HDD, and CPU core variables.
+Returns: true if valid resources are provided, otherwise false.
+*/
+bool getHardwareResourcesFromCommandLine(
+    int argc,
+    char* argv[],
+    int &ram,
+    int &hdd,
+    int &cores
+) {
+    if (argc != 4) {
+        cout << "\nInvalid startup command.\n";
+        cout << "Usage: ./OS <RAM_GB> <HDD_GB> <CPU_CORES>\n";
+        cout << "Example: ./OS 2 256 8\n";
         return false;
     }
+
+    int ramGB = atoi(argv[1]);
+    int hddGB = atoi(argv[2]);
+    cores = atoi(argv[3]);
+
+    if (ramGB <= 0 || hddGB <= 0 || cores <= 0) {
+        cout << "\nInvalid hardware resources entered.\n";
+        cout << "RAM, HDD, and CPU cores must be greater than zero.\n";
+        return false;
+    }
+
+    ram = ramGB * 1024;
+    hdd = hddGB * 1024;
+
+    cout << "\n========== HARDWARE RESOURCE SETUP ==========\n";
+    cout << "RAM Provided: " << ramGB << " GB (" << ram << " MB)\n";
+    cout << "Hard Drive Provided: " << hddGB << " GB (" << hdd << " MB)\n";
+    cout << "CPU Cores Provided: " << cores << "\n";
+    cout << "=============================================\n";
 
     return true;
 }
@@ -463,7 +489,7 @@ Purpose: Starts AMS OS, initializes resources, and controls the main menu.
 Parameters: None.
 Returns: Program exit status.
 */
-int main() {
+int main(int argc, char* argv[]) {
     int ram;
     int hdd;
     int cores;
@@ -471,7 +497,7 @@ int main() {
 
     bootScreen();
 
-    if (!getHardwareResources(ram, hdd, cores)) {
+    if (!getHardwareResourcesFromCommandLine(argc, argv, ram, hdd, cores)) {
         return 1;
     }
 
@@ -482,6 +508,7 @@ int main() {
     cout << "\nAMS OS resources initialized successfully.\n";
     cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
     resourceManager.displayResources();
+
 
     do {
         showMainMenu();
