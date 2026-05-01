@@ -19,6 +19,23 @@ sleep(1)
     }
 
     cout << "\nSystem Loaded Successfully.\n";
+
+int totalRAM, totalHDD, totalCores;
+
+cout << "Enter RAM in MB: ";
+cin >> totalRAM;
+
+cout << "Enter Hard Drive in MB: ";
+cin >> totalHDD;
+
+cout << "Enter CPU Cores: ";
+cin >> totalCores;
+
+
+if (totalRAM <= 0 || totalHDD <= 0 || totalCores <= 0) {
+    cout << "Invalid hardware resources. OS cannot start.\n";
+    return 1;
+}
 }
 
 int main() {
