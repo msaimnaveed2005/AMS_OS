@@ -3,6 +3,7 @@
 #include <limits>
 #include "resource_manager.h"
 #include "process_manager.h"
+#include "task_catalog.h"
 
 using namespace std;
 
@@ -92,19 +93,17 @@ Returns: Nothing.
 */
 void showMainMenu() {
     cout << "\n========== AMS OS MAIN MENU ==========\n";
-    cout << "1. Launch Calculator\n";
-    cout << "2. Launch Notepad\n";
-    cout << "3. Launch Digital Clock\n";
-    cout << "4. Launch Music Player\n";
-    cout << "5. Launch File Copy\n";
-    cout << "6. Show Resources\n";
-    cout << "7. Test Resource Allocation\n";
-    cout << "8. Test Resource Release\n";
-    cout << "9. Show PCB Table\n";
-    cout << "10. Test Dummy PCB Creation\n";
-    cout << "11. Test Process State Update\n";
-    cout << "12. Test PCB Removal\n";
-    cout << "13. Run Scheduler\n";
+    cout << "1. Show Task Catalog\n";
+    cout << "2. Show Task Details\n";
+    cout << "3. Select Task for Launch Test\n";
+    cout << "4. Show Resources\n";
+    cout << "5. Test Resource Allocation\n";
+    cout << "6. Test Resource Release\n";
+    cout << "7. Show PCB Table\n";
+    cout << "8. Test Dummy PCB Creation\n";
+    cout << "9. Test Process State Update\n";
+    cout << "10. Test PCB Removal\n";
+    cout << "11. Run Scheduler\n";
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }
@@ -311,6 +310,54 @@ void testPCBRemoval(ProcessManager &processManager) {
 }
 
 /*
+Function: showSelectedTaskLaunchTest
+Purpose: Displays task metadata and confirms that selected task is ready for future fork/exec implementation.
+Parameters: TaskCatalog object reference.
+Returns: Nothing.
+*/
+void showSelectedTaskLaunchTest(TaskCatalog &taskCatalog) {
+    int taskID;
+    TaskInfo selectedTask;
+
+    cout << "\n========== TASK LAUNCH TEST ==========\n";
+    taskCatalog.displayAvailableTasks();
+
+    taskID = getValidatedInteger("Enter Task ID to select: ");
+
+    if (!taskCatalog.getTaskByID(taskID, selectedTask)) {
+        cout << "\nInvalid Task ID. No task found.\n";
+        return;
+    }
+
+    cout << "\nTask selected successfully.\n";
+    cout << "Task Name: " << selectedTask.taskName << "\n";
+    cout << "Type: " << taskCatalog.getProcessTypeName(selectedTask.processType) << "\n";
+    cout << "RAM Required: " << selectedTask.ramRequired << " MB\n";
+    cout << "HDD Required: " << selectedTask.hddRequired << " MB\n";
+    cout << "CPU Required: " << selectedTask.coresRequired << "\n";
+    cout << "Executable Path: " << selectedTask.executablePath << "\n";
+
+    cout << "\nThis task metadata will be used in the next step when fork-based process creation is added.\n";
+}
+
+/*
+Function: showTaskDetailsMenu
+Purpose: Allows user to view complete details of a selected task.
+Parameters: TaskCatalog object reference.
+Returns: Nothing.
+*/
+void showTaskDetailsMenu(TaskCatalog &taskCatalog) {
+    int taskID;
+
+    cout << "\n========== TASK DETAILS MENU ==========\n";
+    taskCatalog.displayAvailableTasks();
+
+    taskID = getValidatedInteger("Enter Task ID to view details: ");
+
+    taskCatalog.displayTaskDetails(taskID);
+}
+
+/*
 Function: shutdownScreen
 Purpose: Displays shutdown animation and closing message.
 Parameters: None.
@@ -348,8 +395,10 @@ int main() {
 
     ResourceManager resourceManager(ram, hdd, cores);
     ProcessManager processManager;
+    TaskCatalog taskCatalog;
 
     cout << "\nAMS OS resources initialized successfully.\n";
+    cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
     resourceManager.displayResources();
 
     do {
@@ -358,54 +407,46 @@ int main() {
 
         switch (choice) {
             case 1:
-                showComingSoonMessage("Calculator");
+                taskCatalog.displayAvailableTasks();
                 break;
 
             case 2:
-                showComingSoonMessage("Notepad");
+                showTaskDetailsMenu(taskCatalog);
                 break;
 
             case 3:
-                showComingSoonMessage("Digital Clock");
+                showSelectedTaskLaunchTest(taskCatalog);
                 break;
 
             case 4:
-                showComingSoonMessage("Music Player");
-                break;
-
-            case 5:
-                showComingSoonMessage("File Copy");
-                break;
-
-            case 6:
                 resourceManager.displayResources();
                 break;
 
-            case 7:
+            case 5:
                 testResourceAllocation(resourceManager);
                 break;
 
-            case 8:
+            case 6:
                 testResourceRelease(resourceManager);
                 break;
 
-            case 9:
+            case 7:
                 processManager.displayPCBTable();
                 break;
 
-            case 10:
+            case 8:
                 testDummyPCBCreation(processManager);
                 break;
 
-            case 11:
+            case 9:
                 testProcessStateUpdate(processManager);
                 break;
 
-            case 12:
+            case 10:
                 testPCBRemoval(processManager);
                 break;
 
-            case 13:
+            case 11:
                 showComingSoonMessage("Scheduler");
                 break;
 
