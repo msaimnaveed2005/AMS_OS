@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <limits>
 #include "resource_manager.h"
+#include "process_manager.h"
 
 using namespace std;
 
@@ -99,7 +100,11 @@ void showMainMenu() {
     cout << "6. Show Resources\n";
     cout << "7. Test Resource Allocation\n";
     cout << "8. Test Resource Release\n";
-    cout << "9. Run Scheduler\n";
+    cout << "9. Show PCB Table\n";
+    cout << "10. Test Dummy PCB Creation\n";
+    cout << "11. Test Process State Update\n";
+    cout << "12. Test PCB Removal\n";
+    cout << "13. Run Scheduler\n";
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }
@@ -158,6 +163,154 @@ void testResourceRelease(ResourceManager &resourceManager) {
 }
 
 /*
+Function: getProcessTypeFromChoice
+Purpose: Converts user's process type choice into a ProcessType enum.
+Parameters: User choice.
+Returns: Selected process type.
+*/
+ProcessType getProcessTypeFromChoice(int choice) {
+    switch (choice) {
+        case 1:
+            return SYSTEM_PROCESS;
+
+        case 2:
+            return INTERACTIVE_PROCESS;
+
+        case 3:
+            return BACKGROUND_PROCESS;
+
+        case 4:
+            return AUTO_RUNNING_PROCESS;
+
+        case 5:
+            return KERNEL_PROCESS;
+
+        default:
+            return INTERACTIVE_PROCESS;
+    }
+}
+
+/*
+Function: getProcessStateFromChoice
+Purpose: Converts user's process state choice into a ProcessState enum.
+Parameters: User choice.
+Returns: Selected process state.
+*/
+ProcessState getProcessStateFromChoice(int choice) {
+    switch (choice) {
+        case 1:
+            return NEW_STATE;
+
+        case 2:
+            return READY_STATE;
+
+        case 3:
+            return RUNNING_STATE;
+
+        case 4:
+            return BLOCKED_STATE;
+
+        case 5:
+            return TERMINATED_STATE;
+
+        default:
+            return READY_STATE;
+    }
+}
+
+/*
+Function: testDummyPCBCreation
+Purpose: Creates a dummy PCB for testing before real fork based process creation.
+Parameters: ProcessManager object reference.
+Returns: Nothing.
+*/
+void testDummyPCBCreation(ProcessManager &processManager) {
+    string processName;
+    int typeChoice;
+    int priority;
+    int ramRequired;
+    int hddRequired;
+    int coresRequired;
+
+    cout << "\n========== TEST DUMMY PCB CREATION ==========\n";
+
+    cout << "Enter process name: ";
+    cin >> processName;
+
+    cout << "\nSelect Process Type:\n";
+    cout << "1. System\n";
+    cout << "2. Interactive\n";
+    cout << "3. Background\n";
+    cout << "4. Auto-running\n";
+    cout << "5. Kernel\n";
+
+    typeChoice = getValidatedInteger("Enter type choice: ");
+    priority = getValidatedInteger("Enter process priority: ");
+    ramRequired = getValidatedInteger("Enter RAM required in MB: ");
+    hddRequired = getValidatedInteger("Enter HDD required in MB: ");
+    coresRequired = getValidatedInteger("Enter CPU cores required: ");
+
+    ProcessType selectedType = getProcessTypeFromChoice(typeChoice);
+
+    int pid = processManager.createDummyPCB(
+        processName,
+        selectedType,
+        priority,
+        ramRequired,
+        hddRequired,
+        coresRequired
+    );
+
+    if (pid != -1) {
+        cout << "\nDummy PCB created with PID: " << pid << "\n";
+    }
+}
+
+/*
+Function: testProcessStateUpdate
+Purpose: Allows user to update the state of an existing process in PCB table.
+Parameters: ProcessManager object reference.
+Returns: Nothing.
+*/
+void testProcessStateUpdate(ProcessManager &processManager) {
+    int pid;
+    int stateChoice;
+
+    cout << "\n========== TEST PROCESS STATE UPDATE ==========\n";
+
+    pid = getValidatedInteger("Enter PID to update: ");
+
+    cout << "\nSelect New Process State:\n";
+    cout << "1. NEW\n";
+    cout << "2. READY\n";
+    cout << "3. RUNNING\n";
+    cout << "4. BLOCKED\n";
+    cout << "5. TERMINATED\n";
+
+    stateChoice = getValidatedInteger("Enter state choice: ");
+
+    ProcessState selectedState = getProcessStateFromChoice(stateChoice);
+
+    processManager.updateProcessState(pid, selectedState);
+}
+
+/*
+Function: testPCBRemoval
+Purpose: Allows user to remove a process from the PCB table.
+Parameters: ProcessManager object reference.
+Returns: Nothing.
+*/
+void testPCBRemoval(ProcessManager &processManager) {
+    int pid;
+
+    cout << "\n========== TEST PCB REMOVAL ==========\n";
+
+    pid = getValidatedInteger("Enter PID to remove: ");
+
+    processManager.removeProcess(pid);
+}
+
+/*
 Function: shutdownScreen
 Purpose: Displays shutdown animation and closing message.
 Parameters: None.
@@ -194,6 +347,7 @@ int main() {
     }
 
     ResourceManager resourceManager(ram, hdd, cores);
+    ProcessManager processManager;
 
     cout << "\nAMS OS resources initialized successfully.\n";
     resourceManager.displayResources();
@@ -236,6 +390,22 @@ int main() {
                 break;
 
             case 9:
+                processManager.displayPCBTable();
+                break;
+
+            case 10:
+                testDummyPCBCreation(processManager);
+                break;
+
+            case 11:
+                testProcessStateUpdate(processManager);
+                break;
+
+            case 12:
+                testPCBRemoval(processManager);
+                break;
+
+            case 13:
                 showComingSoonMessage("Scheduler");
                 break;
 
