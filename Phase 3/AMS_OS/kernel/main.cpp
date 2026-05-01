@@ -10,6 +10,7 @@
 #include "process_manager.h"
 #include "task_catalog.h"
 #include "ready_queue.h"
+#include "scheduler.h"
 
 using namespace std;
 
@@ -472,15 +473,20 @@ void launchTaskUsingIPCForkTest(
             exit(2);
         }
 
-        cout << "[CHILD PROCESS] Resource request granted by kernel.\n";
+       cout << "[CHILD PROCESS] Resource request granted by kernel.\n";
+	cout << "[CHILD PROCESS] Process is now waiting for scheduler dispatch.\n";
+
+	raise(SIGSTOP);
+
+	cout << "[CHILD PROCESS] Scheduler resumed this process.\n";
 	cout << "[CHILD PROCESS] Loading task executable using exec.\n";
 	cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
 
 	execl(
-   	 selectedTask.executablePath.c_str(),
-    	selectedTask.executablePath.c_str(),
-    	selectedTask.taskName.c_str(),
-    	NULL
+	    selectedTask.executablePath.c_str(),
+	    selectedTask.executablePath.c_str(),
+	    selectedTask.taskName.c_str(),
+	    NULL
 	);
 
 	perror("[CHILD PROCESS] exec failed");
@@ -555,28 +561,26 @@ processManager.updateProcessState(pid, RUNNING_STATE);
     close(responsePipe[1]);
 
     int status;
-    waitpid(pid, &status, 0);
 
-    if (response.granted == 1) {
-        cout << "\n[KERNEL/PARENT] Child process completed.\n";
+	if (response.granted == 1) {
+	    waitpid(pid, &status, WUNTRACED);
 
-        processManager.updateProcessState(pid, TERMINATED_STATE);
+	    if (WIFSTOPPED(status)) {
+		cout << "\n[KERNEL/PARENT] Child process is paused and waiting in ready queue.\n";
+		cout << "[KERNEL/PARENT] Run scheduler from menu to execute this process.\n";
+	    }
 
-        cout << "\n[KERNEL/PARENT] Releasing process resources.\n";
-        resourceManager.releaseResources(
-            request.ramRequired,
-            request.hddRequired,
-            request.coresRequired
-        );
+	    cout << "\n[KERNEL/PARENT] Current PCB Table:\n";
+	    processManager.displayPCBTable();
 
-        processManager.removeProcess(pid);
+	    cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
+	    readyQueueManager.displayReadyQueues();
+	} else {
+	    waitpid(pid, &status, 0);
 
-        cout << "\n[KERNEL/PARENT] Final resource status after cleanup:\n";
-        resourceManager.displayResources();
-    } else {
-        cout << "\n[KERNEL/PARENT] Denied child process has terminated.\n";
-        resourceManager.displayResources();
-    }
+	    cout << "\n[KERNEL/PARENT] Denied child process has terminated.\n";
+	    resourceManager.displayResources();
+	}
 }
 
 /*
@@ -616,9 +620,10 @@ int main(int argc, char* argv[]) {
     }
 
     ResourceManager resourceManager(ram, hdd, cores);
-    ProcessManager processManager;
-    TaskCatalog taskCatalog;
-    ReadyQueueManager readyQueueManager;
+	ProcessManager processManager;
+	TaskCatalog taskCatalog;
+	ReadyQueueManager readyQueueManager;
+	Scheduler scheduler;
 
     cout << "\nAMS OS resources initialized successfully.\n";
     cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
@@ -675,8 +680,12 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 11:
-                showComingSoonMessage("Scheduler");
-                break;
+		    scheduler.runScheduler(
+			processManager,
+			resourceManager,
+			readyQueueManager
+		    );
+   			break;
 	    case 12:
 	        readyQueueManager.displayReadyQueues();
 	        break;

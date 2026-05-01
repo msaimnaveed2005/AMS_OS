@@ -103,7 +103,13 @@ public:
     Returns: true if process exists, otherwise false.
     */
     bool processExists(int pid);
-
+	/*
+	Function: getPCB
+	Purpose: Finds a PCB by PID and copies it into the reference variable.
+	Parameters: PID and PCB reference variable.
+	Returns: true if PCB exists, otherwise false.
+	*/
+	bool getPCB(int pid, PCB &pcb);
     /*
     Function: displayPCBTable
     Purpose: Displays all processes currently stored in the process table.
@@ -127,6 +133,8 @@ public:
     Returns: Process state as string.
     */
     string getProcessStateName(ProcessState state);
+
+
 };
 
 #endif
