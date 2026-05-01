@@ -1,15 +1,29 @@
 #include <iostream>
 #include <unistd.h>
 #include <limits>
+#include <cstdlib>
+#include <cstring>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <cstdlib>
 
 #include "resource_manager.h"
 #include "process_manager.h"
 #include "task_catalog.h"
 
 using namespace std;
+
+struct IPCResourceRequest {
+    char processName[100];
+    int processType;
+    int priority;
+    int ramRequired;
+    int hddRequired;
+    int coresRequired;
+};
+
+struct IPCResourceResponse {
+    int granted;
+};
 
 /*
 Function: bootScreen
@@ -34,45 +48,6 @@ void bootScreen() {
     cout << "\nSystem Loaded Successfully.\n";
 }
 
-/*
-Function: clearInputBuffer
-Purpose: Clears invalid input from the input buffer to prevent program errors.
-Parameters: None.
-Returns: Nothing.
-*/
-void clearInputBuffer() {
-    cin.clear();
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-}
-
-/*
-Function: getValidatedInteger
-Purpose: Takes integer input from the user and validates it.
-Parameters: Message to display before taking input.
-Returns: Valid integer entered by the user.
-*/
-int getValidatedInteger(string message) {
-    int value;
-
-    while (true) {
-        cout << message;
-        cin >> value;
-
-        if (cin.fail()) {
-            cout << "Invalid input. Please enter a valid number.\n";
-            clearInputBuffer();
-        } else {
-            return value;
-        }
-    }
-}
-
-/*
-Function: getHardwareResources
-Purpose: Takes RAM, HDD, and CPU core values from the user.
-Parameters: References to RAM, HDD, and CPU core variables.
-Returns: true if valid resources are entered, otherwise false.
-*/
 /*
 Function: getHardwareResourcesFromCommandLine
 Purpose: Reads RAM, HDD, and CPU cores from command-line arguments before OS starts.
@@ -116,6 +91,39 @@ bool getHardwareResourcesFromCommandLine(
 }
 
 /*
+Function: clearInputBuffer
+Purpose: Clears invalid input from the input buffer to prevent program errors.
+Parameters: None.
+Returns: Nothing.
+*/
+void clearInputBuffer() {
+    cin.clear();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+/*
+Function: getValidatedInteger
+Purpose: Takes integer input from the user and validates it.
+Parameters: Message to display before taking input.
+Returns: Valid integer entered by the user.
+*/
+int getValidatedInteger(string message) {
+    int value;
+
+    while (true) {
+        cout << message;
+        cin >> value;
+
+        if (cin.fail()) {
+            cout << "Invalid input. Please enter a valid number.\n";
+            clearInputBuffer();
+        } else {
+            return value;
+        }
+    }
+}
+
+/*
 Function: showMainMenu
 Purpose: Displays the main AMS OS menu.
 Parameters: None.
@@ -125,7 +133,7 @@ void showMainMenu() {
     cout << "\n========== AMS OS MAIN MENU ==========\n";
     cout << "1. Show Task Catalog\n";
     cout << "2. Show Task Details\n";
-    cout << "3. Launch Task Using Fork Test\n";
+    cout << "3. Launch Task Using IPC Fork Test\n";
     cout << "4. Show Resources\n";
     cout << "5. Test Resource Allocation\n";
     cout << "6. Test Resource Release\n";
@@ -347,13 +355,45 @@ void showTaskDetailsMenu(TaskCatalog &taskCatalog) {
 }
 
 /*
-Function: launchTaskUsingForkTest
-Purpose: Selects a task from the catalog, allocates resources, creates a child process using fork,
-         creates a PCB using the real child PID, waits for completion, then releases resources.
+Function: childSendResourceRequest
+Purpose: Sends resource request from child process to parent kernel using IPC pipe.
+Parameters: Write pipe, read pipe, and selected task metadata.
+Returns: Response received from parent.
+*/
+IPCResourceResponse childSendResourceRequest(
+    int requestWritePipe,
+    int responseReadPipe,
+    TaskInfo selectedTask
+) {
+    IPCResourceRequest request;
+    IPCResourceResponse response;
+
+    memset(&request, 0, sizeof(request));
+    memset(&response, 0, sizeof(response));
+
+    strncpy(request.processName, selectedTask.taskName.c_str(), sizeof(request.processName) - 1);
+    request.processType = selectedTask.processType;
+    request.priority = selectedTask.priority;
+    request.ramRequired = selectedTask.ramRequired;
+    request.hddRequired = selectedTask.hddRequired;
+    request.coresRequired = selectedTask.coresRequired;
+
+    cout << "\n[CHILD PROCESS] Sending IPC resource request to kernel.\n";
+    write(requestWritePipe, &request, sizeof(request));
+
+    read(responseReadPipe, &response, sizeof(response));
+
+    return response;
+}
+
+/*
+Function: launchTaskUsingIPCForkTest
+Purpose: Creates a child process using fork, child sends resource request through IPC,
+         parent grants or denies resources, and child runs only if granted.
 Parameters: TaskCatalog, ProcessManager, and ResourceManager object references.
 Returns: Nothing.
 */
-void launchTaskUsingForkTest(
+void launchTaskUsingIPCForkTest(
     TaskCatalog &taskCatalog,
     ProcessManager &processManager,
     ResourceManager &resourceManager
@@ -361,7 +401,7 @@ void launchTaskUsingForkTest(
     int taskID;
     TaskInfo selectedTask;
 
-    cout << "\n========== LAUNCH TASK USING FORK TEST ==========\n";
+    cout << "\n========== LAUNCH TASK USING IPC FORK TEST ==========\n";
     taskCatalog.displayAvailableTasks();
 
     taskID = getValidatedInteger("Enter Task ID to launch: ");
@@ -378,43 +418,60 @@ void launchTaskUsingForkTest(
     cout << "HDD Required: " << selectedTask.hddRequired << " MB\n";
     cout << "CPU Required: " << selectedTask.coresRequired << "\n";
 
-    if (!resourceManager.checkResources(
-            selectedTask.ramRequired,
-            selectedTask.hddRequired,
-            selectedTask.coresRequired
-        )) {
-        cout << "\n[AMS OS] Task launch denied due to insufficient resources.\n";
-        resourceManager.displayResources();
+    int requestPipe[2];
+    int responsePipe[2];
+
+    if (pipe(requestPipe) == -1) {
+        cout << "\n[AMS OS] Failed to create request pipe.\n";
         return;
     }
 
-    cout << "\n[AMS OS] Resources available. Allocating resources before process creation.\n";
-
-    if (!resourceManager.allocateResources(
-            selectedTask.ramRequired,
-            selectedTask.hddRequired,
-            selectedTask.coresRequired
-        )) {
+    if (pipe(responsePipe) == -1) {
+        cout << "\n[AMS OS] Failed to create response pipe.\n";
+        close(requestPipe[0]);
+        close(requestPipe[1]);
         return;
     }
+
+    cout.flush();
 
     pid_t pid = fork();
 
     if (pid < 0) {
         cout << "\n[AMS OS] Fork failed. Unable to create child process.\n";
-        resourceManager.releaseResources(
-            selectedTask.ramRequired,
-            selectedTask.hddRequired,
-            selectedTask.coresRequired
-        );
+        close(requestPipe[0]);
+        close(requestPipe[1]);
+        close(responsePipe[0]);
+        close(responsePipe[1]);
         return;
     }
 
     if (pid == 0) {
+        close(requestPipe[0]);
+        close(responsePipe[1]);
+
         cout << "\n[CHILD PROCESS] Child created successfully.\n";
         cout << "[CHILD PROCESS] PID: " << getpid() << "\n";
         cout << "[CHILD PROCESS] Parent PID: " << getppid() << "\n";
-        cout << "[CHILD PROCESS] Simulating task execution for: " << selectedTask.taskName << "\n";
+
+        IPCResourceResponse response = childSendResourceRequest(
+            requestPipe[1],
+            responsePipe[0],
+            selectedTask
+        );
+
+        close(requestPipe[1]);
+        close(responsePipe[0]);
+
+        if (response.granted == 0) {
+            cout << "[CHILD PROCESS] Resource request denied by kernel.\n";
+            cout << "[CHILD PROCESS] Terminating process.\n";
+            exit(2);
+        }
+
+        cout << "[CHILD PROCESS] Resource request granted by kernel.\n";
+        cout << "[CHILD PROCESS] Starting simulated execution for: "
+             << selectedTask.taskName << "\n";
 
         for (int i = 1; i <= 4; i++) {
             cout << "[CHILD PROCESS] " << selectedTask.taskName
@@ -422,45 +479,89 @@ void launchTaskUsingForkTest(
             sleep(1);
         }
 
-        cout << "[CHILD PROCESS] " << selectedTask.taskName << " execution completed.\n";
+        cout << "[CHILD PROCESS] " << selectedTask.taskName
+             << " execution completed.\n";
+
         exit(0);
-    } else {
-        cout << "\n[PARENT PROCESS] Child process created successfully.\n";
-        cout << "[PARENT PROCESS] Child PID: " << pid << "\n";
+    }
+
+    close(requestPipe[1]);
+    close(responsePipe[0]);
+
+    IPCResourceRequest request;
+    IPCResourceResponse response;
+
+    memset(&request, 0, sizeof(request));
+    memset(&response, 0, sizeof(response));
+
+    read(requestPipe[0], &request, sizeof(request));
+
+    cout << "\n[KERNEL/PARENT] IPC resource request received.\n";
+    cout << "Child PID: " << pid << "\n";
+    cout << "Process Name: " << request.processName << "\n";
+    cout << "RAM Requested: " << request.ramRequired << " MB\n";
+    cout << "HDD Requested: " << request.hddRequired << " MB\n";
+    cout << "CPU Requested: " << request.coresRequired << "\n";
+
+    if (resourceManager.checkResources(
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
+        )) {
+        response.granted = 1;
+
+        cout << "\n[KERNEL/PARENT] Resources available. Granting request.\n";
+
+        resourceManager.allocateResources(
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
+        );
 
         processManager.createPCB(
             pid,
-            selectedTask.taskName,
-            selectedTask.processType,
-            selectedTask.priority,
-            selectedTask.ramRequired,
-            selectedTask.hddRequired,
-            selectedTask.coresRequired
+            request.processName,
+            static_cast<ProcessType>(request.processType),
+            request.priority,
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
         );
 
         processManager.updateProcessState(pid, READY_STATE);
         processManager.updateProcessState(pid, RUNNING_STATE);
+    } else {
+        response.granted = 0;
 
-        cout << "\n[PARENT PROCESS] Current PCB Table after child creation:\n";
-        processManager.displayPCBTable();
+        cout << "\n[KERNEL/PARENT] Resources unavailable. Denying request.\n";
+    }
 
-        int status;
-        waitpid(pid, &status, 0);
+    write(responsePipe[1], &response, sizeof(response));
 
-        cout << "\n[PARENT PROCESS] Child process execution finished.\n";
+    close(requestPipe[0]);
+    close(responsePipe[1]);
+
+    int status;
+    waitpid(pid, &status, 0);
+
+    if (response.granted == 1) {
+        cout << "\n[KERNEL/PARENT] Child process completed.\n";
 
         processManager.updateProcessState(pid, TERMINATED_STATE);
 
-        cout << "\n[PARENT PROCESS] Releasing resources.\n";
+        cout << "\n[KERNEL/PARENT] Releasing process resources.\n";
         resourceManager.releaseResources(
-            selectedTask.ramRequired,
-            selectedTask.hddRequired,
-            selectedTask.coresRequired
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
         );
 
         processManager.removeProcess(pid);
 
-        cout << "\n[PARENT PROCESS] Final resource status after cleanup:\n";
+        cout << "\n[KERNEL/PARENT] Final resource status after cleanup:\n";
+        resourceManager.displayResources();
+    } else {
+        cout << "\n[KERNEL/PARENT] Denied child process has terminated.\n";
         resourceManager.displayResources();
     }
 }
@@ -485,8 +586,8 @@ void shutdownScreen() {
 
 /*
 Function: main
-Purpose: Starts AMS OS, initializes resources, and controls the main menu.
-Parameters: None.
+Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
+Parameters: argc and argv for command-line resource input.
 Returns: Program exit status.
 */
 int main(int argc, char* argv[]) {
@@ -509,7 +610,6 @@ int main(int argc, char* argv[]) {
     cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
     resourceManager.displayResources();
 
-
     do {
         showMainMenu();
         choice = getValidatedInteger("Enter your choice: ");
@@ -524,7 +624,7 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 3:
-                launchTaskUsingForkTest(taskCatalog, processManager, resourceManager);
+                launchTaskUsingIPCForkTest(taskCatalog, processManager, resourceManager);
                 break;
 
             case 4:
