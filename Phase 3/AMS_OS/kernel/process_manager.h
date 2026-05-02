@@ -110,6 +110,40 @@ public:
 	Returns: true if PCB exists, otherwise false.
 	*/
 	bool getPCB(int pid, PCB &pcb);
+
+/*
+Function: incrementWaitingTime
+Purpose: Increases waiting time of a process by one unit.
+Parameters: PID.
+Returns: true if waiting time is updated, otherwise false.
+*/
+bool incrementWaitingTime(int pid);
+
+/*
+Function: resetWaitingTime
+Purpose: Resets waiting time of a process to zero.
+Parameters: PID.
+Returns: true if waiting time is reset, otherwise false.
+*/
+bool resetWaitingTime(int pid);
+
+/*
+Function: improvePriority
+Purpose: Improves process priority by reducing priority number.
+Parameters: PID.
+Returns: true if priority is improved, otherwise false.
+*/
+bool improvePriority(int pid);
+
+/*
+Function: updateProcessPriority
+Purpose: Updates process priority manually.
+Parameters: PID and new priority.
+Returns: true if priority is updated, otherwise false.
+*/
+bool updateProcessPriority(int pid, int newPriority);
+
+
     /*
     Function: displayPCBTable
     Purpose: Displays all processes currently stored in the process table.

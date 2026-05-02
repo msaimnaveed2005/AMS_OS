@@ -29,26 +29,22 @@ void ReadyQueueManager::addProcessToReadyQueue(
     item.processType = processType;
     item.priority = priority;
 
-    if (processType == SYSTEM_PROCESS || processType == KERNEL_PROCESS) {
+    if (priority <= 1) {
         systemQueue.push(item);
-        cout << "\n[READY QUEUE] Process added to System Queue.\n";
+        cout << "\n[READY QUEUE] Process added to System Queue based on priority.\n";
     } 
-    else if (processType == INTERACTIVE_PROCESS || processType == AUTO_RUNNING_PROCESS) {
+    else if (priority == 2) {
         interactiveQueue.push(item);
-        cout << "\n[READY QUEUE] Process added to Interactive Queue.\n";
-    } 
-    else if (processType == BACKGROUND_PROCESS) {
-        backgroundQueue.push(item);
-        cout << "\n[READY QUEUE] Process added to Background Queue.\n";
+        cout << "\n[READY QUEUE] Process added to Interactive Queue based on priority.\n";
     } 
     else {
-        interactiveQueue.push(item);
-        cout << "\n[READY QUEUE] Unknown type. Process added to Interactive Queue by default.\n";
+        backgroundQueue.push(item);
+        cout << "\n[READY QUEUE] Process added to Background Queue based on priority.\n";
     }
 
     cout << "PID: " << pid << "\n";
     cout << "Process Name: " << processName << "\n";
-    cout << "Queue: " << getQueueName(processType) << "\n";
+    cout << "Priority: " << priority << "\n";
 }
 
 /*
@@ -173,7 +169,92 @@ bool ReadyQueueManager::removeProcessByPID(int pid) {
     return false;
 }
 
+/*
+Function: insertAgedProcess
+Purpose: Inserts process into a queue based on improved priority.
+Parameters: ReadyQueueItem.
+Returns: Nothing.
+*/
+void ReadyQueueManager::insertAgedProcess(ReadyQueueItem item) {
+    if (item.priority <= 1) {
+        systemQueue.push(item);
+    } 
+    else if (item.priority == 2) {
+        interactiveQueue.push(item);
+    } 
+    else {
+        backgroundQueue.push(item);
+    }
+}
 
+/*
+Function: applyAging
+Purpose: Applies aging to all waiting processes in ready queues.
+Parameters: ProcessManager reference, Logger reference, and aging threshold.
+Returns: Nothing.
+*/
+void ReadyQueueManager::applyAging(
+    ProcessManager &processManager,
+    Logger &logger,
+    int agingThreshold
+) {
+    queue<ReadyQueueItem> allProcesses;
+
+    while (!systemQueue.empty()) {
+        allProcesses.push(systemQueue.front());
+        systemQueue.pop();
+    }
+
+    while (!interactiveQueue.empty()) {
+        allProcesses.push(interactiveQueue.front());
+        interactiveQueue.pop();
+    }
+
+    while (!backgroundQueue.empty()) {
+        allProcesses.push(backgroundQueue.front());
+        backgroundQueue.pop();
+    }
+
+    while (!allProcesses.empty()) {
+        ReadyQueueItem item = allProcesses.front();
+        allProcesses.pop();
+
+        PCB pcb;
+
+        if (!processManager.getPCB(item.pid, pcb)) {
+            continue;
+        }
+
+        processManager.incrementWaitingTime(item.pid);
+        processManager.getPCB(item.pid, pcb);
+
+        if (pcb.waitingTime >= agingThreshold && pcb.priority > 1) {
+            int oldPriority = pcb.priority;
+
+            processManager.improvePriority(item.pid);
+            processManager.getPCB(item.pid, pcb);
+
+            item.priority = pcb.priority;
+
+            cout << "\n[AGING] Priority improved for waiting process.\n";
+            cout << "PID: " << item.pid << "\n";
+            cout << "Process: " << item.processName << "\n";
+            cout << "Old Priority: " << oldPriority << "\n";
+            cout << "New Priority: " << pcb.priority << "\n";
+
+            logger.logProcessEvent(
+                item.pid,
+                item.processName,
+                "Aging applied, priority improved from " +
+                to_string(oldPriority) + " to " + to_string(pcb.priority)
+            );
+        } else {
+            item.priority = pcb.priority;
+        }
+
+        insertAgedProcess(item);
+    }
+}
 
 /*
 Function: displayReadyQueues
@@ -194,7 +275,7 @@ void ReadyQueueManager::displayReadyQueues() {
     queue<ReadyQueueItem> tempInteractiveQueue = interactiveQueue;
     queue<ReadyQueueItem> tempBackgroundQueue = backgroundQueue;
 
-    cout << "\n[Queue 1: System Queue, FCFS]\n";
+    cout << "\n[Queue 1: System Queue, Highest Priority, FCFS]\n";
     if (tempSystemQueue.empty()) {
         cout << "Empty\n";
     } else {
@@ -216,7 +297,7 @@ void ReadyQueueManager::displayReadyQueues() {
         }
     }
 
-    cout << "\n[Queue 2: Interactive Queue, Round Robin]\n";
+    cout << "\n[Queue 2: Interactive Queue, Medium Priority, Round Robin]\n";
     if (tempInteractiveQueue.empty()) {
         cout << "Empty\n";
     } else {
@@ -269,18 +350,14 @@ Purpose: Returns the queue name based on process type.
 Parameters: Process type.
 Returns: Queue name as string.
 */
-string ReadyQueueManager::getQueueName(ProcessType processType) {
-    if (processType == SYSTEM_PROCESS || processType == KERNEL_PROCESS) {
+string ReadyQueueManager::getQueueName(int priority) {
+    if (priority <= 1) {
         return "System Queue";
     }
 
-    if (processType == INTERACTIVE_PROCESS || processType == AUTO_RUNNING_PROCESS) {
+    if (priority == 2) {
         return "Interactive Queue";
     }
 
-    if (processType == BACKGROUND_PROCESS) {
-        return "Background Queue";
-    }
-
-    return "Interactive Queue";
+    return "Background Queue";
 }

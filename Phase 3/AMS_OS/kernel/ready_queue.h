@@ -5,6 +5,7 @@
 #include <queue>
 #include <string>
 #include "process_manager.h"
+#include "logger.h"
 
 using namespace std;
 
@@ -20,6 +21,13 @@ private:
     queue<ReadyQueueItem> systemQueue;
     queue<ReadyQueueItem> interactiveQueue;
     queue<ReadyQueueItem> backgroundQueue;
+/*
+Function: insertAgedProcess
+Purpose: Inserts process into a queue based on improved priority.
+Parameters: ReadyQueueItem.
+Returns: Nothing.
+*/
+void insertAgedProcess(ReadyQueueItem item);
 
 /*
 Function: removeFromQueueByPID
@@ -120,7 +128,7 @@ public:
     Parameters: Process type.
     Returns: Queue name as string.
     */
-    string getQueueName(ProcessType processType);
+    string getQueueName(int priority);
 
 
 	/*
@@ -130,6 +138,14 @@ public:
 	Returns: true if process was found and removed, otherwise false.
 	*/
 	bool removeProcessByPID(int pid);
+
+	/*
+	Function: applyAging
+	Purpose: Applies aging to all waiting processes in ready queues.
+	Parameters: ProcessManager reference, Logger reference, and aging threshold.
+	Returns: Nothing.
+	*/
+	void applyAging(ProcessManager &processManager, Logger &logger, int agingThreshold);
 };
 
 #endif

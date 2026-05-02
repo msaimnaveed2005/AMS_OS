@@ -241,3 +241,109 @@
 ] SYSTEM | AMS OS shutdown requested
 [Sat May  2 13:11:51 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 14:32:35 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 14:32:49 2026
+] PROCESS | PID: 0 | Music Player | Task selected for launch
+[Sat May  2 14:32:49 2026
+] RESOURCE | Resources granted to Music Player | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 14:32:49 2026
+] PROCESS | PID: 6657 | Music Player | PCB Created
+[Sat May  2 14:32:49 2026
+] PROCESS | PID: 6657 | Music Player | Added to Ready Queue
+[Sat May  2 14:32:54 2026
+] PROCESS | PID: 0 | Digital Clock | Task selected for launch
+[Sat May  2 14:32:54 2026
+] RESOURCE | Resources granted to Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 14:32:54 2026
+] PROCESS | PID: 6658 | Digital Clock | PCB Created
+[Sat May  2 14:32:54 2026
+] PROCESS | PID: 6658 | Digital Clock | Added to Ready Queue
+[Sat May  2 14:33:08 2026
+] PROCESS | PID: 0 | File Copy | Task selected for launch
+[Sat May  2 14:33:08 2026
+] RESOURCE | Resources granted to File Copy | RAM: 200MB | HDD: 100MB | CPU: 1
+[Sat May  2 14:33:08 2026
+] PROCESS | PID: 6659 | File Copy | PCB Created
+[Sat May  2 14:33:08 2026
+] PROCESS | PID: 6659 | File Copy | Added to Ready Queue
+[Sat May  2 14:33:46 2026
+] SYSTEM | Scheduler started
+[Sat May  2 14:33:46 2026
+] PROCESS | PID: 6658 | Digital Clock | Dispatched by scheduler
+[Sat May  2 14:33:53 2026
+] PROCESS | PID: 6658 | Digital Clock | Process terminated
+[Sat May  2 14:33:53 2026
+] RESOURCE | Resources released from PID 6658 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 14:33:53 2026
+] PROCESS | PID: 6657 | Music Player | Aging applied, priority improved from 3 to 2
+[Sat May  2 14:33:53 2026
+] PROCESS | PID: 6659 | File Copy | Aging applied, priority improved from 3 to 2
+[Sat May  2 14:33:53 2026
+] PROCESS | PID: 6657 | Music Player | Dispatched by scheduler
+[Sat May  2 14:33:57 2026
+] PROCESS | PID: 6659 | File Copy | Dispatched by scheduler
+[Sat May  2 14:34:01 2026
+] PROCESS | PID: 6657 | Music Player | Aging applied, priority improved from 2 to 1
+[Sat May  2 14:34:01 2026
+] PROCESS | PID: 6657 | Music Player | Dispatched by scheduler
+[Sat May  2 14:34:02 2026
+] PROCESS | PID: 6657 | Music Player | Process terminated
+[Sat May  2 14:34:02 2026
+] RESOURCE | Resources released from PID 6657 | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 14:34:02 2026
+] PROCESS | PID: 6659 | File Copy | Aging applied, priority improved from 2 to 1
+[Sat May  2 14:34:02 2026
+] PROCESS | PID: 6659 | File Copy | Dispatched by scheduler
+[Sat May  2 14:34:06 2026
+] PROCESS | PID: 6659 | File Copy | Dispatched by scheduler
+[Sat May  2 14:34:10 2026
+] PROCESS | PID: 6659 | File Copy | Dispatched by scheduler
+[Sat May  2 14:34:14 2026
+] PROCESS | PID: 6659 | File Copy | Dispatched by scheduler
+[Sat May  2 14:34:18 2026
+] PROCESS | PID: 6659 | File Copy | Dispatched by scheduler
+[Sat May  2 14:34:22 2026
+] PROCESS | PID: 6659 | File Copy | Dispatched by scheduler
+[Sat May  2 14:34:25 2026
+] PROCESS | PID: 6659 | File Copy | Process terminated
+[Sat May  2 14:34:25 2026
+] RESOURCE | Resources released from PID 6659 | RAM: 200MB | HDD: 100MB | CPU: 1
+[Sat May  2 14:34:25 2026
+[Sat May  2 15:07:36 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 15:07:40 2026
+] PROCESS | PID: 0 | Digital Clock | Task selected for launch
+[Sat May  2 15:07:40 2026
+] RESOURCE | Resources granted to Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 15:07:40 2026
+] PROCESS | PID: 6990 | Digital Clock | PCB Created
+[Sat May  2 15:07:40 2026
+] PROCESS | PID: 6990 | Digital Clock | Added to Ready Queue
+[Sat May  2 15:07:45 2026
+] PROCESS | PID: 0 | Music Player | Task selected for launch
+[Sat May  2 15:07:45 2026
+] RESOURCE | Resources granted to Music Player | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 15:07:45 2026
+] PROCESS | PID: 6991 | Music Player | PCB Created
+[Sat May  2 15:07:45 2026
+] PROCESS | PID: 6991 | Music Player | Added to Ready Queue
+[Sat May  2 15:07:47 2026
+] SYSTEM | Scheduler started
+[Sat May  2 15:07:47 2026
+] PROCESS | PID: 6990 | Digital Clock | Dispatched by scheduler
+[Sat May  2 15:07:53 2026
+] PROCESS | PID: 6990 | Digital Clock | Process terminated
+[Sat May  2 15:07:53 2026
+] RESOURCE | Resources released from PID 6990 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 15:07:53 2026
+] PROCESS | PID: 6991 | Music Player | Aging applied, priority improved from 3 to 2
+[Sat May  2 15:07:53 2026
+] PROCESS | PID: 6991 | Music Player | Dispatched by scheduler
+[Sat May  2 15:07:57 2026
+] PROCESS | PID: 6991 | Music Player | Dispatched by scheduler
+[Sat May  2 15:07:59 2026
+] PROCESS | PID: 6991 | Music Player | Process terminated
+[Sat May  2 15:07:59 2026
+] RESOURCE | Resources released from PID 6991 | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 15:07:59 2026

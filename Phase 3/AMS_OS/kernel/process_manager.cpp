@@ -164,6 +164,81 @@ bool ProcessManager::processExists(int pid) {
 	    pcb = processTable[pid];
 	    return true;
 	}
+
+/*
+Function: incrementWaitingTime
+Purpose: Increases waiting time of a process by one unit.
+Parameters: PID.
+Returns: true if waiting time is updated, otherwise false.
+*/
+bool ProcessManager::incrementWaitingTime(int pid) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    processTable[pid].waitingTime++;
+    return true;
+}
+
+/*
+Function: resetWaitingTime
+Purpose: Resets waiting time of a process to zero.
+Parameters: PID.
+Returns: true if waiting time is reset, otherwise false.
+*/
+bool ProcessManager::resetWaitingTime(int pid) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    processTable[pid].waitingTime = 0;
+    return true;
+}
+
+/*
+Function: improvePriority
+Purpose: Improves process priority by reducing priority number.
+Parameters: PID.
+Returns: true if priority is improved, otherwise false.
+*/
+bool ProcessManager::improvePriority(int pid) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    if (processTable[pid].priority > 1) {
+        processTable[pid].priority--;
+        processTable[pid].waitingTime = 0;
+        return true;
+    }
+
+    return false;
+}
+
+/*
+Function: updateProcessPriority
+Purpose: Updates process priority manually.
+Parameters: PID and new priority.
+Returns: true if priority is updated, otherwise false.
+*/
+bool ProcessManager::updateProcessPriority(int pid, int newPriority) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    if (newPriority < 1) {
+        newPriority = 1;
+    }
+
+    if (newPriority > 3) {
+        newPriority = 3;
+    }
+
+    processTable[pid].priority = newPriority;
+    return true;
+}
+
+
 /*
 Function: displayPCBTable
 Purpose: Displays all processes currently stored in the process table.
@@ -179,32 +254,34 @@ void ProcessManager::displayPCBTable() {
         return;
     }
 
-    cout << left
-         << setw(8)  << "PID"
-         << setw(20) << "Name"
-         << setw(18) << "Type"
-         << setw(15) << "State"
-         << setw(10) << "Priority"
-         << setw(10) << "RAM"
-         << setw(10) << "HDD"
-         << setw(6)  << "CPU" << "\n";
+	   cout << left
+	     << setw(8)  << "PID"
+	     << setw(20) << "Name"
+	     << setw(18) << "Type"
+	     << setw(15) << "State"
+	     << setw(10) << "Priority"
+	     << setw(12) << "WaitTime"
+	     << setw(10) << "RAM"
+	     << setw(10) << "HDD"
+	     << setw(6)  << "CPU" << "\n";
 
     cout << "-----------------------------------------------------------------------------------------\n";
 
     for (auto process : processTable) {
         PCB pcb = process.second;
 
-        cout << left
-             << setw(8)  << pcb.pid
-             << setw(20) << pcb.processName
-             << setw(18) << getProcessTypeName(pcb.processType)
-             << setw(15) << getProcessStateName(pcb.processState)
-             << setw(10) << pcb.priority
-             << setw(10) << (to_string(pcb.ramRequired) + "MB")
-             << setw(10) << (to_string(pcb.hddRequired) + "MB")
-             << setw(6)  << pcb.coresRequired
-             << "\n";
-    }
+	cout << left
+	     << setw(8)  << pcb.pid
+	     << setw(20) << pcb.processName
+	     << setw(18) << getProcessTypeName(pcb.processType)
+	     << setw(15) << getProcessStateName(pcb.processState)
+	     << setw(10) << pcb.priority
+	     << setw(12) << pcb.waitingTime
+	     << setw(10) << (to_string(pcb.ramRequired) + "MB")
+	     << setw(10) << (to_string(pcb.hddRequired) + "MB")
+	     << setw(6)  << pcb.coresRequired
+	     << "\n";
+	    }
 
     cout << "=========================================================================================\n";
 }

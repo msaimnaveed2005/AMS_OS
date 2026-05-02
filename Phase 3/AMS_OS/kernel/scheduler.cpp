@@ -189,26 +189,35 @@ void Scheduler::runScheduler(
     }
 
     while (readyQueueManager.hasReadyProcess()) {
-        ReadyQueueItem selectedItem;
+    ReadyQueueItem selectedItem;
 
-        if (!selectNextProcess(readyQueueManager, selectedItem)) {
-            break;
-        }
+    /*
+    Aging is applied before selecting the next process.
+    This increases waiting time of processes already sitting in ready queues.
+    If a process waits too long, its priority improves.
+    */
+    readyQueueManager.applyAging(processManager, logger, 2);
 
-	 runProcess(
-	    selectedItem,
-	    processManager,
-	    resourceManager,
-	    readyQueueManager,
-	    logger
-	);
-
-        cout << "\n[SCHEDULER] Current Resource Status:\n";
-        resourceManager.displayResources();
-
-        cout << "\n[SCHEDULER] Current Ready Queue Status:\n";
-        readyQueueManager.displayReadyQueues();
+    if (!selectNextProcess(readyQueueManager, selectedItem)) {
+        break;
     }
+
+    processManager.resetWaitingTime(selectedItem.pid);
+
+    runProcess(
+        selectedItem,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger
+    );
+
+    cout << "\n[SCHEDULER] Current Resource Status:\n";
+    resourceManager.displayResources();
+
+    cout << "\n[SCHEDULER] Current Ready Queue Status:\n";
+    readyQueueManager.displayReadyQueues();
+}
     logger.logSystemEvent("Scheduler finished");
     cout << "\n==================== AMS OS SCHEDULER FINISHED ====================\n";
 }
