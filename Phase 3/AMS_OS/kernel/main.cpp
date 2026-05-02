@@ -7,6 +7,8 @@
 #include <sys/wait.h>
 #include <fstream>
 #include <signal.h>
+#include <cerrno>
+#include <cstring>
 
 #include "resource_manager.h"
 #include "process_manager.h"
@@ -742,24 +744,41 @@ void kernelKillProcess(
         return;
     }
 
-    cout << "\n[KERNEL] Sending termination signal to PID: " << pid << "\n";
+   cout << "\n[KERNEL] Sending force termination signal to PID: " << pid << "\n";
 
-    int killResult = kill(pid, SIGTERM);
+	/*
+	Reason:
+	The process may be paused with SIGSTOP while waiting in the ready queue.
+	SIGTERM may not terminate a stopped process immediately, so the program can get stuck at waitpid().
+	SIGKILL is used here because Kernel Mode Process Killer should forcefully terminate the process.
+	*/
+	int killResult = kill(pid, SIGKILL);
 
-    if (killResult == 0) {
-        int status;
-        waitpid(pid, &status, 0);
+	if (killResult == 0) {
+	    int status;
+	    int waitResult = waitpid(pid, &status, WNOHANG);
 
-        cout << "[KERNEL] Process terminated successfully using SIGTERM.\n";
+	    if (waitResult == 0) {
+		cout << "[KERNEL] Process kill signal sent. Waiting briefly for cleanup.\n";
+		sleep(1);
+		waitResult = waitpid(pid, &status, WNOHANG);
+	    }
 
-        logger.logProcessEvent(pid, pcb.processName, "Terminated by Kernel Mode using SIGTERM");
-    } else {
-        cout << "[KERNEL] Could not send SIGTERM. Process may already be stopped, completed, or not a real OS process.\n";
-        cout << "[KERNEL] Cleaning AMS OS PCB and resource records only.\n";
+	    if (waitResult == pid) {
+		cout << "[KERNEL] Process terminated successfully using SIGKILL.\n";
+		logger.logProcessEvent(pid, pcb.processName, "Terminated by Kernel Mode using SIGKILL");
+	    } else {
+		cout << "[KERNEL] Kill signal sent, but process was not collected immediately.\n";
+		cout << "[KERNEL] Continuing AMS OS cleanup to avoid blocking.\n";
+		logger.logProcessEvent(pid, pcb.processName, "SIGKILL sent, non-blocking cleanup continued");
+	    }
+	} else {
+	    cout << "[KERNEL] Could not send SIGKILL.\n";
+	    cout << "[KERNEL] Error: " << strerror(errno) << "\n";
+	    cout << "[KERNEL] Cleaning AMS OS PCB and resource records only.\n";
 
-        logger.logProcessEvent(pid, pcb.processName, "SIGTERM failed, cleaning AMS OS records");
-    }
-
+	    logger.logProcessEvent(pid, pcb.processName, "SIGKILL failed, cleaning AMS OS records");
+	}
     readyQueueManager.removeProcessByPID(pid);
 
     processManager.updateProcessState(pid, TERMINATED_STATE);

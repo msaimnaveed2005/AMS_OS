@@ -141,3 +141,29 @@
 [Sat May  2 12:42:58 2026
 ] PROCESS | PID: 5116 | Music Player | Added to Ready Queue
 [Sat May  2 12:43:08 2026
+[Sat May  2 12:49:17 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:49:24 2026
+] SYSTEM | User Mode tried to access Process Killer
+[Sat May  2 12:49:29 2026
+] PROCESS | PID: 0 | Music Player | Task selected for launch
+[Sat May  2 12:49:29 2026
+] RESOURCE | Resources granted to Music Player | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 12:49:29 2026
+] PROCESS | PID: 5192 | Music Player | PCB Created
+[Sat May  2 12:49:29 2026
+] PROCESS | PID: 5192 | Music Player | Added to Ready Queue
+[Sat May  2 12:49:41 2026
+] SYSTEM | Switched to Kernel Mode
+[Sat May  2 12:49:50 2026
+] PROCESS | PID: 5192 | Music Player | Terminated by Kernel Mode using SIGKILL
+[Sat May  2 12:49:50 2026
+] RESOURCE | Resources released after kernel kill | PID: 5192 | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 12:50:40 2026
+] SYSTEM | Scheduler started
+[Sat May  2 12:50:56 2026
+] SYSTEM | System log viewed in Kernel Mode
+[Sat May  2 12:51:12 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 12:51:15 2026
+] SYSTEM | AMS OS shutdown completed
