@@ -379,3 +379,97 @@
 ] SYSTEM | AMS OS shutdown requested
 [Sat May  2 15:21:36 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 15:29:55 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 15:30:54 2026
+] PROCESS | PID: 0 | Digital Clock | Task selected for launch
+[Sat May  2 15:30:54 2026
+] RESOURCE | Resources granted to Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 15:30:54 2026
+] PROCESS | PID: 7456 | Digital Clock | PCB Created
+[Sat May  2 15:30:54 2026
+] PROCESS | PID: 7456 | Digital Clock | Added to Ready Queue
+[Sat May  2 15:30:58 2026
+] PROCESS | PID: 0 | Music Player | Task selected for launch
+[Sat May  2 15:30:58 2026
+] RESOURCE | Resources granted to Music Player | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 15:30:58 2026
+] PROCESS | PID: 7457 | Music Player | PCB Created
+[Sat May  2 15:30:58 2026
+] PROCESS | PID: 7457 | Music Player | Added to Ready Queue
+[Sat May  2 15:31:07 2026
+] PROCESS | PID: 0 | Download Simulator | Task selected for launch
+[Sat May  2 15:31:07 2026
+] RESOURCE | Resources granted to Download Simulator | RAM: 180MB | HDD: 200MB | CPU: 1
+[Sat May  2 15:31:07 2026
+] PROCESS | PID: 7458 | Download Simulator | PCB Created
+[Sat May  2 15:31:07 2026
+] PROCESS | PID: 7458 | Download Simulator | Added to Ready Queue
+[Sat May  2 15:31:12 2026
+] PROCESS | PID: 0 | Task Manager | Task selected for launch
+[Sat May  2 15:31:12 2026
+] RESOURCE | Resources granted to Task Manager | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:31:12 2026
+] PROCESS | PID: 7459 | Task Manager | PCB Created
+[Sat May  2 15:31:12 2026
+] PROCESS | PID: 7459 | Task Manager | Added to Ready Queue
+[Sat May  2 15:31:23 2026
+] PROCESS | PID: 0 | Process Killer | Task selected for launch
+[Sat May  2 15:31:23 2026
+] RESOURCE | Resources granted to Process Killer | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:31:23 2026
+] PROCESS | PID: 7460 | Process Killer | PCB Created
+[Sat May  2 15:31:23 2026
+] PROCESS | PID: 7460 | Process Killer | Added to Ready Queue
+[Sat May  2 15:31:26 2026
+] SYSTEM | Scheduler started
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7459 | Task Manager | Dispatched by scheduler
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7459 | Task Manager | Process terminated
+[Sat May  2 15:31:26 2026
+] RESOURCE | Resources released from PID 7459 | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7456 | Digital Clock | Aging applied, priority improved from 2 to 1
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7457 | Music Player | Aging applied, priority improved from 3 to 2
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7458 | Download Simulator | Aging applied, priority improved from 3 to 2
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7460 | Process Killer | Dispatched by scheduler
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7460 | Process Killer | Process terminated
+[Sat May  2 15:31:26 2026
+] RESOURCE | Resources released from PID 7460 | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:31:26 2026
+] PROCESS | PID: 7456 | Digital Clock | Dispatched by scheduler
+[Sat May  2 15:31:32 2026
+] PROCESS | PID: 7456 | Digital Clock | Process terminated
+[Sat May  2 15:31:32 2026
+] RESOURCE | Resources released from PID 7456 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 15:31:32 2026
+] PROCESS | PID: 7457 | Music Player | Aging applied, priority improved from 2 to 1
+[Sat May  2 15:31:32 2026
+] PROCESS | PID: 7458 | Download Simulator | Aging applied, priority improved from 2 to 1
+[Sat May  2 15:31:32 2026
+] PROCESS | PID: 7457 | Music Player | Dispatched by scheduler
+[Sat May  2 15:31:36 2026
+] PROCESS | PID: 7458 | Download Simulator | Dispatched by scheduler
+[Sat May  2 15:31:40 2026
+] PROCESS | PID: 7457 | Music Player | Dispatched by scheduler
+[Sat May  2 15:31:42 2026
+] PROCESS | PID: 7457 | Music Player | Process terminated
+[Sat May  2 15:31:42 2026
+] RESOURCE | Resources released from PID 7457 | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 15:31:42 2026
+] PROCESS | PID: 7458 | Download Simulator | Dispatched by scheduler
+[Sat May  2 15:31:44 2026
+] PROCESS | PID: 7458 | Download Simulator | Process terminated
+[Sat May  2 15:31:44 2026
+] RESOURCE | Resources released from PID 7458 | RAM: 180MB | HDD: 200MB | CPU: 1
+[Sat May  2 15:31:44 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 15:33:43 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 15:33:46 2026
+] SYSTEM | AMS OS shutdown completed

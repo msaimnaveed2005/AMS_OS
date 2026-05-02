@@ -20,20 +20,68 @@ Returns: Nothing.
 void TaskCatalog::initializePhase3Tasks() {
     taskList.clear();
 
-    TaskInfo calculator;
-    calculator.taskID = 1;
-    calculator.taskName = "Calculator";
-    calculator.processType = INTERACTIVE_PROCESS;
-    calculator.priority = 2;
-    calculator.ramRequired = 100;
-    calculator.hddRequired = 20;
-    calculator.coresRequired = 1;
-    calculator.executablePath = "./build/calculator";
-    calculator.description = "Interactive calculator task for basic arithmetic operations.";
-    taskList.push_back(calculator);
+    TaskInfo createFile;
+    createFile.taskID = 1;
+    createFile.taskName = "Create File";
+    createFile.processType = INTERACTIVE_PROCESS;
+    createFile.priority = 2;
+    createFile.ramRequired = 80;
+    createFile.hddRequired = 20;
+    createFile.coresRequired = 1;
+    createFile.executablePath = "./build/create_file";
+    createFile.description = "Creates a file inside AMS OS virtual disk.";
+    taskList.push_back(createFile);
+
+    TaskInfo deleteFile;
+    deleteFile.taskID = 2;
+    deleteFile.taskName = "Delete File";
+    deleteFile.processType = INTERACTIVE_PROCESS;
+    deleteFile.priority = 2;
+    deleteFile.ramRequired = 70;
+    deleteFile.hddRequired = 10;
+    deleteFile.coresRequired = 1;
+    deleteFile.executablePath = "./build/delete_file";
+    deleteFile.description = "Deletes a file from AMS OS virtual disk.";
+    taskList.push_back(deleteFile);
+
+    TaskInfo copyFile;
+    copyFile.taskID = 3;
+    copyFile.taskName = "Copy File";
+    copyFile.processType = BACKGROUND_PROCESS;
+    copyFile.priority = 3;
+    copyFile.ramRequired = 200;
+    copyFile.hddRequired = 100;
+    copyFile.coresRequired = 1;
+    copyFile.executablePath = "./build/file_copy";
+    copyFile.description = "Copies a file from one path to another.";
+    taskList.push_back(copyFile);
+
+    TaskInfo moveFile;
+    moveFile.taskID = 4;
+    moveFile.taskName = "Move File";
+    moveFile.processType = BACKGROUND_PROCESS;
+    moveFile.priority = 3;
+    moveFile.ramRequired = 150;
+    moveFile.hddRequired = 60;
+    moveFile.coresRequired = 1;
+    moveFile.executablePath = "./build/move_file";
+    moveFile.description = "Moves or renames a file in virtual disk.";
+    taskList.push_back(moveFile);
+
+    TaskInfo fileInfo;
+    fileInfo.taskID = 5;
+    fileInfo.taskName = "File Info";
+    fileInfo.processType = INTERACTIVE_PROCESS;
+    fileInfo.priority = 2;
+    fileInfo.ramRequired = 90;
+    fileInfo.hddRequired = 20;
+    fileInfo.coresRequired = 1;
+    fileInfo.executablePath = "./build/file_info";
+    fileInfo.description = "Displays basic information about a file.";
+    taskList.push_back(fileInfo);
 
     TaskInfo notepad;
-    notepad.taskID = 2;
+    notepad.taskID = 6;
     notepad.taskName = "Notepad";
     notepad.processType = INTERACTIVE_PROCESS;
     notepad.priority = 2;
@@ -44,11 +92,23 @@ void TaskCatalog::initializePhase3Tasks() {
     notepad.description = "Interactive notepad task with file writing support.";
     taskList.push_back(notepad);
 
+    TaskInfo calculator;
+    calculator.taskID = 7;
+    calculator.taskName = "Calculator";
+    calculator.processType = INTERACTIVE_PROCESS;
+    calculator.priority = 2;
+    calculator.ramRequired = 100;
+    calculator.hddRequired = 20;
+    calculator.coresRequired = 1;
+    calculator.executablePath = "./build/calculator";
+    calculator.description = "Interactive calculator task for basic arithmetic operations.";
+    taskList.push_back(calculator);
+
     TaskInfo clock;
-    clock.taskID = 3;
+    clock.taskID = 8;
     clock.taskName = "Digital Clock";
     clock.processType = AUTO_RUNNING_PROCESS;
-    clock.priority = 1;
+    clock.priority = 2;
     clock.ramRequired = 50;
     clock.hddRequired = 10;
     clock.coresRequired = 1;
@@ -56,8 +116,44 @@ void TaskCatalog::initializePhase3Tasks() {
     clock.description = "Auto-running digital clock task.";
     taskList.push_back(clock);
 
+    TaskInfo systemInfo;
+    systemInfo.taskID = 9;
+    systemInfo.taskName = "System Info";
+    systemInfo.processType = INTERACTIVE_PROCESS;
+    systemInfo.priority = 2;
+    systemInfo.ramRequired = 80;
+    systemInfo.hddRequired = 10;
+    systemInfo.coresRequired = 1;
+    systemInfo.executablePath = "./build/system_info";
+    systemInfo.description = "Displays system information.";
+    taskList.push_back(systemInfo);
+
+    TaskInfo snake;
+    snake.taskID = 10;
+    snake.taskName = "Snake Game";
+    snake.processType = INTERACTIVE_PROCESS;
+    snake.priority = 2;
+    snake.ramRequired = 250;
+    snake.hddRequired = 40;
+    snake.coresRequired = 1;
+    snake.executablePath = "./build/snake";
+    snake.description = "Simple text-based snake game.";
+    taskList.push_back(snake);
+
+    TaskInfo minesweeper;
+    minesweeper.taskID = 11;
+    minesweeper.taskName = "Minesweeper";
+    minesweeper.processType = INTERACTIVE_PROCESS;
+    minesweeper.priority = 2;
+    minesweeper.ramRequired = 220;
+    minesweeper.hddRequired = 40;
+    minesweeper.coresRequired = 1;
+    minesweeper.executablePath = "./build/minesweeper";
+    minesweeper.description = "Simple text-based minesweeper game.";
+    taskList.push_back(minesweeper);
+
     TaskInfo musicPlayer;
-    musicPlayer.taskID = 4;
+    musicPlayer.taskID = 12;
     musicPlayer.taskName = "Music Player";
     musicPlayer.processType = BACKGROUND_PROCESS;
     musicPlayer.priority = 3;
@@ -68,17 +164,41 @@ void TaskCatalog::initializePhase3Tasks() {
     musicPlayer.description = "Background music player simulation using beep output.";
     taskList.push_back(musicPlayer);
 
-    TaskInfo fileCopy;
-    fileCopy.taskID = 5;
-    fileCopy.taskName = "File Copy";
-    fileCopy.processType = BACKGROUND_PROCESS;
-    fileCopy.priority = 3;
-    fileCopy.ramRequired = 200;
-    fileCopy.hddRequired = 100;
-    fileCopy.coresRequired = 1;
-    fileCopy.executablePath = "./build/file_copy";
-    fileCopy.description = "Background file copy simulation task.";
-    taskList.push_back(fileCopy);
+    TaskInfo downloadSimulator;
+    downloadSimulator.taskID = 13;
+    downloadSimulator.taskName = "Download Simulator";
+    downloadSimulator.processType = BACKGROUND_PROCESS;
+    downloadSimulator.priority = 3;
+    downloadSimulator.ramRequired = 180;
+    downloadSimulator.hddRequired = 200;
+    downloadSimulator.coresRequired = 1;
+    downloadSimulator.executablePath = "./build/download_simulator";
+    downloadSimulator.description = "Simulates a background file download.";
+    taskList.push_back(downloadSimulator);
+
+    TaskInfo taskManager;
+    taskManager.taskID = 14;
+    taskManager.taskName = "Task Manager";
+    taskManager.processType = SYSTEM_PROCESS;
+    taskManager.priority = 1;
+    taskManager.ramRequired = 100;
+    taskManager.hddRequired = 20;
+    taskManager.coresRequired = 1;
+    taskManager.executablePath = "./build/task_manager";
+    taskManager.description = "Task manager executable. Full process table is handled by kernel menu.";
+    taskList.push_back(taskManager);
+
+    TaskInfo processKiller;
+    processKiller.taskID = 15;
+    processKiller.taskName = "Process Killer";
+    processKiller.processType = KERNEL_PROCESS;
+    processKiller.priority = 1;
+    processKiller.ramRequired = 100;
+    processKiller.hddRequired = 20;
+    processKiller.coresRequired = 1;
+    processKiller.executablePath = "./build/process_killer";
+    processKiller.description = "Kernel mode process killer information task.";
+    taskList.push_back(processKiller);
 }
 
 /*

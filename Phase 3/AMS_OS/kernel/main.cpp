@@ -1278,19 +1278,19 @@ int main(int argc, char* argv[]) {
 	    );
 	    break;
 	  case 19:
-    if (currentMode == KERNEL_MODE) {
-        runDeadlockDetectionSimulation(
-            processManager,
-            resourceManager,
-            readyQueueManager,
-            deadlockManager,
-            logger
-        );
-    } else {
-        cout << "\nAccess denied. Deadlock detection can only be used in Kernel Mode.\n";
-        logger.logSystemEvent("User Mode tried to access Deadlock Detection");
-    }
-    break;
+	    if (currentMode == KERNEL_MODE) {
+		runDeadlockDetectionSimulation(
+		    processManager,
+		    resourceManager,
+		    readyQueueManager,
+		    deadlockManager,
+		    logger
+		);
+	    } else {
+		cout << "\nAccess denied. Deadlock detection can only be used in Kernel Mode.\n";
+		logger.logSystemEvent("User Mode tried to access Deadlock Detection");
+	    }
+	    break;
            case 0:
     		logger.logSystemEvent("AMS OS shutdown requested");
 		shutdownScreen();
