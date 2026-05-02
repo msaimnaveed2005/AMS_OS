@@ -10,6 +10,7 @@
 #include "resource_manager.h"
 #include "ready_queue.h"
 #include "logger.h"
+#include "sync_manager.h"
 
 using namespace std;
 
@@ -34,11 +35,11 @@ public:
     Returns: Nothing.
     */
     void runScheduler(
-        ProcessManager &processManager,
-        ResourceManager &resourceManager,
-        ReadyQueueManager &readyQueueManager,
-	Logger &logger
-    );
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager);
 
     /*
     Function: runProcess
@@ -47,12 +48,13 @@ public:
     Returns: true if process finished, otherwise false.
     */
     bool runProcess(
-        ReadyQueueItem item,
-        ProcessManager &processManager,
-        ResourceManager &resourceManager,
-        ReadyQueueManager &readyQueueManager,
-	Logger &logger
-    );
+    ReadyQueueItem item,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager
+);
 
     /*
     Function: releaseCompletedProcess

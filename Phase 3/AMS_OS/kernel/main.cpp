@@ -18,6 +18,7 @@
 #include "scheduler.h"
 #include "logger.h"
 #include "deadlock_manager.h"
+#include "sync_manager.h"
 
 using namespace std;
 
@@ -449,7 +450,8 @@ void launchTaskUsingIPCForkTest(
     ProcessManager &processManager,
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
-    Logger &logger
+    Logger &logger,
+    SyncManager &syncManager
 ) {
     int taskID;
     TaskInfo selectedTask;
@@ -598,6 +600,7 @@ readyQueueManager.addProcessToReadyQueue(
     static_cast<ProcessType>(request.processType),
     request.priority
 );
+syncManager.notifyReadyQueue();
 
 logger.logProcessEvent(pid, request.processName, "Added to Ready Queue");
 cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
@@ -901,7 +904,8 @@ Returns: Nothing.
 void resumeProcess(
     ProcessManager &processManager,
     ReadyQueueManager &readyQueueManager,
-    Logger &logger
+    Logger &logger,
+    SyncManager &syncManager
 ) {
     int pid;
     PCB pcb;
@@ -932,7 +936,7 @@ void resumeProcess(
         pcb.processType,
         pcb.priority
     );
-
+    syncManager.notifyReadyQueue();
     logger.logProcessEvent(pid, pcb.processName, "Process resumed and moved back to READY state");
 
     cout << "\n[INTERRUPT HANDLER] Process resumed successfully.\n";
@@ -1218,11 +1222,12 @@ int main(int argc, char* argv[]) {
 	Scheduler scheduler;
 	DeadlockManager deadlockManager;
 	Logger logger;
+	SyncManager syncManager(cores);
 	logger.logSystemEvent("AMS OS Booted");
     cout << "\nAMS OS resources initialized successfully.\n";
     cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
     resourceManager.displayResources();
-
+    syncManager.startResourceMonitor(resourceManager, logger);
     do {
         showMainMenu(currentMode);
         choice = getValidatedInteger("Enter your choice: ");
@@ -1238,12 +1243,13 @@ int main(int argc, char* argv[]) {
 
             case 3:
     		launchTaskUsingIPCForkTest(
-       			taskCatalog,
-        		processManager,
-        		resourceManager,
-        		readyQueueManager,
-			logger
-    			);
+		    taskCatalog,
+		    processManager,
+		    resourceManager,
+		    readyQueueManager,
+		    logger,
+		    syncManager
+		);
     		break;
 
             case 4:
@@ -1296,11 +1302,12 @@ int main(int argc, char* argv[]) {
 
             case 11:
 		    scheduler.runScheduler(
-			processManager,
-			resourceManager,
-			readyQueueManager,
-			logger
-		    );
+			    processManager,
+			    resourceManager,
+			    readyQueueManager,
+			    logger,
+			    syncManager
+			);
 		    break;
 		   
 	    case 12:
@@ -1351,10 +1358,11 @@ int main(int argc, char* argv[]) {
 
 	  case 18:
 	    resumeProcess(
-		processManager,
-		readyQueueManager,
-		logger
-	    );
+		    processManager,
+		    readyQueueManager,
+		    logger,
+		    syncManager
+		);
 	    break;
 	  case 19:
 	    if (currentMode == KERNEL_MODE) {
@@ -1371,19 +1379,20 @@ int main(int argc, char* argv[]) {
 	    }
 	    break;
           case 0:
-    logger.logSystemEvent("AMS OS shutdown requested");
+	    logger.logSystemEvent("AMS OS shutdown requested");
+	    syncManager.stopResourceMonitor();
+            logger.logSystemEvent("Resource monitor thread stopped");
+	    gracefulShutdownCleanup(
+		processManager,
+		resourceManager,
+		readyQueueManager,
+		logger
+	    );
 
-    gracefulShutdownCleanup(
-        processManager,
-        resourceManager,
-        readyQueueManager,
-        logger
-    );
+	    shutdownScreen();
 
-    shutdownScreen();
-
-    logger.logSystemEvent("AMS OS shutdown completed");
-    break;
+	    logger.logSystemEvent("AMS OS shutdown completed");
+	    break;
             default:
                 cout << "\nInvalid choice. Please select a valid option from the menu.\n";
         }
