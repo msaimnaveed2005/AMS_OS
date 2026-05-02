@@ -173,6 +173,8 @@ void showMainMenu(OSMode currentMode) {
     cout << "14. Switch to User Mode\n";
     cout << "15. View System Log\n";
     cout << "16. Kill Process, Kernel Mode Only\n";
+    cout << "17. Minimize Process\n";
+    cout << "18. Resume Process\n";
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }
@@ -811,6 +813,122 @@ void kernelKillProcess(
 }
 
 /*
+Function: minimizeProcess
+Purpose: Simulates an interrupt by moving a process to BLOCKED state.
+         The process is removed from ready queue but resources remain allocated.
+Parameters: ProcessManager, ReadyQueueManager, and Logger references.
+Returns: Nothing.
+*/
+void minimizeProcess(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
+) {
+    int pid;
+    PCB pcb;
+
+    cout << "\n========== MINIMIZE PROCESS ==========\n";
+
+    processManager.displayPCBTable();
+
+    pid = getValidatedInteger("Enter PID to minimize: ");
+
+    if (!processManager.getPCB(pid, pcb)) {
+        cout << "\n[INTERRUPT HANDLER] No process found with PID: " << pid << "\n";
+        logger.logProcessEvent(pid, "Unknown", "Minimize failed, PID not found");
+        return;
+    }
+
+    if (pcb.processState == TERMINATED_STATE) {
+        cout << "\n[INTERRUPT HANDLER] Cannot minimize a terminated process.\n";
+        return;
+    }
+
+    cout << "\n[INTERRUPT HANDLER] Minimizing process.\n";
+    cout << "PID: " << pcb.pid << "\n";
+    cout << "Process Name: " << pcb.processName << "\n";
+
+    /*
+    If process is currently waiting in ready queue, remove it.
+    This prevents scheduler from selecting a minimized process.
+    */
+    readyQueueManager.removeProcessByPID(pid);
+
+    /*
+    Try to pause real child process.
+    If it is already stopped, this does not break the program.
+    */
+    kill(pid, SIGSTOP);
+
+    processManager.updateProcessState(pid, BLOCKED_STATE);
+
+    logger.logProcessEvent(pid, pcb.processName, "Process minimized and moved to BLOCKED state");
+
+    cout << "\n[INTERRUPT HANDLER] Process minimized successfully.\n";
+    cout << "RAM is still allocated, but CPU execution is paused.\n";
+
+    cout << "\nUpdated PCB Table:\n";
+    processManager.displayPCBTable();
+
+    cout << "\nUpdated Ready Queue Status:\n";
+    readyQueueManager.displayReadyQueues();
+}
+
+/*
+Function: resumeProcess
+Purpose: Resumes a minimized process by moving it from BLOCKED state to READY state.
+         The process is inserted back into the correct ready queue.
+Parameters: ProcessManager, ReadyQueueManager, and Logger references.
+Returns: Nothing.
+*/
+void resumeProcess(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
+) {
+    int pid;
+    PCB pcb;
+
+    cout << "\n========== RESUME PROCESS ==========\n";
+
+    processManager.displayPCBTable();
+
+    pid = getValidatedInteger("Enter PID to resume: ");
+
+    if (!processManager.getPCB(pid, pcb)) {
+        cout << "\n[INTERRUPT HANDLER] No process found with PID: " << pid << "\n";
+        logger.logProcessEvent(pid, "Unknown", "Resume failed, PID not found");
+        return;
+    }
+
+    if (pcb.processState != BLOCKED_STATE) {
+        cout << "\n[INTERRUPT HANDLER] Only BLOCKED processes can be resumed.\n";
+        cout << "Current State: " << processManager.getProcessStateName(pcb.processState) << "\n";
+        return;
+    }
+
+    processManager.updateProcessState(pid, READY_STATE);
+
+    readyQueueManager.addProcessToReadyQueue(
+        pid,
+        pcb.processName,
+        pcb.processType,
+        pcb.priority
+    );
+
+    logger.logProcessEvent(pid, pcb.processName, "Process resumed and moved back to READY state");
+
+    cout << "\n[INTERRUPT HANDLER] Process resumed successfully.\n";
+    cout << "Run scheduler to continue execution.\n";
+
+    cout << "\nUpdated PCB Table:\n";
+    processManager.displayPCBTable();
+
+    cout << "\nUpdated Ready Queue Status:\n";
+    readyQueueManager.displayReadyQueues();
+}
+
+/*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
 Parameters: argc and argv for command-line resource input.
@@ -958,6 +1076,21 @@ int main(int argc, char* argv[]) {
 			logger.logSystemEvent("User Mode tried to access Process Killer");
 		    }
 		    break;
+          case 17:
+	    minimizeProcess(
+		processManager,
+		readyQueueManager,
+		logger
+	    );
+	    break;
+
+	  case 18:
+	    resumeProcess(
+		processManager,
+		readyQueueManager,
+		logger
+	    );
+	    break;
            case 0:
     		logger.logSystemEvent("AMS OS shutdown requested");
 		shutdownScreen();

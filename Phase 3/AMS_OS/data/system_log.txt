@@ -167,3 +167,33 @@
 ] SYSTEM | AMS OS shutdown requested
 [Sat May  2 12:51:15 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 12:57:57 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:58:06 2026
+] PROCESS | PID: 0 | Digital Clock | Task selected for launch
+[Sat May  2 12:58:06 2026
+] RESOURCE | Resources granted to Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 12:58:06 2026
+] PROCESS | PID: 5271 | Digital Clock | PCB Created
+[Sat May  2 12:58:06 2026
+] PROCESS | PID: 5271 | Digital Clock | Added to Ready Queue
+[Sat May  2 12:59:05 2026
+] PROCESS | PID: 5271 | Digital Clock | Process minimized and moved to BLOCKED state
+[Sat May  2 12:59:27 2026
+] SYSTEM | Scheduler started
+[Sat May  2 12:59:41 2026
+] PROCESS | PID: 5271 | Digital Clock | Process resumed and moved back to READY state
+[Sat May  2 12:59:58 2026
+] SYSTEM | Scheduler started
+[Sat May  2 12:59:58 2026
+] PROCESS | PID: 5271 | Digital Clock | Dispatched by scheduler
+[Sat May  2 13:00:05 2026
+] PROCESS | PID: 5271 | Digital Clock | Process terminated
+[Sat May  2 13:00:05 2026
+] RESOURCE | Resources released from PID 5271 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 13:00:05 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 13:00:42 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 13:00:45 2026
+] SYSTEM | AMS OS shutdown completed
