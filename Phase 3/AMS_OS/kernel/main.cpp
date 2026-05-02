@@ -16,6 +16,7 @@
 #include "ready_queue.h"
 #include "scheduler.h"
 #include "logger.h"
+#include "deadlock_manager.h"
 
 using namespace std;
 
@@ -175,6 +176,7 @@ void showMainMenu(OSMode currentMode) {
     cout << "16. Kill Process, Kernel Mode Only\n";
     cout << "17. Minimize Process\n";
     cout << "18. Resume Process\n";
+    cout << "19. Deadlock Detection, Kernel Mode Only\n";
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }
@@ -928,6 +930,190 @@ void resumeProcess(
 }
 
 /*
+Function: forceTerminateProcessByPID
+Purpose: Forcefully terminates a process by PID, releases resources, removes it from ready queue,
+         removes PCB, and logs the reason.
+Parameters: PID, process manager, resource manager, ready queue manager, logger, and reason.
+Returns: true if cleanup is performed, otherwise false.
+*/
+bool forceTerminateProcessByPID(
+    int pid,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    string reason
+) {
+    PCB pcb;
+
+    if (!processManager.getPCB(pid, pcb)) {
+        cout << "\n[KERNEL] No process found with PID: " << pid << "\n";
+        logger.logProcessEvent(pid, "Unknown", "Force termination failed, PID not found");
+        return false;
+    }
+
+    cout << "\n[KERNEL] Force terminating process.\n";
+    cout << "PID: " << pid << "\n";
+    cout << "Process Name: " << pcb.processName << "\n";
+    cout << "Reason: " << reason << "\n";
+
+    int killResult = kill(pid, SIGKILL);
+
+    if (killResult == 0) {
+        int status;
+        int waitResult = waitpid(pid, &status, WNOHANG);
+
+        if (waitResult == 0) {
+            sleep(1);
+            waitpid(pid, &status, WNOHANG);
+        }
+
+        cout << "[KERNEL] Process kill signal sent successfully.\n";
+    } else {
+        cout << "[KERNEL] Kill signal failed or process already ended.\n";
+        cout << "[KERNEL] Continuing AMS OS cleanup.\n";
+    }
+
+    readyQueueManager.removeProcessByPID(pid);
+
+    processManager.updateProcessState(pid, TERMINATED_STATE);
+
+    resourceManager.releaseResources(
+        pcb.ramRequired,
+        pcb.hddRequired,
+        pcb.coresRequired
+    );
+
+    logger.logProcessEvent(pid, pcb.processName, "Force terminated. Reason: " + reason);
+
+    logger.logResourceEvent(
+        "Resources released after force termination | PID: " + to_string(pid) +
+        " | RAM: " + to_string(pcb.ramRequired) +
+        "MB | HDD: " + to_string(pcb.hddRequired) +
+        "MB | CPU: " + to_string(pcb.coresRequired)
+    );
+
+    processManager.removeProcess(pid);
+
+    cout << "\n[KERNEL] Force termination cleanup completed.\n";
+
+    return true;
+}
+
+/*
+Function: runDeadlockDetectionSimulation
+Purpose: Simulates circular wait between two active processes, detects deadlock,
+         and recovers by terminating one victim process.
+Parameters: ProcessManager, ResourceManager, ReadyQueueManager, DeadlockManager, and Logger references.
+Returns: Nothing.
+*/
+void runDeadlockDetectionSimulation(
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    DeadlockManager &deadlockManager,
+    Logger &logger
+) {
+    int firstPID;
+    int secondPID;
+    PCB firstPCB;
+    PCB secondPCB;
+
+    cout << "\n========== DEADLOCK DETECTION SIMULATION ==========\n";
+
+    cout << "\nActive processes:\n";
+    processManager.displayPCBTable();
+
+    firstPID = getValidatedInteger("Enter first process PID: ");
+    secondPID = getValidatedInteger("Enter second process PID: ");
+
+    if (firstPID == secondPID) {
+        cout << "\n[DEADLOCK MANAGER] Both PIDs cannot be the same.\n";
+        return;
+    }
+
+    if (!processManager.getPCB(firstPID, firstPCB)) {
+        cout << "\n[DEADLOCK MANAGER] First PID not found.\n";
+        logger.logSystemEvent("Deadlock simulation failed, first PID not found");
+        return;
+    }
+
+    if (!processManager.getPCB(secondPID, secondPCB)) {
+        cout << "\n[DEADLOCK MANAGER] Second PID not found.\n";
+        logger.logSystemEvent("Deadlock simulation failed, second PID not found");
+        return;
+    }
+
+    /*
+    Simple circular wait example:
+    Process A holds Resource_A and waits for Resource_B.
+    Process B holds Resource_B and waits for Resource_A.
+    */
+    string resourceA = "Resource_A";
+    string resourceB = "Resource_B";
+
+    deadlockManager.clearRecords();
+
+    deadlockManager.addRecord(
+        firstPCB.pid,
+        firstPCB.processName,
+        resourceA,
+        resourceB
+    );
+
+    deadlockManager.addRecord(
+        secondPCB.pid,
+        secondPCB.processName,
+        resourceB,
+        resourceA
+    );
+
+    deadlockManager.displayResourceGraph();
+
+    int victimPID = -1;
+    string victimName = "";
+
+    bool deadlockDetected = deadlockManager.detectDeadlock(victimPID, victimName);
+
+    if (deadlockDetected) {
+        cout << "\nDeadlock detected among processes\n";
+        cout << "[DEADLOCK MANAGER] Circular wait condition found.\n";
+        cout << "[DEADLOCK MANAGER] Victim selected for termination.\n";
+        cout << "Victim PID: " << victimPID << "\n";
+        cout << "Victim Process: " << victimName << "\n";
+
+        logger.logSystemEvent(
+            "Deadlock detected among processes. Victim PID: " +
+            to_string(victimPID) + " | Process: " + victimName
+        );
+
+        forceTerminateProcessByPID(
+            victimPID,
+            processManager,
+            resourceManager,
+            readyQueueManager,
+            logger,
+            "Deadlock recovery victim"
+        );
+
+        cout << "\n[DEADLOCK MANAGER] Deadlock recovery completed.\n";
+
+        cout << "\nUpdated PCB Table:\n";
+        processManager.displayPCBTable();
+
+        cout << "\nUpdated Ready Queue Status:\n";
+        readyQueueManager.displayReadyQueues();
+
+        cout << "\nUpdated Resource Status:\n";
+        resourceManager.displayResources();
+    } else {
+        cout << "\n[DEADLOCK MANAGER] No deadlock detected.\n";
+        logger.logSystemEvent("Deadlock check completed, no deadlock detected");
+    }
+}
+
+
+/*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
 Parameters: argc and argv for command-line resource input.
@@ -951,6 +1137,7 @@ int main(int argc, char* argv[]) {
 	TaskCatalog taskCatalog;
 	ReadyQueueManager readyQueueManager;
 	Scheduler scheduler;
+	DeadlockManager deadlockManager;
 	Logger logger;
 	logger.logSystemEvent("AMS OS Booted");
     cout << "\nAMS OS resources initialized successfully.\n";
@@ -1090,6 +1277,20 @@ int main(int argc, char* argv[]) {
 		logger
 	    );
 	    break;
+	  case 19:
+    if (currentMode == KERNEL_MODE) {
+        runDeadlockDetectionSimulation(
+            processManager,
+            resourceManager,
+            readyQueueManager,
+            deadlockManager,
+            logger
+        );
+    } else {
+        cout << "\nAccess denied. Deadlock detection can only be used in Kernel Mode.\n";
+        logger.logSystemEvent("User Mode tried to access Deadlock Detection");
+    }
+    break;
            case 0:
     		logger.logSystemEvent("AMS OS shutdown requested");
 		shutdownScreen();
