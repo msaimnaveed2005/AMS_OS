@@ -585,7 +585,6 @@ logger.logProcessEvent(pid, request.processName, "Added to Ready Queue");
 cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
 readyQueueManager.displayReadyQueues();
 
-processManager.updateProcessState(pid, RUNNING_STATE);
     } else {
         response.granted = 0;
 
