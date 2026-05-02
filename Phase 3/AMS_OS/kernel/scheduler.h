@@ -9,6 +9,7 @@
 #include "process_manager.h"
 #include "resource_manager.h"
 #include "ready_queue.h"
+#include "logger.h"
 
 using namespace std;
 
@@ -35,7 +36,8 @@ public:
     void runScheduler(
         ProcessManager &processManager,
         ResourceManager &resourceManager,
-        ReadyQueueManager &readyQueueManager
+        ReadyQueueManager &readyQueueManager,
+	Logger &logger
     );
 
     /*
@@ -48,7 +50,8 @@ public:
         ReadyQueueItem item,
         ProcessManager &processManager,
         ResourceManager &resourceManager,
-        ReadyQueueManager &readyQueueManager
+        ReadyQueueManager &readyQueueManager,
+	Logger &logger
     );
 
     /*
@@ -60,7 +63,8 @@ public:
     void releaseCompletedProcess(
         int pid,
         ProcessManager &processManager,
-        ResourceManager &resourceManager
+        ResourceManager &resourceManager,
+	Logger &logger
     );
 
     /*

@@ -51,7 +51,8 @@ Returns: Nothing.
 void Scheduler::releaseCompletedProcess(
     int pid,
     ProcessManager &processManager,
-    ResourceManager &resourceManager
+    ResourceManager &resourceManager,
+    Logger &logger
 ) {
     PCB pcb;
 
@@ -61,7 +62,7 @@ void Scheduler::releaseCompletedProcess(
     }
 
     processManager.updateProcessState(pid, TERMINATED_STATE);
-
+    logger.logProcessEvent(pid, pcb.processName, "Process terminated");
     cout << "\n[SCHEDULER] Releasing resources for completed process.\n";
     cout << "PID: " << pid << "\n";
     cout << "Process: " << pcb.processName << "\n";
@@ -71,7 +72,12 @@ void Scheduler::releaseCompletedProcess(
         pcb.hddRequired,
         pcb.coresRequired
     );
-
+    logger.logResourceEvent(
+    "Resources released from PID " + to_string(pid) +
+    " | RAM: " + to_string(pcb.ramRequired) +
+    "MB | HDD: " + to_string(pcb.hddRequired) +
+    "MB | CPU: " + to_string(pcb.coresRequired)
+);
     processManager.removeProcess(pid);
 }
 
@@ -85,7 +91,8 @@ bool Scheduler::runProcess(
     ReadyQueueItem item,
     ProcessManager &processManager,
     ResourceManager &resourceManager,
-    ReadyQueueManager &readyQueueManager
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
 ) {
     int status;
     int quantum;
@@ -104,7 +111,7 @@ bool Scheduler::runProcess(
     cout << "========================================================\n";
 
     processManager.updateProcessState(item.pid, RUNNING_STATE);
-
+    logger.logProcessEvent(item.pid, item.processName, "Dispatched by scheduler");
     kill(item.pid, SIGCONT);
 
     if (pcb.processType == SYSTEM_PROCESS || pcb.processType == KERNEL_PROCESS) {
@@ -114,7 +121,7 @@ bool Scheduler::runProcess(
 
         cout << "\n[SCHEDULER] System process completed.\n";
 
-        releaseCompletedProcess(item.pid, processManager, resourceManager);
+        releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
         return true;
     }
 
@@ -135,7 +142,7 @@ bool Scheduler::runProcess(
 
         if (result == item.pid) {
             cout << "\n[SCHEDULER] Process completed within time quantum.\n";
-            releaseCompletedProcess(item.pid, processManager, resourceManager);
+            releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
             return true;
         }
 
@@ -170,10 +177,11 @@ Returns: Nothing.
 void Scheduler::runScheduler(
     ProcessManager &processManager,
     ResourceManager &resourceManager,
-    ReadyQueueManager &readyQueueManager
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
 ) {
     cout << "\n==================== AMS OS SCHEDULER STARTED ====================\n";
-
+    logger.logSystemEvent("Scheduler started");
     if (!readyQueueManager.hasReadyProcess()) {
         cout << "[SCHEDULER] No process available in ready queue.\n";
         cout << "==================================================================\n";
@@ -187,12 +195,13 @@ void Scheduler::runScheduler(
             break;
         }
 
-        runProcess(
-            selectedItem,
-            processManager,
-            resourceManager,
-            readyQueueManager
-        );
+	 runProcess(
+	    selectedItem,
+	    processManager,
+	    resourceManager,
+	    readyQueueManager,
+	    logger
+	);
 
         cout << "\n[SCHEDULER] Current Resource Status:\n";
         resourceManager.displayResources();
@@ -200,6 +209,6 @@ void Scheduler::runScheduler(
         cout << "\n[SCHEDULER] Current Ready Queue Status:\n";
         readyQueueManager.displayReadyQueues();
     }
-
+    logger.logSystemEvent("Scheduler finished");
     cout << "\n==================== AMS OS SCHEDULER FINISHED ====================\n";
 }

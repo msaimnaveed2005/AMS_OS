@@ -11,6 +11,7 @@
 #include "task_catalog.h"
 #include "ready_queue.h"
 #include "scheduler.h"
+#include "logger.h"
 
 using namespace std;
 
@@ -400,7 +401,8 @@ void launchTaskUsingIPCForkTest(
     TaskCatalog &taskCatalog,
     ProcessManager &processManager,
     ResourceManager &resourceManager,
-    ReadyQueueManager &readyQueueManager
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
 ) {
     int taskID;
     TaskInfo selectedTask;
@@ -414,7 +416,7 @@ void launchTaskUsingIPCForkTest(
         cout << "\nInvalid Task ID. No task found.\n";
         return;
     }
-
+    logger.logProcessEvent(0, selectedTask.taskName, "Task selected for launch");
     cout << "\nSelected Task Information\n";
     cout << "Task Name: " << selectedTask.taskName << "\n";
     cout << "Task Type: " << taskCatalog.getProcessTypeName(selectedTask.processType) << "\n";
@@ -525,16 +527,21 @@ void launchTaskUsingIPCForkTest(
             request.hddRequired,
             request.coresRequired
         );
-
+	logger.logResourceEvent(
+	    "Resources granted to " + string(request.processName) +
+	    " | RAM: " + to_string(request.ramRequired) +
+	    "MB | HDD: " + to_string(request.hddRequired) +
+	    "MB | CPU: " + to_string(request.coresRequired)
+	);
        processManager.createPCB(
-    pid,
-    request.processName,
-    static_cast<ProcessType>(request.processType),
-    request.priority,
-    request.ramRequired,
-    request.hddRequired,
-    request.coresRequired
-);
+	    pid,
+	    request.processName,
+	    static_cast<ProcessType>(request.processType),
+	    request.priority,
+	    request.ramRequired,
+	    request.hddRequired,
+	    request.coresRequired);
+logger.logProcessEvent(pid, request.processName, "PCB Created");
 
 processManager.updateProcessState(pid, READY_STATE);
 
@@ -545,6 +552,7 @@ readyQueueManager.addProcessToReadyQueue(
     request.priority
 );
 
+logger.logProcessEvent(pid, request.processName, "Added to Ready Queue");
 cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
 readyQueueManager.displayReadyQueues();
 
@@ -553,6 +561,7 @@ processManager.updateProcessState(pid, RUNNING_STATE);
         response.granted = 0;
 
         cout << "\n[KERNEL/PARENT] Resources unavailable. Denying request.\n";
+	logger.logResourceEvent("Resources denied for process " + string(request.processName));
     }
 
     write(responsePipe[1], &response, sizeof(response));
@@ -631,12 +640,13 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    ResourceManager resourceManager(ram, hdd, cores);
+        ResourceManager resourceManager(ram, hdd, cores);
 	ProcessManager processManager;
 	TaskCatalog taskCatalog;
 	ReadyQueueManager readyQueueManager;
 	Scheduler scheduler;
-
+	Logger logger;
+	logger.logSystemEvent("AMS OS Booted");
     cout << "\nAMS OS resources initialized successfully.\n";
     cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
     resourceManager.displayResources();
@@ -659,7 +669,8 @@ int main(int argc, char* argv[]) {
        			taskCatalog,
         		processManager,
         		resourceManager,
-        		readyQueueManager
+        		readyQueueManager,
+			logger
     			);
     		break;
 
@@ -695,16 +706,19 @@ int main(int argc, char* argv[]) {
 		    scheduler.runScheduler(
 			processManager,
 			resourceManager,
-			readyQueueManager
+			readyQueueManager,
+			logger
 		    );
-   			break;
+		    break;
+		   
 	    case 12:
 	        readyQueueManager.displayReadyQueues();
 	        break;
-            case 0:
-                shutdownScreen();
-                break;
-
+           case 0:
+    		logger.logSystemEvent("AMS OS shutdown requested");
+		shutdownScreen();
+                logger.logSystemEvent("AMS OS shutdown completed");
+		break;
             default:
                 cout << "\nInvalid choice. Please select a valid option from the menu.\n";
         }

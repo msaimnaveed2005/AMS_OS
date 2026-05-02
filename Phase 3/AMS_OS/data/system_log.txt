@@ -1,0 +1,96 @@
+[Sat May  2 11:56:47 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 11:58:11 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 11:58:14 2026
+] SYSTEM | AMS OS shutdown completed
+[Sat May  2 11:58:35 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 11:58:46 2026
+] PROCESS | PID: 0 | Calculator | Task selected for launch
+[Sat May  2 11:58:46 2026
+] RESOURCE | Resources granted to Calculator | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 11:58:46 2026
+] PROCESS | PID: 3902 | Calculator | PCB Created
+[Sat May  2 11:58:46 2026
+] PROCESS | PID: 3902 | Calculator | Added to Ready Queue
+[Sat May  2 11:59:22 2026
+] SYSTEM | Scheduler started
+[Sat May  2 11:59:22 2026
+] PROCESS | PID: 3902 | Calculator | Dispatched by scheduler
+[Sat May  2 11:59:30 2026
+] PROCESS | PID: 3902 | Calculator | Dispatched by scheduler
+[Sat May  2 11:59:34 2026
+] PROCESS | PID: 3902 | Calculator | Process terminated
+[Sat May  2 11:59:34 2026
+] RESOURCE | Resources released from PID 3902 | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 11:59:34 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 12:00:01 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 12:00:04 2026
+] SYSTEM | AMS OS shutdown completed
+[Sat May  2 12:04:34 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:04:50 2026
+] PROCESS | PID: 0 | Calculator | Task selected for launch
+[Sat May  2 12:04:50 2026
+] RESOURCE | Resources granted to Calculator | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 12:04:50 2026
+] PROCESS | PID: 3970 | Calculator | PCB Created
+[Sat May  2 12:04:50 2026
+] PROCESS | PID: 3970 | Calculator | Added to Ready Queue
+[Sat May  2 12:05:01 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 12:05:04 2026
+] SYSTEM | AMS OS shutdown completed
+[Sat May  2 12:05:58 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:06:44 2026
+] PROCESS | PID: 0 | Music Player | Task selected for launch
+[Sat May  2 12:06:44 2026
+] RESOURCE | Resources granted to Music Player | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 12:06:44 2026
+] PROCESS | PID: 4508 | Music Player | PCB Created
+[Sat May  2 12:06:44 2026
+] PROCESS | PID: 4508 | Music Player | Added to Ready Queue
+[Sat May  2 12:06:46 2026
+] SYSTEM | Scheduler started
+[Sat May  2 12:06:46 2026
+] PROCESS | PID: 4508 | Music Player | Dispatched by scheduler
+[Sat May  2 12:06:50 2026
+] PROCESS | PID: 4508 | Music Player | Dispatched by scheduler
+[Sat May  2 12:06:52 2026
+] PROCESS | PID: 4508 | Music Player | Process terminated
+[Sat May  2 12:06:52 2026
+] RESOURCE | Resources released from PID 4508 | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 12:06:52 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 12:06:59 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 12:07:02 2026
+] SYSTEM | AMS OS shutdown completed
+[Sat May  2 12:08:06 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:08:10 2026
+] PROCESS | PID: 0 | Digital Clock | Task selected for launch
+[Sat May  2 12:08:10 2026
+] RESOURCE | Resources granted to Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 12:08:10 2026
+] PROCESS | PID: 4558 | Digital Clock | PCB Created
+[Sat May  2 12:08:10 2026
+] PROCESS | PID: 4558 | Digital Clock | Added to Ready Queue
+[Sat May  2 12:08:11 2026
+] SYSTEM | Scheduler started
+[Sat May  2 12:08:11 2026
+] PROCESS | PID: 4558 | Digital Clock | Dispatched by scheduler
+[Sat May  2 12:08:16 2026
+] PROCESS | PID: 4558 | Digital Clock | Process terminated
+[Sat May  2 12:08:16 2026
+] RESOURCE | Resources released from PID 4558 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 12:08:16 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 12:08:17 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 12:08:20 2026
+] SYSTEM | AMS OS shutdown completed
