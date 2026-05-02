@@ -12,6 +12,7 @@
 #include <vector>
 #include <sys/select.h>
 #include <cstdio>
+#include <windows.h>
 
 #include "resource_manager.h"
 #include "process_manager.h"

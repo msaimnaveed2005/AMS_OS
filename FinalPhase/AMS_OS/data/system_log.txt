@@ -2523,3 +2523,288 @@
 ] SYSTEM | Shutdown cleanup completed, no active processes
 [Sat May  2 19:26:44 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 19:32:58 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 19:32:58 2026
+] SYSTEM | Resource monitor thread started
+[Sat May  2 19:32:58 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 19:32:58 2026
+] RESOURCE | RAM block assigned to auto-start PID 12094 | Digital Clock | Start: 0MB | End: 50MB
+[Sat May  2 19:32:58 2026
+] PROCESS | PID: 12094 | Digital Clock | Auto-start PCB created
+[Sat May  2 19:32:58 2026
+] PROCESS | PID: 12094 | Digital Clock | Auto-start task added to ready queue
+[Sat May  2 19:33:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:33:04 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Sat May  2 19:33:04 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Sat May  2 19:33:04 2026
+] RESOURCE | RAM block assigned to PID 12095 | Snake Game | Start: 50MB | End: 300MB
+[Sat May  2 19:33:04 2026
+] PROCESS | PID: 12095 | Snake Game | PCB Created
+[Sat May  2 19:33:04 2026
+] PROCESS | PID: 12095 | Snake Game | Added to Ready Queue
+[Sat May  2 19:33:05 2026
+] SYSTEM | Scheduler started
+[Sat May  2 19:33:05 2026
+] SYSTEM | CPU execution slot assigned to PID 12094 | Process: Digital Clock
+[Sat May  2 19:33:05 2026
+] PROCESS | PID: 12094 | Digital Clock | Dispatched by scheduler
+[Sat May  2 19:33:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Sat May  2 19:33:11 2026
+] SYSTEM | CPU execution slot released from PID 12094
+[Sat May  2 19:33:11 2026
+] PROCESS | PID: 12094 | Digital Clock | Process terminated
+[Sat May  2 19:33:11 2026
+] RESOURCE | Resources released from PID 12094 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 19:33:11 2026
+] PROCESS | PID: 12095 | Snake Game | Aging applied, priority improved from 2 to 1
+[Sat May  2 19:33:11 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:33:11 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:33:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:18 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:19 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:33:19 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:33:19 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:33:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:28 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:33:28 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:33:28 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:33:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:33 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:36 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:33:36 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:33:36 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:33:38 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:43 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:44 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:33:44 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:33:44 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:33:48 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:52 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:33:52 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:33:52 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:33:53 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:33:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:34:00 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:34:00 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:34:00 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:34:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:34:08 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:34:08 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:34:08 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:34:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:34:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:34:16 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:34:16 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:34:16 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:34:18 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:34:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:34:24 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:34:24 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:34:24 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:34:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 19:34:32 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 12095
+[Sat May  2 19:34:32 2026
+] SYSTEM | CPU execution slot assigned to PID 12095 | Process: Snake Game
+[Sat May  2 19:34:32 2026
+] PROCESS | PID: 12095 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:34:33 2026
+[Sat May  2 19:34:40 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 19:34:40 2026
+] SYSTEM | Resource monitor thread started
+[Sat May  2 19:34:40 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 19:34:40 2026
+] RESOURCE | RAM block assigned to auto-start PID 12108 | Digital Clock | Start: 0MB | End: 50MB
+[Sat May  2 19:34:40 2026
+] PROCESS | PID: 12108 | Digital Clock | Auto-start PCB created
+[Sat May  2 19:34:40 2026
+] PROCESS | PID: 12108 | Digital Clock | Auto-start task added to ready queue
+[Sat May  2 19:34:44 2026
+] SYSTEM | Graphical dashboard launched with PID 12109
+[Sat May  2 19:34:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:34:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:34:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:08 2026
+] SYSTEM | Graphical dashboard launched with PID 12116
+[Sat May  2 19:35:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:21 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Sat May  2 19:35:21 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Sat May  2 19:35:21 2026
+] RESOURCE | RAM block assigned to PID 12122 | Snake Game | Start: 50MB | End: 300MB
+[Sat May  2 19:35:21 2026
+] PROCESS | PID: 12122 | Snake Game | PCB Created
+[Sat May  2 19:35:21 2026
+] PROCESS | PID: 12122 | Snake Game | Added to Ready Queue
+[Sat May  2 19:35:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Sat May  2 19:35:30 2026
+] SYSTEM | Task execution mode changed to Separate Terminal Mode
+[Sat May  2 19:35:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Sat May  2 19:35:35 2026
+] PROCESS | PID: 12122 | Snake Game | GUI requested process dispatch
+[Sat May  2 19:35:35 2026
+] SYSTEM | CPU execution slot assigned to PID 12122 | Process: Snake Game
+[Sat May  2 19:35:35 2026
+] PROCESS | PID: 12122 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:35:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Sat May  2 19:35:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Sat May  2 19:35:43 2026
+] SYSTEM | CPU execution slot released from PID 12122
+[Sat May  2 19:35:43 2026
+] PROCESS | PID: 12122 | Snake Game | Process terminated
+[Sat May  2 19:35:43 2026
+] RESOURCE | Resources released from PID 12122 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Sat May  2 19:35:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:35:57 2026
+] SYSTEM | Graphical dashboard launched with PID 12123
+[Sat May  2 19:36:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:36:03 2026
+] PROCESS | PID: 12108 | Digital Clock | GUI requested process dispatch
+[Sat May  2 19:36:03 2026
+] SYSTEM | CPU execution slot assigned to PID 12108 | Process: Digital Clock
+[Sat May  2 19:36:03 2026
+] PROCESS | PID: 12108 | Digital Clock | Dispatched by scheduler
+[Sat May  2 19:36:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 19:36:09 2026
+] SYSTEM | CPU execution slot released from PID 12108
+[Sat May  2 19:36:09 2026
+] PROCESS | PID: 12108 | Digital Clock | Process terminated
+[Sat May  2 19:36:09 2026
+] RESOURCE | Resources released from PID 12108 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 19:36:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:25 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Sat May  2 19:36:25 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Sat May  2 19:36:25 2026
+] RESOURCE | RAM block assigned to PID 12129 | Snake Game | Start: 0MB | End: 250MB
+[Sat May  2 19:36:25 2026
+] PROCESS | PID: 12129 | Snake Game | PCB Created
+[Sat May  2 19:36:25 2026
+] PROCESS | PID: 12129 | Snake Game | Added to Ready Queue
+[Sat May  2 19:36:27 2026
+] SYSTEM | Scheduler started
+[Sat May  2 19:36:27 2026
+] SYSTEM | CPU execution slot assigned to PID 12129 | Process: Snake Game
+[Sat May  2 19:36:27 2026
+] PROCESS | PID: 12129 | Snake Game | Dispatched by scheduler
+[Sat May  2 19:36:28 2026
+] SYSTEM | CPU execution slot released from PID 12129
+[Sat May  2 19:36:28 2026
+] PROCESS | PID: 12129 | Snake Game | Process terminated
+[Sat May  2 19:36:28 2026
+] RESOURCE | Resources released from PID 12129 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Sat May  2 19:36:28 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 19:36:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:36:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:37:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:37:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:37:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:37:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 19:37:19 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 19:37:20 2026
+] SYSTEM | Resource monitor thread stopped
+[Sat May  2 19:37:20 2026
+] SYSTEM | Shutdown cleanup completed, no active processes
+[Sat May  2 19:37:23 2026
+] SYSTEM | AMS OS shutdown completed
