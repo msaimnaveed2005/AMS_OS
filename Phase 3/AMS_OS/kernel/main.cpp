@@ -439,7 +439,49 @@ IPCResourceResponse childSendResourceRequest(
 
     return response;
 }
+/*
+Function: executeTaskInSeparateTerminal
+Purpose: Opens the selected task executable in a separate Xubuntu terminal window.
+         If xfce4-terminal fails, it falls back to direct exec execution.
+Parameters: Selected task metadata.
+Returns: Nothing. If exec succeeds, this function does not return.
+*/
+void executeTaskInSeparateTerminal(TaskInfo selectedTask) {
+    cout << "[CHILD PROCESS] Opening task in separate terminal window.\n";
+    cout << "[CHILD PROCESS] Terminal: xfce4-terminal\n";
+    cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
 
+    /*
+    Xubuntu uses xfce4-terminal.
+    --execute runs the selected executable inside a new terminal window.
+    */
+    execlp(
+        "xfce4-terminal",
+        "xfce4-terminal",
+        "--execute",
+        selectedTask.executablePath.c_str(),
+        selectedTask.taskName.c_str(),
+        NULL
+    );
+
+    /*
+    Fallback:
+    If xfce4-terminal is not found or fails, run the executable directly.
+    */
+    perror("[CHILD PROCESS] xfce4-terminal failed");
+
+    cout << "[CHILD PROCESS] Falling back to direct exec.\n";
+
+    execl(
+        selectedTask.executablePath.c_str(),
+        selectedTask.executablePath.c_str(),
+        selectedTask.taskName.c_str(),
+        NULL
+    );
+
+    perror("[CHILD PROCESS] direct exec failed");
+    exit(1);
+}
 /*
 Function: launchTaskUsingIPCForkTest
 Purpose: Creates a child process using fork, child sends resource request through IPC,
@@ -532,18 +574,9 @@ void launchTaskUsingIPCForkTest(
 	raise(SIGSTOP);
 
 	cout << "[CHILD PROCESS] Scheduler resumed this process.\n";
-	cout << "[CHILD PROCESS] Loading task executable using exec.\n";
-	cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
+	cout << "[CHILD PROCESS] Loading task executable in separate terminal using exec.\n";
 
-	execl(
-	    selectedTask.executablePath.c_str(),
-	    selectedTask.executablePath.c_str(),
-	    selectedTask.taskName.c_str(),
-	    NULL
-	);
-
-	perror("[CHILD PROCESS] exec failed");
-	exit(1);
+	executeTaskInSeparateTerminal(selectedTask);
 }
 
    	close(requestPipe[1]);
@@ -1318,17 +1351,9 @@ void autoStartDigitalClock(
         raise(SIGSTOP);
 
         cout << "[CHILD CLOCK] Scheduler resumed Digital Clock.\n";
-        cout << "[CHILD CLOCK] Loading Digital Clock executable using exec.\n";
+	cout << "[CHILD CLOCK] Loading Digital Clock in separate terminal using exec.\n";
 
-        execl(
-            clockTask.executablePath.c_str(),
-            clockTask.executablePath.c_str(),
-            clockTask.taskName.c_str(),
-            NULL
-        );
-
-        perror("[CHILD CLOCK] exec failed");
-        exit(1);
+	executeTaskInSeparateTerminal(clockTask);
     }
 
     close(requestPipe[1]);
