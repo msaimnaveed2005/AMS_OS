@@ -154,29 +154,44 @@ Purpose: Displays the main AMS OS menu according to current OS mode.
 Parameters: Current OS mode.
 Returns: Nothing.
 */
+/*
+Function: showMainMenu
+Purpose: Displays the AMS OS menu according to current user or kernel mode.
+Parameters: Current OS mode.
+Returns: Nothing.
+*/
 void showMainMenu(OSMode currentMode) {
     cout << "\n========== AMS OS MAIN MENU ==========\n";
     cout << "Current Mode: " << getModeName(currentMode) << "\n";
     cout << "--------------------------------------\n";
+
     cout << "1. Show Task Catalog\n";
     cout << "2. Show Task Details\n";
-    cout << "3. Launch Task Using IPC Fork Test\n";
+    cout << "3. Launch Task\n";
     cout << "4. Show Resources\n";
-    cout << "5. Test Resource Allocation\n";
-    cout << "6. Test Resource Release\n";
     cout << "7. Show PCB Table\n";
-    cout << "8. Test Dummy PCB Creation\n";
-    cout << "9. Test Process State Update\n";
-    cout << "10. Test PCB Removal\n";
     cout << "11. Run Scheduler\n";
     cout << "12. Show Ready Queues\n";
-    cout << "13. Switch to Kernel Mode\n";
-    cout << "14. Switch to User Mode\n";
-    cout << "15. View System Log\n";
-    cout << "16. Kill Process, Kernel Mode Only\n";
     cout << "17. Minimize Process\n";
     cout << "18. Resume Process\n";
-    cout << "19. Deadlock Detection, Kernel Mode Only\n";
+
+    if (currentMode == USER_MODE) {
+        cout << "13. Switch to Kernel Mode\n";
+    }
+
+    if (currentMode == KERNEL_MODE) {
+        cout << "\n---------- KERNEL MODE TOOLS ----------\n";
+        cout << "5. Diagnostic: Test Resource Allocation\n";
+        cout << "6. Diagnostic: Test Resource Release\n";
+        cout << "8. Diagnostic: Create Dummy PCB\n";
+        cout << "9. Diagnostic: Update Process State\n";
+        cout << "10. Diagnostic: Remove PCB\n";
+        cout << "14. Switch to User Mode\n";
+        cout << "15. View System Log\n";
+        cout << "16. Kill Process\n";
+        cout << "19. Deadlock Detection\n";
+    }
+
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }

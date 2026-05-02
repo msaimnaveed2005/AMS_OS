@@ -473,3 +473,15 @@
 ] SYSTEM | AMS OS shutdown requested
 [Sat May  2 15:33:46 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 15:37:20 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 15:37:26 2026
+] SYSTEM | Failed Kernel Mode authentication attempt
+[Sat May  2 15:37:33 2026
+] SYSTEM | Switched to Kernel Mode
+[Sat May  2 15:37:59 2026
+] SYSTEM | Switched to User Mode
+[Sat May  2 15:38:07 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 15:38:10 2026
+] SYSTEM | AMS OS shutdown completed
