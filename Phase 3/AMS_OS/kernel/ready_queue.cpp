@@ -128,6 +128,54 @@ ReadyQueueItem ReadyQueueManager::removeFromBackgroundQueue() {
 }
 
 /*
+Function: removeFromQueueByPID
+Purpose: Removes a process from a specific queue using PID.
+Parameters: Queue reference and PID.
+Returns: true if process is removed, otherwise false.
+*/
+bool ReadyQueueManager::removeFromQueueByPID(queue<ReadyQueueItem> &targetQueue, int pid) {
+    queue<ReadyQueueItem> tempQueue;
+    bool found = false;
+
+    while (!targetQueue.empty()) {
+        ReadyQueueItem item = targetQueue.front();
+        targetQueue.pop();
+
+        if (item.pid == pid) {
+            found = true;
+        } else {
+            tempQueue.push(item);
+        }
+    }
+
+    targetQueue = tempQueue;
+
+    return found;
+}
+
+/*
+Function: removeProcessByPID
+Purpose: Removes a process from all ready queues using PID.
+Parameters: PID.
+Returns: true if process was found and removed, otherwise false.
+*/
+bool ReadyQueueManager::removeProcessByPID(int pid) {
+    bool removedFromSystem = removeFromQueueByPID(systemQueue, pid);
+    bool removedFromInteractive = removeFromQueueByPID(interactiveQueue, pid);
+    bool removedFromBackground = removeFromQueueByPID(backgroundQueue, pid);
+
+    if (removedFromSystem || removedFromInteractive || removedFromBackground) {
+        cout << "\n[READY QUEUE] Process removed from ready queue.\n";
+        cout << "PID: " << pid << "\n";
+        return true;
+    }
+
+    return false;
+}
+
+
+
+/*
 Function: displayReadyQueues
 Purpose: Displays all ready queues with process details.
 Parameters: None.

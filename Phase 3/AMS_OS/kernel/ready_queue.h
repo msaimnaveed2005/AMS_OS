@@ -21,6 +21,13 @@ private:
     queue<ReadyQueueItem> interactiveQueue;
     queue<ReadyQueueItem> backgroundQueue;
 
+/*
+Function: removeFromQueueByPID
+Purpose: Removes a process from a specific queue using PID.
+Parameters: Queue reference and PID.
+Returns: true if process is removed, otherwise false.
+*/
+bool removeFromQueueByPID(queue<ReadyQueueItem> &targetQueue, int pid);
 public:
     /*
     Function: ReadyQueueManager
@@ -114,6 +121,15 @@ public:
     Returns: Queue name as string.
     */
     string getQueueName(ProcessType processType);
+
+
+	/*
+	Function: removeProcessByPID
+	Purpose: Removes a process from all ready queues using PID.
+	Parameters: PID.
+	Returns: true if process was found and removed, otherwise false.
+	*/
+	bool removeProcessByPID(int pid);
 };
 
 #endif

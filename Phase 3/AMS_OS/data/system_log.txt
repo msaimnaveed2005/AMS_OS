@@ -111,3 +111,33 @@
 ] SYSTEM | AMS OS shutdown requested
 [Sat May  2 12:28:17 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 12:39:50 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:39:57 2026
+] SYSTEM | User Mode tried to access Process Killer
+[Sat May  2 12:40:18 2026
+] PROCESS | PID: 0 | Digital Clock | Task selected for launch
+[Sat May  2 12:40:18 2026
+] RESOURCE | Resources granted to Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 12:40:18 2026
+] PROCESS | PID: 5106 | Digital Clock | PCB Created
+[Sat May  2 12:40:18 2026
+] PROCESS | PID: 5106 | Digital Clock | Added to Ready Queue
+[Sat May  2 12:40:35 2026
+[Sat May  2 12:42:31 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:42:38 2026
+] SYSTEM | Switched to User Mode
+[Sat May  2 12:42:45 2026
+] SYSTEM | Switched to Kernel Mode
+[Sat May  2 12:42:51 2026
+] PROCESS | PID: 202 | Unknown | Kernel kill failed, PID not found
+[Sat May  2 12:42:58 2026
+] PROCESS | PID: 0 | Music Player | Task selected for launch
+[Sat May  2 12:42:58 2026
+] RESOURCE | Resources granted to Music Player | RAM: 120MB | HDD: 30MB | CPU: 1
+[Sat May  2 12:42:58 2026
+] PROCESS | PID: 5116 | Music Player | PCB Created
+[Sat May  2 12:42:58 2026
+] PROCESS | PID: 5116 | Music Player | Added to Ready Queue
+[Sat May  2 12:43:08 2026

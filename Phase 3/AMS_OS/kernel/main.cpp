@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fstream>
+#include <signal.h>
 
 #include "resource_manager.h"
 #include "process_manager.h"
@@ -169,6 +170,7 @@ void showMainMenu(OSMode currentMode) {
     cout << "13. Switch to Kernel Mode\n";
     cout << "14. Switch to User Mode\n";
     cout << "15. View System Log\n";
+    cout << "16. Kill Process, Kernel Mode Only\n";
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }
@@ -695,6 +697,99 @@ void viewSystemLog() {
     file.close();
 }
 
+/*
+Function: kernelKillProcess
+Purpose: Allows Kernel Mode to terminate a process by PID, release its resources,
+         remove it from ready queue, remove PCB, and log the event.
+Parameters: ProcessManager, ResourceManager, ReadyQueueManager, and Logger references.
+Returns: Nothing.
+*/
+void kernelKillProcess(
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
+) {
+    int pid;
+    char confirmation;
+    PCB pcb;
+
+    cout << "\n========== KERNEL MODE PROCESS KILLER ==========\n";
+
+    processManager.displayPCBTable();
+
+    pid = getValidatedInteger("Enter PID to kill: ");
+
+    if (!processManager.getPCB(pid, pcb)) {
+        cout << "\n[KERNEL] No process found with PID: " << pid << "\n";
+        logger.logProcessEvent(pid, "Unknown", "Kernel kill failed, PID not found");
+        return;
+    }
+
+    cout << "\nProcess selected for termination:\n";
+    cout << "PID: " << pcb.pid << "\n";
+    cout << "Process Name: " << pcb.processName << "\n";
+    cout << "RAM: " << pcb.ramRequired << " MB\n";
+    cout << "HDD: " << pcb.hddRequired << " MB\n";
+    cout << "CPU Cores: " << pcb.coresRequired << "\n";
+
+    cout << "\nAre you sure you want to kill this process? (y/n): ";
+    cin >> confirmation;
+
+    if (confirmation != 'y' && confirmation != 'Y') {
+        cout << "\n[KERNEL] Process kill cancelled.\n";
+        logger.logProcessEvent(pid, pcb.processName, "Kernel kill cancelled");
+        return;
+    }
+
+    cout << "\n[KERNEL] Sending termination signal to PID: " << pid << "\n";
+
+    int killResult = kill(pid, SIGTERM);
+
+    if (killResult == 0) {
+        int status;
+        waitpid(pid, &status, 0);
+
+        cout << "[KERNEL] Process terminated successfully using SIGTERM.\n";
+
+        logger.logProcessEvent(pid, pcb.processName, "Terminated by Kernel Mode using SIGTERM");
+    } else {
+        cout << "[KERNEL] Could not send SIGTERM. Process may already be stopped, completed, or not a real OS process.\n";
+        cout << "[KERNEL] Cleaning AMS OS PCB and resource records only.\n";
+
+        logger.logProcessEvent(pid, pcb.processName, "SIGTERM failed, cleaning AMS OS records");
+    }
+
+    readyQueueManager.removeProcessByPID(pid);
+
+    processManager.updateProcessState(pid, TERMINATED_STATE);
+
+    resourceManager.releaseResources(
+        pcb.ramRequired,
+        pcb.hddRequired,
+        pcb.coresRequired
+    );
+
+    logger.logResourceEvent(
+        "Resources released after kernel kill | PID: " + to_string(pid) +
+        " | RAM: " + to_string(pcb.ramRequired) +
+        "MB | HDD: " + to_string(pcb.hddRequired) +
+        "MB | CPU: " + to_string(pcb.coresRequired)
+    );
+
+    processManager.removeProcess(pid);
+
+    cout << "\n[KERNEL] Process cleanup completed.\n";
+
+    cout << "\nUpdated PCB Table:\n";
+    processManager.displayPCBTable();
+
+    cout << "\nUpdated Resource Status:\n";
+    resourceManager.displayResources();
+
+    cout << "\nUpdated Ready Queue Status:\n";
+    readyQueueManager.displayReadyQueues();
+}
 
 /*
 Function: main
@@ -829,6 +924,19 @@ int main(int argc, char* argv[]) {
 		    } else {
 			cout << "\nAccess denied. System logs can only be viewed in Kernel Mode.\n";
 			logger.logSystemEvent("User Mode tried to access system log");
+		    }
+		    break;
+	   case 16:
+		    if (currentMode == KERNEL_MODE) {
+			kernelKillProcess(
+			    processManager,
+			    resourceManager,
+			    readyQueueManager,
+			    logger
+			);
+		    } else {
+			cout << "\nAccess denied. Process Killer can only be used in Kernel Mode.\n";
+			logger.logSystemEvent("User Mode tried to access Process Killer");
 		    }
 		    break;
            case 0:
