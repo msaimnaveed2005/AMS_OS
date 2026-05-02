@@ -146,6 +146,15 @@ public:
 	Returns: Nothing.
 	*/
 	void applyAging(ProcessManager &processManager, Logger &logger, int agingThreshold);
+
+
+/*
+Function: clearAllQueues
+Purpose: Removes all processes from all ready queues.
+Parameters: None.
+Returns: Nothing.
+*/
+void clearAllQueues();
 };
 
 #endif

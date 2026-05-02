@@ -331,3 +331,19 @@ string ProcessManager::getProcessStateName(ProcessState state) {
             return "UNKNOWN";
     }
 }
+
+/*
+Function: getAllPIDs
+Purpose: Returns all process IDs currently stored in PCB table.
+Parameters: None.
+Returns: Vector of process IDs.
+*/
+vector<int> ProcessManager::getAllPIDs() {
+    vector<int> pids;
+
+    for (auto process : processTable) {
+        pids.push_back(process.first);
+    }
+
+    return pids;
+}

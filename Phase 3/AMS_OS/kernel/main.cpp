@@ -9,6 +9,7 @@
 #include <signal.h>
 #include <cerrno>
 #include <cstring>
+#include <vector>
 
 #include "resource_manager.h"
 #include "process_manager.h"
@@ -1127,6 +1128,69 @@ void runDeadlockDetectionSimulation(
     }
 }
 
+/*
+Function: gracefulShutdownCleanup
+Purpose: Terminates all active child processes, releases resources, clears ready queues,
+         removes PCBs, and writes shutdown logs.
+Parameters: ProcessManager, ResourceManager, ReadyQueueManager, and Logger references.
+Returns: Nothing.
+*/
+void gracefulShutdownCleanup(
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
+) {
+    cout << "\n========== GRACEFUL SHUTDOWN CLEANUP ==========\n";
+
+    vector<int> activePIDs = processManager.getAllPIDs();
+
+    if (activePIDs.empty()) {
+        cout << "No active processes found. Nothing to clean.\n";
+        logger.logSystemEvent("Shutdown cleanup completed, no active processes");
+        return;
+    }
+
+    for (int pid : activePIDs) {
+        PCB pcb;
+
+        if (!processManager.getPCB(pid, pcb)) {
+            continue;
+        }
+
+        cout << "\n[SHUTDOWN] Cleaning process:\n";
+        cout << "PID: " << pid << "\n";
+        cout << "Process Name: " << pcb.processName << "\n";
+
+        kill(pid, SIGKILL);
+
+        int status;
+        waitpid(pid, &status, WNOHANG);
+
+        resourceManager.releaseResources(
+            pcb.ramRequired,
+            pcb.hddRequired,
+            pcb.coresRequired
+        );
+
+        logger.logProcessEvent(pid, pcb.processName, "Terminated during graceful shutdown");
+
+        logger.logResourceEvent(
+            "Resources released during shutdown | PID: " + to_string(pid) +
+            " | RAM: " + to_string(pcb.ramRequired) +
+            "MB | HDD: " + to_string(pcb.hddRequired) +
+            "MB | CPU: " + to_string(pcb.coresRequired)
+        );
+
+        processManager.removeProcess(pid);
+    }
+
+    readyQueueManager.clearAllQueues();
+
+    logger.logSystemEvent("Graceful shutdown cleanup completed");
+
+    cout << "\n[SHUTDOWN] All active processes cleaned successfully.\n";
+}
 
 /*
 Function: main
@@ -1306,11 +1370,20 @@ int main(int argc, char* argv[]) {
 		logger.logSystemEvent("User Mode tried to access Deadlock Detection");
 	    }
 	    break;
-           case 0:
-    		logger.logSystemEvent("AMS OS shutdown requested");
-		shutdownScreen();
-                logger.logSystemEvent("AMS OS shutdown completed");
-		break;
+          case 0:
+    logger.logSystemEvent("AMS OS shutdown requested");
+
+    gracefulShutdownCleanup(
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger
+    );
+
+    shutdownScreen();
+
+    logger.logSystemEvent("AMS OS shutdown completed");
+    break;
             default:
                 cout << "\nInvalid choice. Please select a valid option from the menu.\n";
         }

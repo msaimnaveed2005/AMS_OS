@@ -485,3 +485,47 @@
 ] SYSTEM | AMS OS shutdown requested
 [Sat May  2 15:38:10 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 15:44:18 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 15:44:26 2026
+] PROCESS | PID: 0 | Calculator | Task selected for launch
+[Sat May  2 15:44:26 2026
+] RESOURCE | Resources granted to Calculator | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:44:26 2026
+] PROCESS | PID: 7836 | Calculator | PCB Created
+[Sat May  2 15:44:26 2026
+] PROCESS | PID: 7836 | Calculator | Added to Ready Queue
+[Sat May  2 15:44:33 2026
+] PROCESS | PID: 0 | Digital Clock | Task selected for launch
+[Sat May  2 15:44:33 2026
+] RESOURCE | Resources granted to Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 15:44:33 2026
+] PROCESS | PID: 7837 | Digital Clock | PCB Created
+[Sat May  2 15:44:33 2026
+] PROCESS | PID: 7837 | Digital Clock | Added to Ready Queue
+[Sat May  2 15:44:40 2026
+] PROCESS | PID: 0 | Task Manager | Task selected for launch
+[Sat May  2 15:44:40 2026
+] RESOURCE | Resources granted to Task Manager | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:44:40 2026
+] PROCESS | PID: 7838 | Task Manager | PCB Created
+[Sat May  2 15:44:40 2026
+] PROCESS | PID: 7838 | Task Manager | Added to Ready Queue
+[Sat May  2 15:44:51 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 15:44:51 2026
+] PROCESS | PID: 7836 | Calculator | Terminated during graceful shutdown
+[Sat May  2 15:44:51 2026
+] RESOURCE | Resources released during shutdown | PID: 7836 | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:44:51 2026
+] PROCESS | PID: 7837 | Digital Clock | Terminated during graceful shutdown
+[Sat May  2 15:44:51 2026
+] RESOURCE | Resources released during shutdown | PID: 7837 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 15:44:51 2026
+] PROCESS | PID: 7838 | Task Manager | Terminated during graceful shutdown
+[Sat May  2 15:44:51 2026
+] RESOURCE | Resources released during shutdown | PID: 7838 | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 15:44:51 2026
+] SYSTEM | Graceful shutdown cleanup completed
+[Sat May  2 15:44:55 2026
+] SYSTEM | AMS OS shutdown completed

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -39,6 +40,7 @@ class ProcessManager {
 private:
     map<int, PCB> processTable;
     int dummyPIDCounter;
+
 
 public:
     /*
@@ -168,7 +170,13 @@ bool updateProcessPriority(int pid, int newPriority);
     */
     string getProcessStateName(ProcessState state);
 
-
+    /*
+	Function: getAllPIDs
+	Purpose: Returns all process IDs currently stored in PCB table.
+	Parameters: None.
+	Returns: Vector of process IDs.
+	*/
+	vector<int> getAllPIDs();
 };
 
 #endif

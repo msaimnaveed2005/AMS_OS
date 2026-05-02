@@ -361,3 +361,25 @@ string ReadyQueueManager::getQueueName(int priority) {
 
     return "Background Queue";
 }
+
+/*
+Function: clearAllQueues
+Purpose: Removes all processes from all ready queues.
+Parameters: None.
+Returns: Nothing.
+*/
+void ReadyQueueManager::clearAllQueues() {
+    while (!systemQueue.empty()) {
+        systemQueue.pop();
+    }
+
+    while (!interactiveQueue.empty()) {
+        interactiveQueue.pop();
+    }
+
+    while (!backgroundQueue.empty()) {
+        backgroundQueue.pop();
+    }
+
+    cout << "\n[READY QUEUE] All ready queues cleared.\n";
+}
