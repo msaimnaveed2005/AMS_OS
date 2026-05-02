@@ -1053,3 +1053,143 @@
 ] SYSTEM | Shutdown cleanup completed, no active processes
 [Sat May  2 17:22:54 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 17:25:20 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 17:25:20 2026
+] SYSTEM | Resource monitor thread started
+[Sat May  2 17:25:20 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 17:25:20 2026
+] RESOURCE | RAM block assigned to auto-start PID 9169 | Digital Clock | Start: 0MB | End: 50MB
+[Sat May  2 17:25:20 2026
+] PROCESS | PID: 9169 | Digital Clock | Auto-start PCB created
+[Sat May  2 17:25:20 2026
+] PROCESS | PID: 9169 | Digital Clock | Auto-start task added to ready queue
+[Sat May  2 17:25:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:25:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:25:31 2026
+] PROCESS | PID: 0 | Notepad | Task selected for launch
+[Sat May  2 17:25:31 2026
+] RESOURCE | Resources granted to Notepad | RAM: 150MB | HDD: 50MB | CPU: 1
+[Sat May  2 17:25:31 2026
+] RESOURCE | RAM block assigned to PID 9170 | Notepad | Start: 50MB | End: 200MB
+[Sat May  2 17:25:31 2026
+] PROCESS | PID: 9170 | Notepad | PCB Created
+[Sat May  2 17:25:31 2026
+] PROCESS | PID: 9170 | Notepad | Added to Ready Queue
+[Sat May  2 17:25:33 2026
+] SYSTEM | Scheduler started
+[Sat May  2 17:25:33 2026
+] SYSTEM | CPU execution slot assigned to PID 9169 | Process: Digital Clock
+[Sat May  2 17:25:33 2026
+] PROCESS | PID: 9169 | Digital Clock | Dispatched by scheduler
+[Sat May  2 17:25:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1848MB | Available HDD: 262084MB | Available CPU Cores: 6
+[Sat May  2 17:25:39 2026
+] SYSTEM | CPU execution slot released from PID 9169
+[Sat May  2 17:25:39 2026
+] PROCESS | PID: 9169 | Digital Clock | Process terminated
+[Sat May  2 17:25:39 2026
+] RESOURCE | Resources released from PID 9169 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 17:25:39 2026
+] PROCESS | PID: 9170 | Notepad | Aging applied, priority improved from 2 to 1
+[Sat May  2 17:25:39 2026
+] SYSTEM | CPU execution slot assigned to PID 9170 | Process: Notepad
+[Sat May  2 17:25:39 2026
+] PROCESS | PID: 9170 | Notepad | Dispatched by scheduler
+[Sat May  2 17:25:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:25:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:25:47 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 9170
+[Sat May  2 17:25:47 2026
+] SYSTEM | CPU execution slot assigned to PID 9170 | Process: Notepad
+[Sat May  2 17:25:47 2026
+] PROCESS | PID: 9170 | Notepad | Dispatched by scheduler
+[Sat May  2 17:25:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:25:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:25:55 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 9170
+[Sat May  2 17:25:55 2026
+] SYSTEM | CPU execution slot assigned to PID 9170 | Process: Notepad
+[Sat May  2 17:25:55 2026
+] PROCESS | PID: 9170 | Notepad | Dispatched by scheduler
+[Sat May  2 17:26:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:26:03 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 9170
+[Sat May  2 17:26:03 2026
+] SYSTEM | CPU execution slot assigned to PID 9170 | Process: Notepad
+[Sat May  2 17:26:03 2026
+] PROCESS | PID: 9170 | Notepad | Dispatched by scheduler
+[Sat May  2 17:26:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:26:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:26:11 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 9170
+[Sat May  2 17:26:11 2026
+] SYSTEM | CPU execution slot assigned to PID 9170 | Process: Notepad
+[Sat May  2 17:26:11 2026
+] PROCESS | PID: 9170 | Notepad | Dispatched by scheduler
+[Sat May  2 17:26:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:26:20 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 9170
+[Sat May  2 17:26:20 2026
+] SYSTEM | CPU execution slot assigned to PID 9170 | Process: Notepad
+[Sat May  2 17:26:20 2026
+] PROCESS | PID: 9170 | Notepad | Dispatched by scheduler
+[Sat May  2 17:26:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262094MB | Available CPU Cores: 7
+[Sat May  2 17:26:24 2026
+] SYSTEM | CPU execution slot released from PID 9170
+[Sat May  2 17:26:24 2026
+] PROCESS | PID: 9170 | Notepad | Process terminated
+[Sat May  2 17:26:24 2026
+] RESOURCE | Resources released from PID 9170 | RAM: 150MB | HDD: 50MB | CPU: 1
+[Sat May  2 17:26:24 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 17:26:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:26:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:26:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:26:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:26:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:26:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:26:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:27:35 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 17:27:40 2026
+] SYSTEM | Resource monitor thread stopped
+[Sat May  2 17:27:40 2026
+] SYSTEM | Shutdown cleanup completed, no active processes
+[Sat May  2 17:27:43 2026
+] SYSTEM | AMS OS shutdown completed
