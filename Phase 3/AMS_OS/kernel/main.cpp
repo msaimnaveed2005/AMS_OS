@@ -178,7 +178,7 @@ void showMainMenu(OSMode currentMode) {
     cout << "17. Minimize Process\n";
     cout << "18. Resume Process\n";
     cout << "21. Close Process\n";
-
+    cout << "22. Switch to Process\n";
     if (currentMode == USER_MODE) {
         cout << "13. Switch to Kernel Mode\n";
     }
@@ -1578,7 +1578,114 @@ void closeProcess(
     cout << "\nUpdated RAM Layout:\n";
     resourceManager.displayMemoryLayout();
 }
+/*
+Function: switchToProcess
+Purpose: Allows the user to switch to an existing process in RAM.
+         If the process is BLOCKED, it is moved back to READY state and added to the ready queue.
+         If the process is already READY or RUNNING, its current status is displayed.
+Parameters: ProcessManager, ReadyQueueManager, Logger, and SyncManager references.
+Returns: Nothing.
+*/
+void switchToProcess(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager
+) {
+    int pid;
+    PCB pcb;
 
+    cout << "\n========== SWITCH TO PROCESS ==========\n";
+
+    processManager.displayPCBTable();
+
+    pid = getValidatedInteger("Enter PID to switch to: ");
+
+    if (!processManager.getPCB(pid, pcb)) {
+        cout << "\n[SWITCH PROCESS] No process found with PID: " << pid << "\n";
+        logger.logProcessEvent(pid, "Unknown", "Switch failed, PID not found");
+        return;
+    }
+
+    cout << "\nSelected process found in RAM:\n";
+    cout << "PID: " << pcb.pid << "\n";
+    cout << "Process Name: " << pcb.processName << "\n";
+    cout << "Current State: " << processManager.getProcessStateName(pcb.processState) << "\n";
+    cout << "Priority: " << pcb.priority << "\n";
+    cout << "RAM Required: " << pcb.ramRequired << " MB\n";
+
+    if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
+        cout << "RAM Block: N/A\n";
+    } else {
+        cout << "RAM Block: " << pcb.memoryStart << " MB to "
+             << pcb.memoryEnd << " MB\n";
+    }
+
+    if (pcb.processState == TERMINATED_STATE) {
+        cout << "\n[SWITCH PROCESS] Cannot switch to a terminated process.\n";
+        logger.logProcessEvent(pid, pcb.processName, "Switch failed, process already terminated");
+        return;
+    }
+
+    if (pcb.processState == BLOCKED_STATE) {
+        cout << "\n[SWITCH PROCESS] Process is currently BLOCKED.\n";
+        cout << "[SWITCH PROCESS] Moving process back to READY state.\n";
+
+        processManager.updateProcessState(pid, READY_STATE);
+
+        readyQueueManager.addProcessToReadyQueue(
+            pid,
+            pcb.processName,
+            pcb.processType,
+            pcb.priority
+        );
+
+        syncManager.notifyReadyQueue();
+
+        logger.logProcessEvent(pid, pcb.processName, "Switched from BLOCKED to READY");
+
+        cout << "\n[SWITCH PROCESS] Process is now ready for scheduler.\n";
+    }
+    else if (pcb.processState == READY_STATE) {
+        cout << "\n[SWITCH PROCESS] Process is already in READY state.\n";
+        cout << "[SWITCH PROCESS] Run scheduler to continue this task.\n";
+
+        logger.logProcessEvent(pid, pcb.processName, "Switch requested, process already READY");
+    }
+    else if (pcb.processState == RUNNING_STATE) {
+        cout << "\n[SWITCH PROCESS] Process is already marked as RUNNING.\n";
+        cout << "[SWITCH PROCESS] No state change required.\n";
+
+        logger.logProcessEvent(pid, pcb.processName, "Switch requested, process already RUNNING");
+    }
+    else if (pcb.processState == NEW_STATE) {
+        cout << "\n[SWITCH PROCESS] Process is in NEW state.\n";
+        cout << "[SWITCH PROCESS] Moving it to READY state and adding to ready queue.\n";
+
+        processManager.updateProcessState(pid, READY_STATE);
+
+        readyQueueManager.addProcessToReadyQueue(
+            pid,
+            pcb.processName,
+            pcb.processType,
+            pcb.priority
+        );
+
+        syncManager.notifyReadyQueue();
+
+        logger.logProcessEvent(pid, pcb.processName, "Switched from NEW to READY");
+    }
+
+    cout << "\nUpdated PCB Table:\n";
+    processManager.displayPCBTable();
+
+    cout << "\nUpdated Ready Queue Status:\n";
+    readyQueueManager.displayReadyQueues();
+
+    cout << "\nRAM Memory Layout:\n";
+    // Memory layout is shown from main menu option 20.
+    cout << "Use menu option 20 to view complete RAM memory layout.\n";
+}
 /*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
@@ -1780,6 +1887,14 @@ int main(int argc, char* argv[]) {
 		resourceManager,
 		readyQueueManager,
 		logger
+	    );
+	    break;
+	  case 22:
+	    switchToProcess(
+		processManager,
+		readyQueueManager,
+		logger,
+		syncManager
 	    );
 	    break;
           case 0:
