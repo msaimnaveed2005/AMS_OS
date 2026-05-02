@@ -10,6 +10,8 @@
 #include <cerrno>
 #include <cstring>
 #include <vector>
+#include <sys/select.h>
+#include <cstdio>
 
 #include "resource_manager.h"
 #include "process_manager.h"
@@ -1824,6 +1826,151 @@ void openGraphicalDashboard(
 
     logger.logSystemEvent("Graphical dashboard launched with PID " + to_string(pid));
 }
+
+/*
+Function: readGUIRunCommand
+Purpose: Reads a GUI command file to check if the GUI requested a READY process dispatch.
+Parameters: None.
+Returns: PID requested by GUI, or -1 if no command exists.
+*/
+int readGUIRunCommand() {
+    ifstream file("data/gui_command.txt");
+
+    if (!file) {
+        return -1;
+    }
+
+    string line;
+    getline(file, line);
+    file.close();
+
+    if (line.empty()) {
+        return -1;
+    }
+
+    ofstream clearFile("data/gui_command.txt", ios::trunc);
+    clearFile.close();
+
+    if (line.find("RUN_PID=") == 0) {
+        string pidText = line.substr(8);
+
+        try {
+            return stoi(pidText);
+        } catch (...) {
+            return -1;
+        }
+    }
+
+    return -1;
+}
+
+/*
+Function: executeGUICommandIfAvailable
+Purpose: Checks whether GUI requested process execution and dispatches that process.
+Parameters: AMS OS managers, scheduler, mode info, and logger.
+Returns: true if GUI command was executed or handled, otherwise false.
+*/
+bool executeGUICommandIfAvailable(
+    Scheduler &scheduler,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    OSMode currentMode,
+    bool separateTerminalMode
+) {
+    int requestedPID = readGUIRunCommand();
+
+    if (requestedPID == -1) {
+        return false;
+    }
+
+    cout << "\n[GUI COMMAND] Run request received from graphical dashboard.\n";
+    cout << "Requested PID: " << requestedPID << "\n";
+
+    scheduler.runSingleProcessByPID(
+        requestedPID,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger,
+        syncManager,
+        getModeName(currentMode),
+        getTaskExecutionModeName(separateTerminalMode)
+    );
+
+    writeGUIStatusFile(
+        resourceManager,
+        processManager,
+        currentMode,
+        separateTerminalMode
+    );
+
+    return true;
+}
+
+/*
+Function: getMenuChoiceWithGUIPolling
+Purpose: Waits for user menu input while also polling GUI command requests.
+Parameters: AMS OS managers, scheduler, current mode, task execution mode, and logger.
+Returns: User menu choice, or -999 if a GUI command was handled.
+*/
+int getMenuChoiceWithGUIPolling(
+    Scheduler &scheduler,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    OSMode currentMode,
+    bool separateTerminalMode
+) {
+    cout << "Enter your choice: ";
+    cout.flush();
+
+    while (true) {
+        if (executeGUICommandIfAvailable(
+                scheduler,
+                processManager,
+                resourceManager,
+                readyQueueManager,
+                logger,
+                syncManager,
+                currentMode,
+                separateTerminalMode
+            )) {
+            return -999;
+        }
+
+        fd_set inputSet;
+        FD_ZERO(&inputSet);
+        FD_SET(STDIN_FILENO, &inputSet);
+
+        timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 300000;
+
+        int result = select(STDIN_FILENO + 1, &inputSet, NULL, NULL, &timeout);
+
+        if (result > 0 && FD_ISSET(STDIN_FILENO, &inputSet)) {
+            int choice;
+            cin >> choice;
+
+            if (cin.fail()) {
+                cout << "Invalid input. Please enter a valid number.\n";
+                clearInputBuffer();
+                cout << "Enter your choice: ";
+                cout.flush();
+                continue;
+            }
+
+            return choice;
+        }
+    }
+}
+
+
 /*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
@@ -1875,7 +2022,20 @@ int main(int argc, char* argv[]) {
 	    separateTerminalMode
 	);
         showMainMenu(currentMode, separateTerminalMode);
-        choice = getValidatedInteger("Enter your choice: ");
+        choice = getMenuChoiceWithGUIPolling(
+		    scheduler,
+		    processManager,
+		    resourceManager,
+		    readyQueueManager,
+		    logger,
+		    syncManager,
+		    currentMode,
+		    separateTerminalMode
+		);
+
+		if (choice == -999) {
+		    continue;
+		}
 
         switch (choice) {
             case 1:
@@ -1952,7 +2112,9 @@ int main(int argc, char* argv[]) {
 			    resourceManager,
 			    readyQueueManager,
 			    logger,
-			    syncManager
+			    syncManager,
+			    getModeName(currentMode),
+			    getTaskExecutionModeName(separateTerminalMode)
 			);
 		    break;
 		   

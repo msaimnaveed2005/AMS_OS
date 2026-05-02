@@ -4,7 +4,7 @@
 #include <sstream>
 #include <vector>
 #include <string>
-#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,6 +14,8 @@ struct ProcessView {
     string state;
     string priority;
     string ramBlock;
+    int memoryStart;
+    int memoryEnd;
 };
 
 struct GUIStatus {
@@ -35,8 +37,8 @@ struct GUIStatus {
 /*
 Function: split
 Purpose: Splits a string using a delimiter.
-Parameters: Input string and delimiter character.
-Returns: Vector of separated string parts.
+Parameters: Text and delimiter.
+Returns: Vector of string parts.
 */
 vector<string> split(string text, char delimiter) {
     vector<string> parts;
@@ -52,9 +54,9 @@ vector<string> split(string text, char delimiter) {
 
 /*
 Function: getValue
-Purpose: Extracts value after '=' from a status file line.
-Parameters: Line from file.
-Returns: Value as string.
+Purpose: Gets the value after '=' from a status file line.
+Parameters: File line.
+Returns: Extracted value.
 */
 string getValue(string line) {
     size_t pos = line.find('=');
@@ -68,8 +70,8 @@ string getValue(string line) {
 
 /*
 Function: toIntSafe
-Purpose: Converts a string to integer safely.
-Parameters: Text value.
+Purpose: Converts string to integer safely.
+Parameters: String value.
 Returns: Integer value or zero.
 */
 int toIntSafe(string value) {
@@ -78,6 +80,35 @@ int toIntSafe(string value) {
     } catch (...) {
         return 0;
     }
+}
+
+/*
+Function: parseRAMBlock
+Purpose: Extracts memory start and end from RAM block text.
+Parameters: RAM block string, start reference, end reference.
+Returns: Nothing.
+*/
+void parseRAMBlock(string ramBlock, int &start, int &end) {
+    start = -1;
+    end = -1;
+
+    size_t dashPos = ramBlock.find('-');
+
+    if (dashPos == string::npos) {
+        return;
+    }
+
+    string startText = ramBlock.substr(0, dashPos);
+    string endText = ramBlock.substr(dashPos + 1);
+
+    size_t mbPos = endText.find("MB");
+
+    if (mbPos != string::npos) {
+        endText = endText.substr(0, mbPos);
+    }
+
+    start = toIntSafe(startText);
+    end = toIntSafe(endText);
 }
 
 /*
@@ -133,6 +164,8 @@ GUIStatus loadStatus() {
                 process.priority = parts[3];
                 process.ramBlock = parts[4];
 
+                parseRAMBlock(process.ramBlock, process.memoryStart, process.memoryEnd);
+
                 status.processes.push_back(process);
             }
         }
@@ -144,16 +177,48 @@ GUIStatus loadStatus() {
 }
 
 /*
+Function: loadLogLines
+Purpose: Loads system log lines from data/system_log.txt.
+Parameters: None.
+Returns: Vector of log lines.
+*/
+vector<string> loadLogLines() {
+    vector<string> lines;
+    ifstream file("data/system_log.txt");
+
+    if (!file) {
+        lines.push_back("No system log file found.");
+        return lines;
+    }
+
+    string line;
+
+    while (getline(file, line)) {
+        if (!line.empty()) {
+            lines.push_back(line);
+        }
+    }
+
+    file.close();
+
+    if (lines.empty()) {
+        lines.push_back("System log is empty.");
+    }
+
+    return lines;
+}
+
+/*
 Function: loadUIFont
-Purpose: Loads a system font for the dashboard.
+Purpose: Loads a system font.
 Parameters: Font reference.
-Returns: true if font is loaded, otherwise false.
+Returns: true if font loaded.
 */
 bool loadUIFont(sf::Font &font) {
     vector<string> fontPaths = {
+        "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-        "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
+        "/usr/share/fonts/truetype/liberation/LiberationMono-Regular.ttf"
     };
 
     for (string path : fontPaths) {
@@ -167,9 +232,9 @@ bool loadUIFont(sf::Font &font) {
 
 /*
 Function: makeText
-Purpose: Creates SFML text with standard settings.
-Parameters: Font, string, size, position, and color.
-Returns: SFML Text object.
+Purpose: Creates SFML text.
+Parameters: Font, text, size, x, y, color.
+Returns: SFML text object.
 */
 sf::Text makeText(
     sf::Font &font,
@@ -190,201 +255,509 @@ sf::Text makeText(
 }
 
 /*
-Function: drawRoundedRect
-Purpose: Draws a rounded rectangle using rectangles and circles.
-Parameters: Window, position, size, radius, and color.
+Function: drawPanel
+Purpose: Draws a hard technical panel.
+Parameters: Window, x, y, width, height, title.
 Returns: Nothing.
 */
-void drawRoundedRect(
+void drawPanel(
     sf::RenderWindow &window,
+    sf::Font &font,
     float x,
     float y,
     float width,
     float height,
-    float radius,
-    sf::Color color
+    string title
 ) {
-    sf::RectangleShape center(sf::Vector2f(width - 2 * radius, height));
-    center.setPosition(x + radius, y);
-    center.setFillColor(color);
+    sf::RectangleShape panel(sf::Vector2f(width, height));
+    panel.setPosition(x, y);
+    panel.setFillColor(sf::Color(18, 22, 31));
+    panel.setOutlineColor(sf::Color(80, 95, 120));
+    panel.setOutlineThickness(2);
+    window.draw(panel);
 
-    sf::RectangleShape middle(sf::Vector2f(width, height - 2 * radius));
-    middle.setPosition(x, y + radius);
-    middle.setFillColor(color);
+    sf::RectangleShape header(sf::Vector2f(width, 34));
+    header.setPosition(x, y);
+    header.setFillColor(sf::Color(31, 39, 54));
+    window.draw(header);
 
-    sf::CircleShape corner(radius);
-    corner.setFillColor(color);
-
-    corner.setPosition(x, y);
-    window.draw(corner);
-
-    corner.setPosition(x + width - 2 * radius, y);
-    window.draw(corner);
-
-    corner.setPosition(x, y + height - 2 * radius);
-    window.draw(corner);
-
-    corner.setPosition(x + width - 2 * radius, y + height - 2 * radius);
-    window.draw(corner);
-
-    window.draw(center);
-    window.draw(middle);
+    sf::Text headerText = makeText(font, title, 16, x + 12, y + 8, sf::Color(225, 235, 245));
+    headerText.setStyle(sf::Text::Bold);
+    window.draw(headerText);
 }
 
 /*
-Function: drawGlowCircle
-Purpose: Draws soft glow circles in the background.
-Parameters: Window, position, radius, and base color.
+Function: drawGridBackground
+Purpose: Draws a technical grid background.
+Parameters: Window.
 Returns: Nothing.
 */
-void drawGlowCircle(
-    sf::RenderWindow &window,
-    float x,
-    float y,
-    float radius,
-    sf::Color baseColor
-) {
-    for (int i = 8; i >= 1; i--) {
-        float r = radius * i / 8.0f;
-        sf::CircleShape circle(r);
-        circle.setPosition(x - r, y - r);
-        circle.setFillColor(sf::Color(
-            baseColor.r,
-            baseColor.g,
-            baseColor.b,
-            static_cast<sf::Uint8>(12)
-        ));
+void drawGridBackground(sf::RenderWindow &window) {
+    window.clear(sf::Color(9, 12, 18));
 
-        window.draw(circle);
+    for (int x = 0; x <= 1280; x += 40) {
+        sf::Vertex line[] = {
+            sf::Vertex(sf::Vector2f(x, 0), sf::Color(24, 30, 42)),
+            sf::Vertex(sf::Vector2f(x, 760), sf::Color(24, 30, 42))
+        };
+
+        window.draw(line, 2, sf::Lines);
+    }
+
+    for (int y = 0; y <= 760; y += 40) {
+        sf::Vertex line[] = {
+            sf::Vertex(sf::Vector2f(0, y), sf::Color(24, 30, 42)),
+            sf::Vertex(sf::Vector2f(1280, y), sf::Color(24, 30, 42))
+        };
+
+        window.draw(line, 2, sf::Lines);
     }
 }
 
 /*
-Function: drawProgressBar
-Purpose: Draws a stylish progress bar for resource usage.
-Parameters: Window, font, label, position, size, available amount, total amount.
+Function: getStateColor
+Purpose: Returns color according to process state.
+Parameters: Process state.
+Returns: SFML color.
+*/
+sf::Color getStateColor(string state) {
+    if (state == "READY") {
+        return sf::Color(70, 180, 255);
+    }
+
+    if (state == "RUNNING") {
+        return sf::Color(80, 230, 140);
+    }
+
+    if (state == "BLOCKED") {
+        return sf::Color(255, 185, 60);
+    }
+
+    if (state == "TERMINATED") {
+        return sf::Color(255, 80, 90);
+    }
+
+    return sf::Color(210, 215, 225);
+}
+
+/*
+Function: countState
+Purpose: Counts processes by state.
+Parameters: Process list and state name.
+Returns: Count.
+*/
+int countState(vector<ProcessView> processes, string state) {
+    int count = 0;
+
+    for (ProcessView process : processes) {
+        if (process.state == state) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+/*
+Function: drawResourceBar
+Purpose: Draws a technical resource usage bar.
+Parameters: Window, font, label, available, total, position, color.
 Returns: Nothing.
 */
-void drawProgressBar(
+void drawResourceBar(
     sf::RenderWindow &window,
     sf::Font &font,
     string label,
+    int available,
+    int total,
     float x,
     float y,
     float width,
-    float height,
-    int available,
-    int total,
-    sf::Color accent
+    sf::Color color
 ) {
     int used = total - available;
-    float percentage = 0.0f;
+    float ratio = 0.0f;
 
     if (total > 0) {
-        percentage = static_cast<float>(used) / static_cast<float>(total);
+        ratio = static_cast<float>(used) / static_cast<float>(total);
     }
 
-    if (percentage < 0) {
-        percentage = 0;
-    }
+    ratio = max(0.0f, min(1.0f, ratio));
 
-    if (percentage > 1) {
-        percentage = 1;
-    }
+    window.draw(makeText(font, label, 14, x, y, sf::Color(220, 225, 235)));
 
-    sf::Text title = makeText(font, label, 18, x, y - 30, sf::Color(230, 235, 245));
+    string value = to_string(used) + " / " + to_string(total);
+    window.draw(makeText(font, value, 13, x + width - 140, y, sf::Color(160, 170, 185)));
+
+    sf::RectangleShape outer(sf::Vector2f(width, 20));
+    outer.setPosition(x, y + 25);
+    outer.setFillColor(sf::Color(12, 16, 24));
+    outer.setOutlineColor(sf::Color(75, 90, 112));
+    outer.setOutlineThickness(1);
+    window.draw(outer);
+
+    sf::RectangleShape fill(sf::Vector2f(width * ratio, 20));
+    fill.setPosition(x, y + 25);
+    fill.setFillColor(color);
+    window.draw(fill);
+
+    sf::RectangleShape marker(sf::Vector2f(2, 24));
+    marker.setPosition(x + width * ratio, y + 23);
+    marker.setFillColor(sf::Color(235, 240, 245));
+    window.draw(marker);
+}
+
+/*
+Function: drawStatusHeader
+Purpose: Draws main OS header and execution mode.
+Parameters: Window, font, status.
+Returns: Nothing.
+*/
+void drawStatusHeader(sf::RenderWindow &window, sf::Font &font, GUIStatus status) {
+    sf::RectangleShape topBar(sf::Vector2f(1280, 82));
+    topBar.setPosition(0, 0);
+    topBar.setFillColor(sf::Color(15, 19, 28));
+    topBar.setOutlineColor(sf::Color(75, 90, 112));
+    topBar.setOutlineThickness(2);
+    window.draw(topBar);
+
+    sf::Text title = makeText(font, "AMS OS CONTROL PANEL", 30, 30, 18, sf::Color(235, 242, 250));
+    title.setStyle(sf::Text::Bold);
     window.draw(title);
 
-    string usage = to_string(used) + " / " + to_string(total);
-    sf::Text usageText = makeText(font, usage, 14, x + width - 120, y - 28, sf::Color(170, 180, 195));
-    window.draw(usageText);
+    window.draw(makeText(font, "Atomic Management System, FAST Style Engineering Dashboard", 14, 32, 53, sf::Color(145, 155, 170)));
 
-    drawRoundedRect(window, x, y, width, height, 10, sf::Color(36, 42, 58));
+    sf::RectangleShape modeBox(sf::Vector2f(380, 50));
+    modeBox.setPosition(860, 16);
+    modeBox.setFillColor(sf::Color(24, 31, 44));
+    modeBox.setOutlineColor(sf::Color(90, 110, 140));
+    modeBox.setOutlineThickness(2);
+    window.draw(modeBox);
 
-    float fillWidth = width * percentage;
+    window.draw(makeText(font, "OS MODE: " + status.osMode, 14, 875, 25, sf::Color(80, 230, 140)));
+    window.draw(makeText(font, "TASK MODE: " + status.taskMode, 13, 875, 47, sf::Color(210, 218, 230)));
+}
 
-    if (fillWidth > 0) {
-        drawRoundedRect(window, x, y, fillWidth, height, 10, accent);
+/*
+Function: drawResourcePanel
+Purpose: Draws system resource usage panel.
+Parameters: Window, font, status.
+Returns: Nothing.
+*/
+void drawResourcePanel(sf::RenderWindow &window, sf::Font &font, GUIStatus status) {
+    drawPanel(window, font, 30, 105, 370, 130, "RESOURCE MONITOR");
+
+    drawResourceBar(window, font, "RAM", status.ramAvailable, status.ramTotal, 50, 150, 330, sf::Color(60, 160, 240));
+    drawResourceBar(window, font, "HDD", status.hddAvailable, status.hddTotal, 50, 205, 330, sf::Color(150, 105, 230));
+}
+
+/*
+Function: drawCPUCorePanel
+Purpose: Draws CPU core usage.
+Parameters: Window, font, status.
+Returns: Nothing.
+*/
+void drawCPUCorePanel(sf::RenderWindow &window, sf::Font &font, GUIStatus status) {
+    drawPanel(window, font, 425, 105, 310, 130, "CPU CORE MAP");
+
+    int usedCores = status.coresTotal - status.coresAvailable;
+
+    for (int i = 0; i < status.coresTotal && i < 16; i++) {
+        float x = 450 + (i % 8) * 32;
+        float y = 152 + (i / 8) * 34;
+
+        sf::RectangleShape core(sf::Vector2f(24, 24));
+        core.setPosition(x, y);
+        core.setOutlineColor(sf::Color(90, 105, 130));
+        core.setOutlineThickness(1);
+
+        if (i < usedCores) {
+            core.setFillColor(sf::Color(80, 230, 140));
+        } else {
+            core.setFillColor(sf::Color(35, 42, 55));
+        }
+
+        window.draw(core);
+        window.draw(makeText(font, to_string(i), 10, x + 7, y + 5, sf::Color(230, 235, 245)));
     }
 
-    sf::RectangleShape shine(sf::Vector2f(fillWidth, height / 2));
-    shine.setPosition(x, y);
-    shine.setFillColor(sf::Color(255, 255, 255, 25));
-    window.draw(shine);
+    window.draw(makeText(font, "Used: " + to_string(usedCores), 13, 450, 205, sf::Color(220, 225, 235)));
+    window.draw(makeText(font, "Free: " + to_string(status.coresAvailable), 13, 555, 205, sf::Color(160, 170, 185)));
+}
+
+/*
+Function: drawProcessCounters
+Purpose: Draws process state counters.
+Parameters: Window, font, status.
+Returns: Nothing.
+*/
+void drawProcessCounters(sf::RenderWindow &window, sf::Font &font, GUIStatus status) {
+    drawPanel(window, font, 760, 105, 490, 130, "PROCESS STATE SUMMARY");
+
+    vector<pair<string, sf::Color>> states = {
+        {"READY", sf::Color(70, 180, 255)},
+        {"RUNNING", sf::Color(80, 230, 140)},
+        {"BLOCKED", sf::Color(255, 185, 60)},
+        {"TERMINATED", sf::Color(255, 80, 90)}
+    };
+
+    for (int i = 0; i < states.size(); i++) {
+        float x = 785 + i * 115;
+        float y = 155;
+
+        sf::RectangleShape box(sf::Vector2f(95, 52));
+        box.setPosition(x, y);
+        box.setFillColor(sf::Color(25, 31, 43));
+        box.setOutlineColor(states[i].second);
+        box.setOutlineThickness(2);
+        window.draw(box);
+
+        int value = countState(status.processes, states[i].first);
+
+        window.draw(makeText(font, states[i].first, 12, x + 10, y + 8, states[i].second));
+        sf::Text number = makeText(font, to_string(value), 24, x + 36, y + 24, sf::Color(235, 240, 245));
+        number.setStyle(sf::Text::Bold);
+        window.draw(number);
+    }
 }
 
 /*
 Function: drawProcessTable
-Purpose: Draws the active process table.
-Parameters: Window, font, process list, position and size.
+Purpose: Draws scrollable process table.
+Parameters: Window, font, status, scroll offset.
 Returns: Nothing.
 */
 void drawProcessTable(
     sf::RenderWindow &window,
     sf::Font &font,
-    vector<ProcessView> processes,
-    float x,
-    float y,
-    float width,
-    float height
+    GUIStatus status,
+    int scrollOffset
 ) {
-    drawRoundedRect(window, x, y, width, height, 22, sf::Color(22, 27, 40, 235));
+    float x = 30;
+    float y = 260;
+    float width = 790;
+    float height = 455;
 
-    sf::Text title = makeText(font, "Active Processes", 24, x + 28, y + 22, sf::Color(245, 247, 255));
-    window.draw(title);
+    drawPanel(window, font, x, y, width, height, "SCROLLABLE PCB TABLE");
 
-    sf::Text sub = makeText(font, "PCB table snapshot with state, priority, and RAM block", 14, x + 28, y + 55, sf::Color(150, 160, 178));
-    window.draw(sub);
+    window.draw(makeText(font, "Scroll rows, click READY process to dispatch", 12, x + 465, y + 10, sf::Color(160, 170, 185)));
+    float headerY = y + 48;
 
-    float headerY = y + 95;
-
-    vector<string> headers = {"PID", "PROCESS", "STATE", "PRIORITY", "RAM BLOCK"};
-    vector<float> columnX = {x + 28, x + 125, x + 430, x + 590, x + 720};
+    vector<string> headers = {"PID", "PROCESS", "STATE", "PRI", "RAM BLOCK"};
+    vector<float> colX = {x + 20, x + 105, x + 385, x + 520, x + 600};
 
     for (int i = 0; i < headers.size(); i++) {
-        sf::Text h = makeText(font, headers[i], 13, columnX[i], headerY, sf::Color(105, 210, 255));
-        h.setStyle(sf::Text::Bold);
-        window.draw(h);
+        sf::Text text = makeText(font, headers[i], 13, colX[i], headerY, sf::Color(85, 200, 255));
+        text.setStyle(sf::Text::Bold);
+        window.draw(text);
     }
 
-    sf::RectangleShape line(sf::Vector2f(width - 56, 1));
-    line.setPosition(x + 28, headerY + 28);
-    line.setFillColor(sf::Color(70, 80, 105));
+    sf::RectangleShape line(sf::Vector2f(width - 40, 2));
+    line.setPosition(x + 20, headerY + 28);
+    line.setFillColor(sf::Color(80, 95, 120));
     window.draw(line);
 
-    if (processes.empty()) {
-        sf::Text empty = makeText(font, "No active process records available.", 18, x + 28, y + 155, sf::Color(160, 170, 185));
-        window.draw(empty);
+    int rowHeight = 34;
+    int visibleRows = 9;
+    int startIndex = scrollOffset;
+    int endIndex = min(static_cast<int>(status.processes.size()), startIndex + visibleRows);
+
+    if (status.processes.empty()) {
+        window.draw(makeText(font, "No active process records available.", 16, x + 25, y + 105, sf::Color(170, 180, 195)));
         return;
     }
 
-    int maxRows = min(static_cast<int>(processes.size()), 8);
-    float rowY = headerY + 50;
+    float rowY = headerY + 45;
 
-    for (int i = 0; i < maxRows; i++) {
-        sf::Color rowColor = i % 2 == 0 ? sf::Color(28, 34, 49, 160) : sf::Color(32, 39, 56, 120);
-        drawRoundedRect(window, x + 20, rowY - 8, width - 40, 38, 10, rowColor);
+    for (int i = startIndex; i < endIndex; i++) {
+        sf::RectangleShape row(sf::Vector2f(width - 40, rowHeight));
+        row.setPosition(x + 20, rowY - 7);
 
-        sf::Color stateColor = sf::Color(230, 235, 245);
-
-        if (processes[i].state == "READY") {
-            stateColor = sf::Color(105, 210, 255);
-        } else if (processes[i].state == "RUNNING") {
-            stateColor = sf::Color(110, 255, 175);
-        } else if (processes[i].state == "BLOCKED") {
-            stateColor = sf::Color(255, 196, 87);
-        } else if (processes[i].state == "TERMINATED") {
-            stateColor = sf::Color(255, 105, 125);
+        if ((i - startIndex) % 2 == 0) {
+            row.setFillColor(sf::Color(24, 30, 42));
+        } else {
+            row.setFillColor(sf::Color(30, 37, 50));
         }
 
-        window.draw(makeText(font, processes[i].pid, 15, columnX[0], rowY, sf::Color(230, 235, 245)));
-        window.draw(makeText(font, processes[i].name, 15, columnX[1], rowY, sf::Color(230, 235, 245)));
-        window.draw(makeText(font, processes[i].state, 15, columnX[2], rowY, stateColor));
-        window.draw(makeText(font, processes[i].priority, 15, columnX[3], rowY, sf::Color(230, 235, 245)));
-        window.draw(makeText(font, processes[i].ramBlock, 15, columnX[4], rowY, sf::Color(230, 235, 245)));
+        row.setOutlineColor(sf::Color(45, 55, 72));
+        row.setOutlineThickness(1);
+        window.draw(row);
 
-        rowY += 44;
+        window.draw(makeText(font, status.processes[i].pid, 13, colX[0], rowY, sf::Color(225, 230, 238)));
+        window.draw(makeText(font, status.processes[i].name, 13, colX[1], rowY, sf::Color(225, 230, 238)));
+        window.draw(makeText(font, status.processes[i].state, 13, colX[2], rowY, getStateColor(status.processes[i].state)));
+        window.draw(makeText(font, status.processes[i].priority, 13, colX[3], rowY, sf::Color(225, 230, 238)));
+        window.draw(makeText(font, status.processes[i].ramBlock, 13, colX[4], rowY, sf::Color(225, 230, 238)));
+
+        rowY += rowHeight + 7;
     }
+
+    string scrollInfo = "Rows " + to_string(startIndex + 1) + " to " + to_string(endIndex) +
+                        " of " + to_string(status.processes.size());
+
+    window.draw(makeText(font, scrollInfo, 12, x + 20, y + height - 28, sf::Color(150, 160, 175)));
+}
+
+/*
+Function: drawMemoryMap
+Purpose: Draws RAM block map from PCB memory allocation.
+Parameters: Window, font, status.
+Returns: Nothing.
+*/
+void drawMemoryMap(sf::RenderWindow &window, sf::Font &font, GUIStatus status) {
+    float x = 850;
+    float y = 260;
+    float width = 400;
+    float height = 210;
+
+    drawPanel(window, font, x, y, width, height, "RAM BLOCK MAP");
+
+    sf::RectangleShape memoryBar(sf::Vector2f(40, 140));
+    memoryBar.setPosition(x + 25, y + 52);
+    memoryBar.setFillColor(sf::Color(28, 34, 46));
+    memoryBar.setOutlineColor(sf::Color(100, 115, 140));
+    memoryBar.setOutlineThickness(2);
+    window.draw(memoryBar);
+
+    vector<ProcessView> allocated;
+
+    for (ProcessView process : status.processes) {
+        if (process.memoryStart >= 0 && process.memoryEnd > process.memoryStart) {
+            allocated.push_back(process);
+        }
+    }
+
+    sort(allocated.begin(), allocated.end(), [](ProcessView a, ProcessView b) {
+        return a.memoryStart < b.memoryStart;
+    });
+
+    for (ProcessView process : allocated) {
+        float startRatio = static_cast<float>(process.memoryStart) / status.ramTotal;
+        float endRatio = static_cast<float>(process.memoryEnd) / status.ramTotal;
+
+        startRatio = max(0.0f, min(1.0f, startRatio));
+        endRatio = max(0.0f, min(1.0f, endRatio));
+
+        float blockY = y + 52 + startRatio * 140;
+        float blockHeight = max(3.0f, (endRatio - startRatio) * 140);
+
+        sf::RectangleShape block(sf::Vector2f(40, blockHeight));
+        block.setPosition(x + 25, blockY);
+        block.setFillColor(getStateColor(process.state));
+        window.draw(block);
+    }
+
+    window.draw(makeText(font, "0 MB", 11, x + 72, y + 48, sf::Color(160, 170, 185)));
+    window.draw(makeText(font, to_string(status.ramTotal) + " MB", 11, x + 72, y + 184, sf::Color(160, 170, 185)));
+
+    float textY = y + 55;
+    int shown = 0;
+
+    for (ProcessView process : allocated) {
+        if (shown >= 5) {
+            break;
+        }
+
+        sf::RectangleShape legend(sf::Vector2f(12, 12));
+        legend.setPosition(x + 125, textY + 3);
+        legend.setFillColor(getStateColor(process.state));
+        window.draw(legend);
+
+        string label = process.pid + "  " + process.name + "  " + process.ramBlock;
+        window.draw(makeText(font, label, 11, x + 145, textY, sf::Color(220, 225, 235)));
+
+        textY += 24;
+        shown++;
+    }
+
+    if (allocated.empty()) {
+        window.draw(makeText(font, "RAM is currently free.", 13, x + 125, y + 65, sf::Color(170, 180, 195)));
+    }
+}
+
+/*
+Function: drawLogPreview
+Purpose: Draws scrollable system log preview.
+Parameters: Window, font, log lines, scroll offset.
+Returns: Nothing.
+*/
+void drawLogPreview(
+    sf::RenderWindow &window,
+    sf::Font &font,
+    vector<string> logLines,
+    int logScrollOffset
+) {
+    float x = 850;
+    float y = 495;
+    float width = 400;
+    float height = 220;
+
+    drawPanel(window, font, x, y, width, height, "SYSTEM LOG PREVIEW");
+
+    int visibleLines = 7;
+    int startIndex = logScrollOffset;
+    int endIndex = min(static_cast<int>(logLines.size()), startIndex + visibleLines);
+
+    float lineY = y + 48;
+
+    for (int i = startIndex; i < endIndex; i++) {
+        string line = logLines[i];
+
+        if (line.length() > 52) {
+            line = line.substr(0, 52) + "...";
+        }
+
+        sf::Color color = sf::Color(190, 200, 212);
+
+        if (line.find("PROCESS") != string::npos) {
+            color = sf::Color(90, 190, 255);
+        } else if (line.find("RESOURCE") != string::npos) {
+            color = sf::Color(85, 230, 150);
+        } else if (line.find("Deadlock") != string::npos || line.find("deadlock") != string::npos) {
+            color = sf::Color(255, 90, 95);
+        }
+
+        window.draw(makeText(font, line, 11, x + 15, lineY, color));
+
+        lineY += 22;
+    }
+
+    string info = "Log lines: " + to_string(logLines.size());
+    window.draw(makeText(font, info, 11, x + 15, y + height - 24, sf::Color(150, 160, 175)));
+}
+
+/*
+Function: drawFooter
+Purpose: Draws keyboard shortcut footer.
+Parameters: Window, font.
+Returns: Nothing.
+*/
+void drawFooter(sf::RenderWindow &window, sf::Font &font) {
+    sf::RectangleShape footer(sf::Vector2f(1280, 28));
+    footer.setPosition(0, 732);
+    footer.setFillColor(sf::Color(15, 19, 28));
+    footer.setOutlineColor(sf::Color(70, 85, 110));
+    footer.setOutlineThickness(1);
+    window.draw(footer);
+
+    string text = "Controls: R Refresh | UP/DOWN Scroll PCB | PAGE UP/PAGE DOWN Scroll Logs | ESC Close Dashboard";
+    window.draw(makeText(font, text, 12, 30, 739, sf::Color(175, 185, 200)));
+}
+/*
+Function: writeGUIRunCommand
+Purpose: Writes a process dispatch command for AMS OS to read.
+Parameters: PID string.
+Returns: Nothing.
+*/
+void writeGUIRunCommand(string pid) {
+    ofstream file("data/gui_command.txt");
+
+    if (!file) {
+        return;
+    }
+
+    file << "RUN_PID=" << pid << "\n";
+    file.close();
 }
 
 /*
@@ -394,7 +767,12 @@ Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    sf::RenderWindow window(sf::VideoMode(1280, 760), "AMS OS Graphical Dashboard", sf::Style::Close);
+    sf::RenderWindow window(
+        sf::VideoMode(1280, 760),
+        "AMS OS Robust Graphical Dashboard",
+        sf::Style::Close
+    );
+
     window.setFramerateLimit(60);
 
     sf::Font font;
@@ -405,8 +783,11 @@ int main() {
     }
 
     GUIStatus status = loadStatus();
+    vector<string> logLines = loadLogLines();
 
-    sf::Clock animationClock;
+    int processScrollOffset = 0;
+    int logScrollOffset = 0;
+
     sf::Clock reloadClock;
 
     while (window.isOpen()) {
@@ -424,75 +805,105 @@ int main() {
 
                 if (event.key.code == sf::Keyboard::R) {
                     status = loadStatus();
+                    logLines = loadLogLines();
+                }
+
+                if (event.key.code == sf::Keyboard::Down) {
+                    processScrollOffset++;
+                }
+
+                if (event.key.code == sf::Keyboard::Up) {
+                    processScrollOffset--;
+                }
+
+                if (event.key.code == sf::Keyboard::PageDown) {
+                    logScrollOffset++;
+                }
+
+                if (event.key.code == sf::Keyboard::PageUp) {
+                    logScrollOffset--;
                 }
             }
+
+            if (event.type == sf::Event::MouseWheelScrolled) {
+                sf::Vector2i mouse = sf::Mouse::getPosition(window);
+
+                if (mouse.x >= 30 && mouse.x <= 820 && mouse.y >= 260 && mouse.y <= 715) {
+                    if (event.mouseWheelScroll.delta < 0) {
+                        processScrollOffset++;
+                    } else {
+                        processScrollOffset--;
+                    }
+                }
+
+                if (mouse.x >= 850 && mouse.x <= 1250 && mouse.y >= 495 && mouse.y <= 715) {
+                    if (event.mouseWheelScroll.delta < 0) {
+                        logScrollOffset++;
+                    } else {
+                        logScrollOffset--;
+                    }
+                }
+            }
+if (event.type == sf::Event::MouseButtonPressed) {
+    if (event.mouseButton.button == sf::Mouse::Left) {
+        int mouseX = event.mouseButton.x;
+        int mouseY = event.mouseButton.y;
+
+        float tableX = 30;
+        float tableY = 260;
+        float headerY = tableY + 48;
+        int rowHeight = 34;
+        int visibleRows = 9;
+
+        float firstRowY = headerY + 45;
+
+        if (mouseX >= tableX && mouseX <= tableX + 790 &&
+            mouseY >= firstRowY - 7 &&
+            mouseY <= firstRowY + visibleRows * (rowHeight + 7)) {
+
+            int rowIndex = static_cast<int>((mouseY - (firstRowY - 7)) / (rowHeight + 7));
+            int processIndex = processScrollOffset + rowIndex;
+
+            if (processIndex >= 0 && processIndex < static_cast<int>(status.processes.size())) {
+                ProcessView selectedProcess = status.processes[processIndex];
+
+                if (selectedProcess.state == "READY") {
+                    writeGUIRunCommand(selectedProcess.pid);
+                    cout << "GUI dispatch request sent for PID: " << selectedProcess.pid << endl;
+                } else {
+                    cout << "Only READY processes can be dispatched from GUI." << endl;
+                }
+            }
+        }
+    }
+}
         }
 
         if (reloadClock.getElapsedTime().asSeconds() >= 1.0f) {
             status = loadStatus();
+            logLines = loadLogLines();
             reloadClock.restart();
         }
 
-        float t = animationClock.getElapsedTime().asSeconds();
+        int maxProcessScroll = max(0, static_cast<int>(status.processes.size()) - 9);
+        int maxLogScroll = max(0, static_cast<int>(logLines.size()) - 7);
 
-        window.clear(sf::Color(10, 14, 25));
+        processScrollOffset = max(0, min(processScrollOffset, maxProcessScroll));
+        logScrollOffset = max(0, min(logScrollOffset, maxLogScroll));
 
-        for (int i = 0; i < 760; i++) {
-            float ratio = static_cast<float>(i) / 760.0f;
-
-            sf::RectangleShape line(sf::Vector2f(1280, 1));
-            line.setPosition(0, i);
-            line.setFillColor(sf::Color(
-                static_cast<sf::Uint8>(10 + ratio * 16),
-                static_cast<sf::Uint8>(14 + ratio * 18),
-                static_cast<sf::Uint8>(25 + ratio * 32)
-            ));
-
-            window.draw(line);
-        }
-
-        drawGlowCircle(window, 1100 + sin(t) * 20, 115 + cos(t) * 10, 170, sf::Color(38, 169, 255));
-        drawGlowCircle(window, 170 + cos(t * 0.8f) * 18, 650 + sin(t) * 10, 150, sf::Color(130, 86, 255));
-        drawGlowCircle(window, 640 + sin(t * 0.5f) * 25, 40, 120, sf::Color(52, 255, 181));
-
-        sf::Text title = makeText(font, "AMS OS", 48, 54, 35, sf::Color(250, 252, 255));
-        title.setStyle(sf::Text::Bold);
-        window.draw(title);
-
-        sf::Text subtitle = makeText(font, "Atomic Management System, Graphical Control Dashboard", 18, 58, 92, sf::Color(150, 165, 185));
-        window.draw(subtitle);
-
-        drawRoundedRect(window, 890, 38, 320, 62, 20, sf::Color(22, 27, 40, 220));
-        window.draw(makeText(font, status.osMode, 17, 915, 56, sf::Color(110, 255, 175)));
-        window.draw(makeText(font, status.taskMode, 13, 915, 78, sf::Color(160, 170, 190)));
-
-        drawRoundedRect(window, 55, 135, 360, 170, 24, sf::Color(22, 27, 40, 230));
-        drawRoundedRect(window, 460, 135, 360, 170, 24, sf::Color(22, 27, 40, 230));
-        drawRoundedRect(window, 865, 135, 360, 170, 24, sf::Color(22, 27, 40, 230));
-
-        drawProgressBar(window, font, "RAM Usage", 85, 215, 300, 22, status.ramAvailable, status.ramTotal, sf::Color(70, 178, 255));
-        drawProgressBar(window, font, "HDD Usage", 490, 215, 300, 22, status.hddAvailable, status.hddTotal, sf::Color(142, 105, 255));
-        drawProgressBar(window, font, "CPU Core Usage", 895, 215, 300, 22, status.coresAvailable, status.coresTotal, sf::Color(70, 230, 170));
-
-        window.draw(makeText(font, "Memory Manager", 20, 85, 160, sf::Color(245, 247, 255)));
-        window.draw(makeText(font, "Storage Manager", 20, 490, 160, sf::Color(245, 247, 255)));
-        window.draw(makeText(font, "CPU Scheduler", 20, 895, 160, sf::Color(245, 247, 255)));
-
-        drawProcessTable(window, font, status.processes, 55, 335, 1170, 340);
-
-        sf::Text footer = makeText(
-            font,
-            "Press R to refresh manually, Press ESC to close dashboard",
-            14,
-            55,
-            705,
-            sf::Color(145, 155, 175)
-        );
-
-        window.draw(footer);
+        drawGridBackground(window);
+        drawStatusHeader(window, font, status);
+        drawResourcePanel(window, font, status);
+        drawCPUCorePanel(window, font, status);
+        drawProcessCounters(window, font, status);
+        drawProcessTable(window, font, status, processScrollOffset);
+        drawMemoryMap(window, font, status);
+        drawLogPreview(window, font, logLines, logScrollOffset);
+        drawFooter(window, font);
 
         window.display();
     }
 
     return 0;
 }
+

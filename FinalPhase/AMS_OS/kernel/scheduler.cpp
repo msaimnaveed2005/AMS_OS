@@ -1,4 +1,5 @@
 #include "scheduler.h"
+#include <fstream>
 
 /*
 Function: Scheduler
@@ -82,6 +83,59 @@ void Scheduler::releaseCompletedProcess(
 }
 
 /*
+Function: writeSchedulerGUIStatus
+Purpose: Writes scheduler-side live process status to GUI status file.
+Parameters: ResourceManager, ProcessManager, OS mode name, and task mode name.
+Returns: Nothing.
+*/
+void Scheduler::writeSchedulerGUIStatus(
+    ResourceManager &resourceManager,
+    ProcessManager &processManager,
+    string osModeName,
+    string taskModeName
+) {
+    ofstream file("data/gui_status.txt");
+
+    if (!file) {
+        return;
+    }
+
+    file << "OS_MODE=" << osModeName << "\n";
+    file << "TASK_MODE=" << taskModeName << "\n";
+
+    file << "RAM_AVAILABLE=" << resourceManager.getAvailableRAM() << "\n";
+    file << "RAM_TOTAL=" << resourceManager.getTotalRAM() << "\n";
+
+    file << "HDD_AVAILABLE=" << resourceManager.getAvailableHDD() << "\n";
+    file << "HDD_TOTAL=" << resourceManager.getTotalHDD() << "\n";
+
+    file << "CORES_AVAILABLE=" << resourceManager.getAvailableCores() << "\n";
+    file << "CORES_TOTAL=" << resourceManager.getTotalCores() << "\n";
+
+    vector<PCB> pcbList = processManager.getAllPCBs();
+
+    for (PCB pcb : pcbList) {
+        string ramBlock;
+
+        if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
+            ramBlock = "N/A";
+        } else {
+            ramBlock = to_string(pcb.memoryStart) + "-" + to_string(pcb.memoryEnd) + " MB";
+        }
+
+        file << "PROCESS="
+             << pcb.pid << "|"
+             << pcb.processName << "|"
+             << processManager.getProcessStateName(pcb.processState) << "|"
+             << pcb.priority << "|"
+             << ramBlock
+             << "\n";
+    }
+
+    file.close();
+}
+
+/*
 Function: runProcess
 Purpose: Resumes a selected process and applies scheduling rules based on process type.
 Parameters: ReadyQueueItem, ProcessManager, ResourceManager, ReadyQueueManager references.
@@ -93,7 +147,9 @@ bool Scheduler::runProcess(
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager
+    SyncManager &syncManager,
+    string osModeName,
+    string taskModeName
 ){
     int status;
     int quantum;
@@ -117,6 +173,12 @@ bool Scheduler::runProcess(
     cout << "========================================================\n";
 
     processManager.updateProcessState(item.pid, RUNNING_STATE);
+    writeSchedulerGUIStatus(
+	    resourceManager,
+	    processManager,
+	    osModeName,
+	    taskModeName
+	);
     logger.logProcessEvent(item.pid, item.processName, "Dispatched by scheduler");
     kill(item.pid, SIGCONT);
 
@@ -134,6 +196,12 @@ bool Scheduler::runProcess(
 	);
 
 	releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+	writeSchedulerGUIStatus(
+	    resourceManager,
+	    processManager,
+	    osModeName,
+	    taskModeName
+	);
 	return true;
     }
 
@@ -162,6 +230,12 @@ bool Scheduler::runProcess(
 	    );
 
 	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+            writeSchedulerGUIStatus(
+		    resourceManager,
+		    processManager,
+		    osModeName,
+		    taskModeName
+		);
 	    return true;
 	}
 
@@ -182,7 +256,12 @@ bool Scheduler::runProcess(
 	);
 
 	processManager.updateProcessState(item.pid, READY_STATE);
-
+        writeSchedulerGUIStatus(
+		    resourceManager,
+		    processManager,
+		    osModeName,
+		    taskModeName
+		);
 	readyQueueManager.addProcessToReadyQueue(
 	    item.pid,
 	    item.processName,
@@ -193,6 +272,80 @@ bool Scheduler::runProcess(
 	syncManager.notifyReadyQueue();
 
 	return false;
+}
+/*
+Function: runSingleProcessByPID
+Purpose: Dispatches one selected READY process by PID, mainly for GUI click execution.
+Parameters: PID and core AMS OS managers.
+Returns: true if process dispatch is attempted, otherwise false.
+*/
+bool Scheduler::runSingleProcessByPID(
+    int pid,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    string osModeName,
+    string taskModeName
+) {
+    PCB pcb;
+
+    if (!processManager.getPCB(pid, pcb)) {
+        cout << "\n[GUI COMMAND] PID not found in PCB table.\n";
+        logger.logProcessEvent(pid, "Unknown", "GUI dispatch failed, PID not found");
+        return false;
+    }
+
+    if (pcb.processState != READY_STATE) {
+        cout << "\n[GUI COMMAND] Only READY processes can be dispatched from GUI.\n";
+        cout << "PID: " << pid << "\n";
+        cout << "Current State: " << processManager.getProcessStateName(pcb.processState) << "\n";
+
+        logger.logProcessEvent(pid, pcb.processName, "GUI dispatch rejected, process not READY");
+        return false;
+    }
+
+    readyQueueManager.removeProcessByPID(pid);
+
+    ReadyQueueItem item;
+    item.pid = pcb.pid;
+    item.processName = pcb.processName;
+    item.processType = pcb.processType;
+    item.priority = pcb.priority;
+
+    cout << "\n[GUI COMMAND] Dispatching selected process from GUI.\n";
+    cout << "PID: " << pid << "\n";
+    cout << "Process: " << pcb.processName << "\n";
+
+    logger.logProcessEvent(pid, pcb.processName, "GUI requested process dispatch");
+
+    writeSchedulerGUIStatus(
+        resourceManager,
+        processManager,
+        osModeName,
+        taskModeName
+    );
+
+    runProcess(
+        item,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger,
+        syncManager,
+        osModeName,
+        taskModeName
+    );
+
+    writeSchedulerGUIStatus(
+        resourceManager,
+        processManager,
+        osModeName,
+        taskModeName
+    );
+
+    return true;
 }
 
 /*
@@ -206,7 +359,9 @@ void Scheduler::runScheduler(
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager
+    SyncManager &syncManager,
+    string osModeName,
+    string taskModeName
 ) {
     cout << "\n==================== AMS OS SCHEDULER STARTED ====================\n";
     logger.logSystemEvent("Scheduler started");
@@ -245,8 +400,10 @@ void Scheduler::runScheduler(
     resourceManager,
     readyQueueManager,
     logger,
-    syncManager
-);
+    syncManager,
+    osModeName,
+    taskModeName
+       );
 
     cout << "\n[SCHEDULER] Current Resource Status:\n";
     resourceManager.displayResources();
@@ -257,3 +414,4 @@ void Scheduler::runScheduler(
     logger.logSystemEvent("Scheduler finished");
     cout << "\n==================== AMS OS SCHEDULER FINISHED ====================\n";
 }
+
