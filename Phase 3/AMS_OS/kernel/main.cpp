@@ -177,6 +177,7 @@ void showMainMenu(OSMode currentMode) {
     cout << "12. Show Ready Queues\n";
     cout << "17. Minimize Process\n";
     cout << "18. Resume Process\n";
+    cout << "21. Close Process\n";
 
     if (currentMode == USER_MODE) {
         cout << "13. Switch to Kernel Mode\n";
@@ -1462,6 +1463,123 @@ if (!memoryAllocated) {
 }
 
 /*
+Function: closeProcess
+Purpose: Allows the user to close a selected process. The process is terminated,
+         removed from ready queue, resources and RAM block are released, PCB is removed,
+         and the event is logged.
+Parameters: ProcessManager, ResourceManager, ReadyQueueManager, and Logger references.
+Returns: Nothing.
+*/
+void closeProcess(
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
+) {
+    int pid;
+    char confirmation;
+    PCB pcb;
+
+    cout << "\n========== CLOSE PROCESS ==========\n";
+
+    processManager.displayPCBTable();
+
+    pid = getValidatedInteger("Enter PID to close: ");
+
+    if (!processManager.getPCB(pid, pcb)) {
+        cout << "\n[CLOSE PROCESS] No process found with PID: " << pid << "\n";
+        logger.logProcessEvent(pid, "Unknown", "Close failed, PID not found");
+        return;
+    }
+
+    if (pcb.processState == TERMINATED_STATE) {
+        cout << "\n[CLOSE PROCESS] Process is already terminated.\n";
+        logger.logProcessEvent(pid, pcb.processName, "Close failed, process already terminated");
+        return;
+    }
+
+    cout << "\nSelected process:\n";
+    cout << "PID: " << pcb.pid << "\n";
+    cout << "Process Name: " << pcb.processName << "\n";
+    cout << "Current State: " << processManager.getProcessStateName(pcb.processState) << "\n";
+    cout << "RAM Block: ";
+
+    if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
+        cout << "N/A\n";
+    } else {
+        cout << pcb.memoryStart << " MB to " << pcb.memoryEnd << " MB\n";
+    }
+
+    cout << "\nAre you sure you want to close this process? (y/n): ";
+    cin >> confirmation;
+
+    if (confirmation != 'y' && confirmation != 'Y') {
+        cout << "\n[CLOSE PROCESS] Close cancelled.\n";
+        logger.logProcessEvent(pid, pcb.processName, "Close cancelled by user");
+        return;
+    }
+
+    cout << "\n[CLOSE PROCESS] Closing process PID: " << pid << "\n";
+
+    /*
+    The process can be in READY, BLOCKED, or paused using SIGSTOP.
+    SIGKILL ensures the simulator does not freeze while closing a stopped process.
+    */
+    int killResult = kill(pid, SIGKILL);
+
+    if (killResult == 0) {
+        int status;
+        int waitResult = waitpid(pid, &status, WNOHANG);
+
+        if (waitResult == 0) {
+            sleep(1);
+            waitpid(pid, &status, WNOHANG);
+        }
+
+        cout << "[CLOSE PROCESS] Process close signal sent successfully.\n";
+    } else {
+        cout << "[CLOSE PROCESS] Process may already be finished. Continuing cleanup.\n";
+    }
+
+    readyQueueManager.removeProcessByPID(pid);
+
+    processManager.updateProcessState(pid, TERMINATED_STATE);
+
+    resourceManager.releaseMemoryBlock(pid);
+
+    resourceManager.releaseResources(
+        pcb.ramRequired,
+        pcb.hddRequired,
+        pcb.coresRequired
+    );
+
+    logger.logProcessEvent(pid, pcb.processName, "Closed by user");
+
+    logger.logResourceEvent(
+        "Resources released after user close | PID: " + to_string(pid) +
+        " | RAM: " + to_string(pcb.ramRequired) +
+        "MB | HDD: " + to_string(pcb.hddRequired) +
+        "MB | CPU: " + to_string(pcb.coresRequired)
+    );
+
+    processManager.removeProcess(pid);
+
+    cout << "\n[CLOSE PROCESS] Process closed successfully.\n";
+
+    cout << "\nUpdated PCB Table:\n";
+    processManager.displayPCBTable();
+
+    cout << "\nUpdated Ready Queue Status:\n";
+    readyQueueManager.displayReadyQueues();
+
+    cout << "\nUpdated Resource Status:\n";
+    resourceManager.displayResources();
+
+    cout << "\nUpdated RAM Layout:\n";
+    resourceManager.displayMemoryLayout();
+}
+
+/*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
 Parameters: argc and argv for command-line resource input.
@@ -1655,6 +1773,14 @@ int main(int argc, char* argv[]) {
 	    break;
 	  case 20:
 	    resourceManager.displayMemoryLayout();
+	    break;
+          case 21:
+	    closeProcess(
+		processManager,
+		resourceManager,
+		readyQueueManager,
+		logger
+	    );
 	    break;
           case 0:
 	    logger.logSystemEvent("AMS OS shutdown requested");

@@ -865,3 +865,61 @@
 ] SYSTEM | Graceful shutdown cleanup completed
 [Sat May  2 16:57:37 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 17:09:30 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 17:09:30 2026
+] SYSTEM | Resource monitor thread started
+[Sat May  2 17:09:30 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 17:09:30 2026
+] RESOURCE | RAM block assigned to auto-start PID 8958 | Digital Clock | Start: 0MB | End: 50MB
+[Sat May  2 17:09:30 2026
+] PROCESS | PID: 8958 | Digital Clock | Auto-start PCB created
+[Sat May  2 17:09:30 2026
+] PROCESS | PID: 8958 | Digital Clock | Auto-start task added to ready queue
+[Sat May  2 17:09:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:09:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:09:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:09:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:09:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:10:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:10:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:10:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:10:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 17:10:15 2026
+] PROCESS | PID: 8958 | Digital Clock | Closed by user
+[Sat May  2 17:10:15 2026
+] RESOURCE | Resources released after user close | PID: 8958 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 17:10:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 17:10:58 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 17:11:00 2026
+] SYSTEM | Resource monitor thread stopped
+[Sat May  2 17:11:00 2026
+] SYSTEM | Shutdown cleanup completed, no active processes
+[Sat May  2 17:11:03 2026
+] SYSTEM | AMS OS shutdown completed
