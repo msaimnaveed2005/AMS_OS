@@ -5,6 +5,7 @@
 #include <cstring>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <fstream>
 
 #include "resource_manager.h"
 #include "process_manager.h"
@@ -14,6 +15,11 @@
 #include "logger.h"
 
 using namespace std;
+
+enum OSMode {
+    USER_MODE,
+    KERNEL_MODE
+};
 
 struct IPCResourceRequest {
     char processName[100];
@@ -125,15 +131,29 @@ int getValidatedInteger(string message) {
         }
     }
 }
+/*
+Function: getModeName
+Purpose: Converts OS mode into readable text.
+Parameters: Current OS mode.
+Returns: Mode name as string.
+*/
+string getModeName(OSMode mode) {
+    if (mode == USER_MODE) {
+        return "USER MODE";
+    }
 
+    return "KERNEL MODE";
+}
 /*
 Function: showMainMenu
-Purpose: Displays the main AMS OS menu.
-Parameters: None.
+Purpose: Displays the main AMS OS menu according to current OS mode.
+Parameters: Current OS mode.
 Returns: Nothing.
 */
-void showMainMenu() {
+void showMainMenu(OSMode currentMode) {
     cout << "\n========== AMS OS MAIN MENU ==========\n";
+    cout << "Current Mode: " << getModeName(currentMode) << "\n";
+    cout << "--------------------------------------\n";
     cout << "1. Show Task Catalog\n";
     cout << "2. Show Task Details\n";
     cout << "3. Launch Task Using IPC Fork Test\n";
@@ -146,6 +166,9 @@ void showMainMenu() {
     cout << "10. Test PCB Removal\n";
     cout << "11. Run Scheduler\n";
     cout << "12. Show Ready Queues\n";
+    cout << "13. Switch to Kernel Mode\n";
+    cout << "14. Switch to User Mode\n";
+    cout << "15. View System Log\n";
     cout << "0. Shutdown AMS OS\n";
     cout << "======================================\n";
 }
@@ -623,6 +646,57 @@ void createRequiredDirectories() {
 }
 
 /*
+Function: authenticateKernelMode
+Purpose: Authenticates user before switching to kernel mode.
+Parameters: None.
+Returns: true if password is correct, otherwise false.
+*/
+bool authenticateKernelMode() {
+    string password;
+
+    cout << "\n========== KERNEL MODE AUTHENTICATION ==========\n";
+    cout << "Enter kernel password: ";
+    cin >> password;
+
+    if (password == "admin") {
+        cout << "Kernel mode access granted.\n";
+        return true;
+    }
+
+    cout << "Incorrect password. Kernel mode access denied.\n";
+    return false;
+}
+
+
+/*
+Function: viewSystemLog
+Purpose: Displays the system log file content.
+Parameters: None.
+Returns: Nothing.
+*/
+void viewSystemLog() {
+    ifstream file("data/system_log.txt");
+
+    if (!file) {
+        cout << "\nNo system log file found.\n";
+        return;
+    }
+
+    string line;
+
+    cout << "\n==================== SYSTEM LOG ====================\n";
+
+    while (getline(file, line)) {
+        cout << line << "\n";
+    }
+
+    cout << "====================================================\n";
+
+    file.close();
+}
+
+
+/*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
 Parameters: argc and argv for command-line resource input.
@@ -634,6 +708,7 @@ int main(int argc, char* argv[]) {
     int cores;
     int choice;
 
+    OSMode currentMode = USER_MODE;
     bootScreen();
     createRequiredDirectories();
     if (!getHardwareResourcesFromCommandLine(argc, argv, ram, hdd, cores)) {
@@ -652,7 +727,7 @@ int main(int argc, char* argv[]) {
     resourceManager.displayResources();
 
     do {
-        showMainMenu();
+        showMainMenu(currentMode);
         choice = getValidatedInteger("Enter your choice: ");
 
         switch (choice) {
@@ -679,28 +754,48 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 5:
-                testResourceAllocation(resourceManager);
-                break;
+		    if (currentMode == KERNEL_MODE) {
+			testResourceAllocation(resourceManager);
+		    } else {
+			cout << "\nAccess denied. Resource allocation test requires Kernel Mode.\n";
+		    }
+		    break;
 
-            case 6:
-                testResourceRelease(resourceManager);
-                break;
+           case 6:
+		    if (currentMode == KERNEL_MODE) {
+			testResourceRelease(resourceManager);
+		    } else {
+			cout << "\nAccess denied. Resource release test requires Kernel Mode.\n";
+		    }
+		    break;
 
             case 7:
                 processManager.displayPCBTable();
                 break;
 
             case 8:
-                testDummyPCBCreation(processManager);
-                break;
+		    if (currentMode == KERNEL_MODE) {
+			testDummyPCBCreation(processManager);
+		    } else {
+			cout << "\nAccess denied. Dummy PCB creation requires Kernel Mode.\n";
+		    }
+		    break;
 
             case 9:
-                testProcessStateUpdate(processManager);
-                break;
+		    if (currentMode == KERNEL_MODE) {
+			testProcessStateUpdate(processManager);
+		    } else {
+			cout << "\nAccess denied. Process state update requires Kernel Mode.\n";
+		    }
+		    break;
 
             case 10:
-                testPCBRemoval(processManager);
-                break;
+		    if (currentMode == KERNEL_MODE) {
+			testPCBRemoval(processManager);
+		    } else {
+			cout << "\nAccess denied. PCB removal requires Kernel Mode.\n";
+		    }
+		    break;
 
             case 11:
 		    scheduler.runScheduler(
@@ -714,6 +809,28 @@ int main(int argc, char* argv[]) {
 	    case 12:
 	        readyQueueManager.displayReadyQueues();
 	        break;
+           case 13:
+		    if (authenticateKernelMode()) {
+			currentMode = KERNEL_MODE;
+			logger.logSystemEvent("Switched to Kernel Mode");
+		    } else {
+			logger.logSystemEvent("Failed Kernel Mode authentication attempt");
+		    }
+		    break;
+	   case 14:
+		    currentMode = USER_MODE;
+		    logger.logSystemEvent("Switched to User Mode");
+		    cout << "\nSwitched back to User Mode.\n";
+		    break;
+           case 15:
+		    if (currentMode == KERNEL_MODE) {
+			viewSystemLog();
+			logger.logSystemEvent("System log viewed in Kernel Mode");
+		    } else {
+			cout << "\nAccess denied. System logs can only be viewed in Kernel Mode.\n";
+			logger.logSystemEvent("User Mode tried to access system log");
+		    }
+		    break;
            case 0:
     		logger.logSystemEvent("AMS OS shutdown requested");
 		shutdownScreen();

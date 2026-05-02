@@ -94,3 +94,20 @@
 ] SYSTEM | AMS OS shutdown requested
 [Sat May  2 12:08:20 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 12:25:48 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:26:09 2026
+[Sat May  2 12:27:01 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 12:27:03 2026
+] SYSTEM | User Mode tried to access system log
+[Sat May  2 12:27:28 2026
+] SYSTEM | Switched to Kernel Mode
+[Sat May  2 12:27:38 2026
+] SYSTEM | System log viewed in Kernel Mode
+[Sat May  2 12:28:04 2026
+] SYSTEM | Switched to User Mode
+[Sat May  2 12:28:14 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 12:28:17 2026
+] SYSTEM | AMS OS shutdown completed
