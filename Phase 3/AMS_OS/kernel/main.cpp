@@ -171,6 +171,7 @@ void showMainMenu(OSMode currentMode) {
     cout << "2. Show Task Details\n";
     cout << "3. Launch Task\n";
     cout << "4. Show Resources\n";
+    cout << "20. Show RAM Memory Layout\n";
     cout << "7. Show PCB Table\n";
     cout << "11. Run Scheduler\n";
     cout << "12. Show Ready Queues\n";
@@ -570,7 +571,36 @@ void launchTaskUsingIPCForkTest(
         response.granted = 1;
 
         cout << "\n[KERNEL/PARENT] Resources available. Granting request.\n";
+	int memoryStart = -1;
+int memoryEnd = -1;
 
+bool memoryAllocated = resourceManager.allocateMemoryBlock(
+    pid,
+    request.processName,
+    request.ramRequired,
+    memoryStart,
+    memoryEnd
+);
+
+if (!memoryAllocated) {
+    response.granted = 0;
+
+    cout << "\n[KERNEL/PARENT] RAM block allocation failed. Denying request.\n";
+
+    logger.logResourceEvent(
+        "RAM block allocation failed for " + string(request.processName)
+    );
+
+    write(responsePipe[1], &response, sizeof(response));
+
+    close(requestPipe[0]);
+    close(responsePipe[1]);
+
+    int status;
+    waitpid(pid, &status, 0);
+
+    return;
+}
         resourceManager.allocateResources(
             request.ramRequired,
             request.hddRequired,
@@ -590,6 +620,15 @@ void launchTaskUsingIPCForkTest(
 	    request.ramRequired,
 	    request.hddRequired,
 	    request.coresRequired);
+processManager.updateMemoryBlock(pid, memoryStart, memoryEnd);
+
+logger.logResourceEvent(
+    "RAM block assigned to PID " + to_string(pid) +
+    " | " + string(request.processName) +
+    " | Start: " + to_string(memoryStart) +
+    "MB | End: " + to_string(memoryEnd) + "MB"
+);
+
 logger.logProcessEvent(pid, request.processName, "PCB Created");
 
 processManager.updateProcessState(pid, READY_STATE);
@@ -997,7 +1036,7 @@ bool forceTerminateProcessByPID(
     readyQueueManager.removeProcessByPID(pid);
 
     processManager.updateProcessState(pid, TERMINATED_STATE);
-
+    resourceManager.releaseMemoryBlock(pid);
     resourceManager.releaseResources(
         pcb.ramRequired,
         pcb.hddRequired,
@@ -1170,7 +1209,7 @@ void gracefulShutdownCleanup(
 
         int status;
         waitpid(pid, &status, WNOHANG);
-
+	resourceManager.releaseMemoryBlock(pid);
         resourceManager.releaseResources(
             pcb.ramRequired,
             pcb.hddRequired,
@@ -1317,7 +1356,36 @@ void autoStartDigitalClock(
         response.granted = 1;
 
         cout << "[KERNEL/PARENT] Resources available. Auto-start request granted.\n";
+int memoryStart = -1;
+int memoryEnd = -1;
 
+bool memoryAllocated = resourceManager.allocateMemoryBlock(
+    pid,
+    request.processName,
+    request.ramRequired,
+    memoryStart,
+    memoryEnd
+);
+
+if (!memoryAllocated) {
+    response.granted = 0;
+
+    cout << "\n[KERNEL/PARENT] RAM block allocation failed for auto-start Digital Clock.\n";
+
+    logger.logResourceEvent(
+        "Auto-start RAM block allocation failed for " + string(request.processName)
+    );
+
+    write(responsePipe[1], &response, sizeof(response));
+
+    close(requestPipe[0]);
+    close(responsePipe[1]);
+
+    int status;
+    waitpid(pid, &status, 0);
+
+    return;
+}
         resourceManager.allocateResources(
             request.ramRequired,
             request.hddRequired,
@@ -1340,8 +1408,15 @@ void autoStartDigitalClock(
             request.hddRequired,
             request.coresRequired
         );
+	processManager.updateMemoryBlock(pid, memoryStart, memoryEnd);
 
-        logger.logProcessEvent(pid, request.processName, "Auto-start PCB created");
+	logger.logResourceEvent(
+	    "RAM block assigned to auto-start PID " + to_string(pid) +
+	    " | " + string(request.processName) +
+	    " | Start: " + to_string(memoryStart) +
+	    "MB | End: " + to_string(memoryEnd) + "MB"
+	);
+		logger.logProcessEvent(pid, request.processName, "Auto-start PCB created");
 
         processManager.updateProcessState(pid, READY_STATE);
 
@@ -1577,6 +1652,9 @@ int main(int argc, char* argv[]) {
 		cout << "\nAccess denied. Deadlock detection can only be used in Kernel Mode.\n";
 		logger.logSystemEvent("User Mode tried to access Deadlock Detection");
 	    }
+	    break;
+	  case 20:
+	    resourceManager.displayMemoryLayout();
 	    break;
           case 0:
 	    logger.logSystemEvent("AMS OS shutdown requested");

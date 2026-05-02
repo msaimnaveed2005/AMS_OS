@@ -2,7 +2,17 @@
 #define RESOURCE_MANAGER_H
 
 #include <iostream>
+#include <vector>
+#include <string>
 using namespace std;
+
+struct MemoryBlock {
+    int startAddress;
+    int endAddress;
+    int pid;
+    string processName;
+    bool isFree;
+};
 
 class ResourceManager {
 private:
@@ -14,7 +24,15 @@ private:
 
     int totalCores;
     int availableCores;
+vector<MemoryBlock> memoryBlocks;
 
+/*
+Function: mergeFreeMemoryBlocks
+Purpose: Merges adjacent free memory blocks to reduce fragmentation.
+Parameters: None.
+Returns: Nothing.
+*/
+void mergeFreeMemoryBlocks();
 public:
     /*
     Function: ResourceManager
@@ -95,6 +113,36 @@ public:
     Returns: Available CPU cores.
     */
     int getAvailableCores();
+
+/*
+Function: allocateMemoryBlock
+Purpose: Allocates a simulated RAM block to a process using first-fit allocation.
+Parameters: PID, process name, RAM required, memory start reference, memory end reference.
+Returns: true if memory block is allocated, otherwise false.
+*/
+bool allocateMemoryBlock(
+    int pid,
+    string processName,
+    int ramRequired,
+    int &memoryStart,
+    int &memoryEnd
+);
+
+/*
+Function: releaseMemoryBlock
+Purpose: Releases a simulated RAM block assigned to a process.
+Parameters: PID.
+Returns: true if memory block is released, otherwise false.
+*/
+bool releaseMemoryBlock(int pid);
+
+/*
+Function: displayMemoryLayout
+Purpose: Displays current simulated RAM layout.
+Parameters: None.
+Returns: Nothing.
+*/
+void displayMemoryLayout();
 };
 
 #endif

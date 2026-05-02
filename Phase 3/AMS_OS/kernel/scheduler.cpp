@@ -66,7 +66,7 @@ void Scheduler::releaseCompletedProcess(
     cout << "\n[SCHEDULER] Releasing resources for completed process.\n";
     cout << "PID: " << pid << "\n";
     cout << "Process: " << pcb.processName << "\n";
-
+    resourceManager.releaseMemoryBlock(pid);
     resourceManager.releaseResources(
         pcb.ramRequired,
         pcb.hddRequired,

@@ -52,7 +52,8 @@ bool ProcessManager::createPCB(
     newProcess.hddRequired = hddRequired;
     newProcess.coresRequired = coresRequired;
     newProcess.waitingTime = 0;
-
+	newProcess.memoryStart = -1;
+	newProcess.memoryEnd = -1;
     processTable[pid] = newProcess;
 
     cout << "\n[PROCESS MANAGER] PCB created successfully.\n";
@@ -238,6 +239,23 @@ bool ProcessManager::updateProcessPriority(int pid, int newPriority) {
     return true;
 }
 
+/*
+Function: updateMemoryBlock
+Purpose: Updates the memory start and end address of a process.
+Parameters: PID, memory start, and memory end.
+Returns: true if memory block is updated, otherwise false.
+*/
+bool ProcessManager::updateMemoryBlock(int pid, int memoryStart, int memoryEnd) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    processTable[pid].memoryStart = memoryStart;
+    processTable[pid].memoryEnd = memoryEnd;
+
+    return true;
+}
+
 
 /*
 Function: displayPCBTable
@@ -261,6 +279,7 @@ void ProcessManager::displayPCBTable() {
 	     << setw(15) << "State"
 	     << setw(10) << "Priority"
 	     << setw(12) << "WaitTime"
+	     << setw(16) << "RAM Block"
 	     << setw(10) << "RAM"
 	     << setw(10) << "HDD"
 	     << setw(6)  << "CPU" << "\n";
@@ -269,7 +288,13 @@ void ProcessManager::displayPCBTable() {
 
     for (auto process : processTable) {
         PCB pcb = process.second;
+        string ramBlock;
 
+	if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
+	    ramBlock = "N/A";
+	} else {
+	    ramBlock = to_string(pcb.memoryStart) + "-" + to_string(pcb.memoryEnd);
+	}
 	cout << left
 	     << setw(8)  << pcb.pid
 	     << setw(20) << pcb.processName
@@ -277,6 +302,7 @@ void ProcessManager::displayPCBTable() {
 	     << setw(15) << getProcessStateName(pcb.processState)
 	     << setw(10) << pcb.priority
 	     << setw(12) << pcb.waitingTime
+	     << setw(16) << ramBlock
 	     << setw(10) << (to_string(pcb.ramRequired) + "MB")
 	     << setw(10) << (to_string(pcb.hddRequired) + "MB")
 	     << setw(6)  << pcb.coresRequired

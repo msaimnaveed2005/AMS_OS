@@ -34,6 +34,8 @@ struct PCB {
     int hddRequired;
     int coresRequired;
     int waitingTime;
+int memoryStart;
+int memoryEnd;
 };
 
 class ProcessManager {
@@ -177,6 +179,14 @@ bool updateProcessPriority(int pid, int newPriority);
 	Returns: Vector of process IDs.
 	*/
 	vector<int> getAllPIDs();
+/*
+Function: updateMemoryBlock
+Purpose: Updates the memory start and end address of a process.
+Parameters: PID, memory start, and memory end.
+Returns: true if memory block is updated, otherwise false.
+*/
+bool updateMemoryBlock(int pid, int memoryStart, int memoryEnd);
 };
+
 
 #endif

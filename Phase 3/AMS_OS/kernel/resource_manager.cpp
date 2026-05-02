@@ -42,6 +42,17 @@ void ResourceManager::initializeResources(int ram, int hdd, int cores) {
 
     totalCores = cores;
     availableCores = cores;
+
+memoryBlocks.clear();
+
+MemoryBlock initialBlock;
+initialBlock.startAddress = 0;
+initialBlock.endAddress = totalRAM;
+initialBlock.pid = -1;
+initialBlock.processName = "FREE";
+initialBlock.isFree = true;
+
+memoryBlocks.push_back(initialBlock);
 }
 
 /*
@@ -171,4 +182,143 @@ Returns: Available CPU cores.
 */
 int ResourceManager::getAvailableCores() {
     return availableCores;
+}
+
+
+/*
+Function: allocateMemoryBlock
+Purpose: Allocates a simulated RAM block to a process using first-fit allocation.
+Parameters: PID, process name, RAM required, memory start reference, memory end reference.
+Returns: true if memory block is allocated, otherwise false.
+*/
+bool ResourceManager::allocateMemoryBlock(
+    int pid,
+    string processName,
+    int ramRequired,
+    int &memoryStart,
+    int &memoryEnd
+) {
+    if (pid <= 0 || ramRequired <= 0) {
+        cout << "\n[MEMORY MANAGER] Invalid memory allocation request.\n";
+        return false;
+    }
+
+    for (int i = 0; i < memoryBlocks.size(); i++) {
+        int blockSize = memoryBlocks[i].endAddress - memoryBlocks[i].startAddress;
+
+        if (memoryBlocks[i].isFree && blockSize >= ramRequired) {
+            memoryStart = memoryBlocks[i].startAddress;
+            memoryEnd = memoryStart + ramRequired;
+
+            MemoryBlock allocatedBlock;
+            allocatedBlock.startAddress = memoryStart;
+            allocatedBlock.endAddress = memoryEnd;
+            allocatedBlock.pid = pid;
+            allocatedBlock.processName = processName;
+            allocatedBlock.isFree = false;
+
+            if (blockSize == ramRequired) {
+                memoryBlocks[i] = allocatedBlock;
+            } else {
+                MemoryBlock remainingBlock;
+                remainingBlock.startAddress = memoryEnd;
+                remainingBlock.endAddress = memoryBlocks[i].endAddress;
+                remainingBlock.pid = -1;
+                remainingBlock.processName = "FREE";
+                remainingBlock.isFree = true;
+
+                memoryBlocks[i] = allocatedBlock;
+                memoryBlocks.insert(memoryBlocks.begin() + i + 1, remainingBlock);
+            }
+
+            cout << "\n[MEMORY MANAGER] RAM block allocated successfully.\n";
+            cout << "PID: " << pid << "\n";
+            cout << "Process: " << processName << "\n";
+            cout << "RAM Block: " << memoryStart << " MB to " << memoryEnd << " MB\n";
+
+            return true;
+        }
+    }
+
+    cout << "\n[MEMORY MANAGER] No suitable RAM block found.\n";
+    return false;
+}
+
+/*
+Function: releaseMemoryBlock
+Purpose: Releases a simulated RAM block assigned to a process.
+Parameters: PID.
+Returns: true if memory block is released, otherwise false.
+*/
+bool ResourceManager::releaseMemoryBlock(int pid) {
+    for (int i = 0; i < memoryBlocks.size(); i++) {
+        if (!memoryBlocks[i].isFree && memoryBlocks[i].pid == pid) {
+            cout << "\n[MEMORY MANAGER] Releasing RAM block.\n";
+            cout << "PID: " << pid << "\n";
+            cout << "RAM Block: " << memoryBlocks[i].startAddress
+                 << " MB to " << memoryBlocks[i].endAddress << " MB\n";
+
+            memoryBlocks[i].pid = -1;
+            memoryBlocks[i].processName = "FREE";
+            memoryBlocks[i].isFree = true;
+
+            mergeFreeMemoryBlocks();
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/*
+Function: mergeFreeMemoryBlocks
+Purpose: Merges adjacent free memory blocks to reduce fragmentation.
+Parameters: None.
+Returns: Nothing.
+*/
+void ResourceManager::mergeFreeMemoryBlocks() {
+    for (int i = 0; i < memoryBlocks.size() - 1; i++) {
+        if (memoryBlocks[i].isFree && memoryBlocks[i + 1].isFree) {
+            memoryBlocks[i].endAddress = memoryBlocks[i + 1].endAddress;
+            memoryBlocks.erase(memoryBlocks.begin() + i + 1);
+            i--;
+        }
+    }
+}
+
+/*
+Function: displayMemoryLayout
+Purpose: Displays current simulated RAM layout.
+Parameters: None.
+Returns: Nothing.
+*/
+void ResourceManager::displayMemoryLayout() {
+    cout << "\n==================== RAM MEMORY LAYOUT ====================\n";
+
+    if (memoryBlocks.empty()) {
+        cout << "No memory layout available.\n";
+        cout << "===========================================================\n";
+        return;
+    }
+
+    cout << "Start(MB)\tEnd(MB)\t\tStatus\t\tPID\tProcess\n";
+    cout << "-----------------------------------------------------------\n";
+
+    for (MemoryBlock block : memoryBlocks) {
+        cout << block.startAddress << "\t\t"
+             << block.endAddress << "\t\t";
+
+        if (block.isFree) {
+            cout << "FREE\t\t"
+                 << "-\t"
+                 << "Available\n";
+        } else {
+            cout << "ALLOCATED\t"
+                 << block.pid << "\t"
+                 << block.processName << "\n";
+        }
+    }
+
+    cout << "===========================================================\n";
 }
