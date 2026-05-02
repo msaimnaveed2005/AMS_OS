@@ -1197,6 +1197,196 @@ void gracefulShutdownCleanup(
 }
 
 /*
+Function: autoStartDigitalClock
+Purpose: Automatically launches the Digital Clock task after AMS OS boot.
+         The task is created using the same fork, IPC, resource allocation,
+         PCB creation, and ready queue flow used for normal task launching.
+Parameters: TaskCatalog, ProcessManager, ResourceManager, ReadyQueueManager, Logger, and SyncManager references.
+Returns: Nothing.
+*/
+void autoStartDigitalClock(
+    TaskCatalog &taskCatalog,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager
+) {
+    TaskInfo clockTask;
+    int clockTaskID = 8;
+
+    cout << "\n========== AUTO STARTUP TASK ==========\n";
+    cout << "[AMS OS] Auto-starting Digital Clock after boot.\n";
+
+    if (!taskCatalog.getTaskByID(clockTaskID, clockTask)) {
+        cout << "[AMS OS] Digital Clock task not found in task catalog.\n";
+        logger.logSystemEvent("Auto-start failed, Digital Clock task not found");
+        return;
+    }
+
+    int requestPipe[2];
+    int responsePipe[2];
+
+    if (pipe(requestPipe) == -1) {
+        cout << "[AMS OS] Failed to create request pipe for auto-start clock.\n";
+        logger.logSystemEvent("Auto-start clock failed, request pipe creation error");
+        return;
+    }
+
+    if (pipe(responsePipe) == -1) {
+        cout << "[AMS OS] Failed to create response pipe for auto-start clock.\n";
+        close(requestPipe[0]);
+        close(requestPipe[1]);
+        logger.logSystemEvent("Auto-start clock failed, response pipe creation error");
+        return;
+    }
+
+    cout.flush();
+
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        cout << "[AMS OS] Fork failed for auto-start Digital Clock.\n";
+        close(requestPipe[0]);
+        close(requestPipe[1]);
+        close(responsePipe[0]);
+        close(responsePipe[1]);
+        logger.logSystemEvent("Auto-start clock failed, fork error");
+        return;
+    }
+
+    if (pid == 0) {
+        close(requestPipe[0]);
+        close(responsePipe[1]);
+
+        IPCResourceResponse response = childSendResourceRequest(
+            requestPipe[1],
+            responsePipe[0],
+            clockTask
+        );
+
+        close(requestPipe[1]);
+        close(responsePipe[0]);
+
+        if (response.granted == 0) {
+            cout << "[CHILD CLOCK] Resource request denied by kernel.\n";
+            exit(2);
+        }
+
+        cout << "[CHILD CLOCK] Digital Clock approved and waiting for scheduler.\n";
+
+        raise(SIGSTOP);
+
+        cout << "[CHILD CLOCK] Scheduler resumed Digital Clock.\n";
+        cout << "[CHILD CLOCK] Loading Digital Clock executable using exec.\n";
+
+        execl(
+            clockTask.executablePath.c_str(),
+            clockTask.executablePath.c_str(),
+            clockTask.taskName.c_str(),
+            NULL
+        );
+
+        perror("[CHILD CLOCK] exec failed");
+        exit(1);
+    }
+
+    close(requestPipe[1]);
+    close(responsePipe[0]);
+
+    IPCResourceRequest request;
+    IPCResourceResponse response;
+
+    memset(&request, 0, sizeof(request));
+    memset(&response, 0, sizeof(response));
+
+    read(requestPipe[0], &request, sizeof(request));
+
+    cout << "\n[KERNEL/PARENT] Auto-start IPC resource request received.\n";
+    cout << "Child PID: " << pid << "\n";
+    cout << "Process Name: " << request.processName << "\n";
+    cout << "RAM Requested: " << request.ramRequired << " MB\n";
+    cout << "HDD Requested: " << request.hddRequired << " MB\n";
+    cout << "CPU Requested: " << request.coresRequired << "\n";
+
+    if (resourceManager.checkResources(
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
+        )) {
+        response.granted = 1;
+
+        cout << "[KERNEL/PARENT] Resources available. Auto-start request granted.\n";
+
+        resourceManager.allocateResources(
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
+        );
+
+        logger.logResourceEvent(
+            "Resources granted to auto-start task " + string(request.processName) +
+            " | RAM: " + to_string(request.ramRequired) +
+            "MB | HDD: " + to_string(request.hddRequired) +
+            "MB | CPU: " + to_string(request.coresRequired)
+        );
+
+        processManager.createPCB(
+            pid,
+            request.processName,
+            static_cast<ProcessType>(request.processType),
+            request.priority,
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
+        );
+
+        logger.logProcessEvent(pid, request.processName, "Auto-start PCB created");
+
+        processManager.updateProcessState(pid, READY_STATE);
+
+        readyQueueManager.addProcessToReadyQueue(
+            pid,
+            request.processName,
+            static_cast<ProcessType>(request.processType),
+            request.priority
+        );
+
+        syncManager.notifyReadyQueue();
+
+        logger.logProcessEvent(pid, request.processName, "Auto-start task added to ready queue");
+
+        cout << "[KERNEL/PARENT] Digital Clock auto-started and added to ready queue.\n";
+    } else {
+        response.granted = 0;
+
+        cout << "[KERNEL/PARENT] Not enough resources for auto-start Digital Clock.\n";
+
+        logger.logResourceEvent("Auto-start Digital Clock denied due to insufficient resources");
+    }
+
+    write(responsePipe[1], &response, sizeof(response));
+
+    close(requestPipe[0]);
+    close(responsePipe[1]);
+
+    int status;
+
+    if (response.granted == 1) {
+        waitpid(pid, &status, WUNTRACED);
+
+        if (WIFSTOPPED(status)) {
+            cout << "[KERNEL/PARENT] Auto-start Digital Clock is waiting in ready queue.\n";
+        }
+    } else {
+        waitpid(pid, &status, 0);
+    }
+
+    cout << "\n[AMS OS] Startup task status:\n";
+    readyQueueManager.displayReadyQueues();
+}
+
+/*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
 Parameters: argc and argv for command-line resource input.
@@ -1225,9 +1415,19 @@ int main(int argc, char* argv[]) {
 	SyncManager syncManager(cores);
 	logger.logSystemEvent("AMS OS Booted");
     cout << "\nAMS OS resources initialized successfully.\n";
-    cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
-    resourceManager.displayResources();
-    syncManager.startResourceMonitor(resourceManager, logger);
+	cout << "Loaded Tasks: " << taskCatalog.getTaskCount() << "\n";
+	resourceManager.displayResources();
+
+	syncManager.startResourceMonitor(resourceManager, logger);
+
+	autoStartDigitalClock(
+	    taskCatalog,
+	    processManager,
+	    resourceManager,
+	    readyQueueManager,
+	    logger,
+	    syncManager
+	);
     do {
         showMainMenu(currentMode);
         choice = getValidatedInteger("Enter your choice: ");
