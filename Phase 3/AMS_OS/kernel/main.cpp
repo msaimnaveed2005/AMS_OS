@@ -150,21 +150,32 @@ string getModeName(OSMode mode) {
 
     return "KERNEL MODE";
 }
+
 /*
-Function: showMainMenu
-Purpose: Displays the main AMS OS menu according to current OS mode.
-Parameters: Current OS mode.
-Returns: Nothing.
+Function: getTaskExecutionModeName
+Purpose: Returns readable name for current task execution mode.
+Parameters: Separate terminal mode flag.
+Returns: Execution mode name as string.
 */
+string getTaskExecutionModeName(bool separateTerminalMode) {
+    if (separateTerminalMode) {
+        return "Separate Terminal Mode";
+    }
+
+    return "Scheduler-Controlled Mode";
+}
+
+
 /*
 Function: showMainMenu
 Purpose: Displays the AMS OS menu according to current user or kernel mode.
 Parameters: Current OS mode.
 Returns: Nothing.
 */
-void showMainMenu(OSMode currentMode) {
+void showMainMenu(OSMode currentMode, bool separateTerminalMode) {
     cout << "\n========== AMS OS MAIN MENU ==========\n";
     cout << "Current Mode: " << getModeName(currentMode) << "\n";
+    cout << "Task Execution Mode: " << getTaskExecutionModeName(separateTerminalMode) << "\n";
     cout << "--------------------------------------\n";
 
     cout << "1. Show Task Catalog\n";
@@ -179,6 +190,7 @@ void showMainMenu(OSMode currentMode) {
     cout << "18. Resume Process\n";
     cout << "21. Close Process\n";
     cout << "22. Switch to Process\n";
+    cout << "23. Toggle Task Terminal Mode\n";
     if (currentMode == USER_MODE) {
         cout << "13. Switch to Kernel Mode\n";
     }
@@ -439,38 +451,37 @@ IPCResourceResponse childSendResourceRequest(
 
     return response;
 }
+
 /*
-Function: executeTaskInSeparateTerminal
-Purpose: Opens the selected task executable in a separate Xubuntu terminal window.
-         If xfce4-terminal fails, it falls back to direct exec execution.
-Parameters: Selected task metadata.
+Function: executeTaskExecutable
+Purpose: Executes the selected task either directly under AMS OS scheduler control
+         or inside a separate Xubuntu terminal window based on selected mode.
+Parameters: Selected task metadata and separate terminal mode flag.
 Returns: Nothing. If exec succeeds, this function does not return.
 */
-void executeTaskInSeparateTerminal(TaskInfo selectedTask) {
-    cout << "[CHILD PROCESS] Opening task in separate terminal window.\n";
-    cout << "[CHILD PROCESS] Terminal: xfce4-terminal\n";
+void executeTaskExecutable(TaskInfo selectedTask, bool separateTerminalMode) {
+    if (separateTerminalMode) {
+        cout << "[CHILD PROCESS] Opening task in separate terminal window.\n";
+        cout << "[CHILD PROCESS] Terminal Mode: Separate Terminal\n";
+        cout << "[CHILD PROCESS] Terminal: xfce4-terminal\n";
+        cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
+
+        execlp(
+            "xfce4-terminal",
+            "xfce4-terminal",
+            "--execute",
+            selectedTask.executablePath.c_str(),
+            selectedTask.taskName.c_str(),
+            NULL
+        );
+
+        perror("[CHILD PROCESS] xfce4-terminal failed");
+        cout << "[CHILD PROCESS] Falling back to direct scheduler-controlled exec.\n";
+    }
+
+    cout << "[CHILD PROCESS] Running task directly under AMS OS scheduler.\n";
+    cout << "[CHILD PROCESS] Terminal Mode: Scheduler-Controlled\n";
     cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
-
-    /*
-    Xubuntu uses xfce4-terminal.
-    --execute runs the selected executable inside a new terminal window.
-    */
-    execlp(
-        "xfce4-terminal",
-        "xfce4-terminal",
-        "--execute",
-        selectedTask.executablePath.c_str(),
-        selectedTask.taskName.c_str(),
-        NULL
-    );
-
-    /*
-    Fallback:
-    If xfce4-terminal is not found or fails, run the executable directly.
-    */
-    perror("[CHILD PROCESS] xfce4-terminal failed");
-
-    cout << "[CHILD PROCESS] Falling back to direct exec.\n";
 
     execl(
         selectedTask.executablePath.c_str(),
@@ -495,7 +506,8 @@ void launchTaskUsingIPCForkTest(
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager
+    SyncManager &syncManager,
+    bool separateTerminalMode
 ) {
     int taskID;
     TaskInfo selectedTask;
@@ -576,7 +588,7 @@ void launchTaskUsingIPCForkTest(
 	cout << "[CHILD PROCESS] Scheduler resumed this process.\n";
 	cout << "[CHILD PROCESS] Loading task executable in separate terminal using exec.\n";
 
-	executeTaskInSeparateTerminal(selectedTask);
+	executeTaskExecutable(selectedTask, separateTerminalMode);
 }
 
    	close(requestPipe[1]);
@@ -1283,7 +1295,8 @@ void autoStartDigitalClock(
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager
+    SyncManager &syncManager,
+    bool separateTerminalMode
 ) {
     TaskInfo clockTask;
     int clockTaskID = 8;
@@ -1353,7 +1366,7 @@ void autoStartDigitalClock(
         cout << "[CHILD CLOCK] Scheduler resumed Digital Clock.\n";
 	cout << "[CHILD CLOCK] Loading Digital Clock in separate terminal using exec.\n";
 
-	executeTaskInSeparateTerminal(clockTask);
+	executeTaskExecutable(clockTask, separateTerminalMode);
     }
 
     close(requestPipe[1]);
@@ -1722,7 +1735,7 @@ int main(int argc, char* argv[]) {
     int hdd;
     int cores;
     int choice;
-
+    bool separateTerminalMode = false;
     OSMode currentMode = USER_MODE;
     bootScreen();
     createRequiredDirectories();
@@ -1751,10 +1764,11 @@ int main(int argc, char* argv[]) {
 	    resourceManager,
 	    readyQueueManager,
 	    logger,
-	    syncManager
+	    syncManager,
+	    separateTerminalMode
 	);
     do {
-        showMainMenu(currentMode);
+        showMainMenu(currentMode, separateTerminalMode);
         choice = getValidatedInteger("Enter your choice: ");
 
         switch (choice) {
@@ -1768,13 +1782,14 @@ int main(int argc, char* argv[]) {
 
             case 3:
     		launchTaskUsingIPCForkTest(
-		    taskCatalog,
-		    processManager,
-		    resourceManager,
-		    readyQueueManager,
-		    logger,
-		    syncManager
-		);
+			    taskCatalog,
+			    processManager,
+			    resourceManager,
+			    readyQueueManager,
+			    logger,
+			    syncManager,
+			    separateTerminalMode
+			);
     		break;
 
             case 4:
@@ -1920,6 +1935,26 @@ int main(int argc, char* argv[]) {
 		readyQueueManager,
 		logger,
 		syncManager
+	    );
+	    break;
+          case 23:
+	    separateTerminalMode = !separateTerminalMode;
+
+	    cout << "\n[TASK EXECUTION MODE] Mode changed successfully.\n";
+	    cout << "Current Task Execution Mode: "
+		 << getTaskExecutionModeName(separateTerminalMode) << "\n";
+
+	    if (separateTerminalMode) {
+		cout << "Tasks will now open in separate Xubuntu terminal windows.\n";
+		cout << "Note: This mode is best for showing separate task terminals.\n";
+	    } else {
+		cout << "Tasks will now run directly under AMS OS scheduler control.\n";
+		cout << "Note: This mode is best for accurate PCB, scheduler, and resource tracking.\n";
+	    }
+
+	    logger.logSystemEvent(
+		"Task execution mode changed to " +
+		getTaskExecutionModeName(separateTerminalMode)
 	    );
 	    break;
           case 0:

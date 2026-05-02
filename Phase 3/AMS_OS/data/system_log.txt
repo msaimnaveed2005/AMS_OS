@@ -1285,3 +1285,181 @@
 ] SYSTEM | Shutdown cleanup completed, no active processes
 [Sat May  2 17:35:01 2026
 ] SYSTEM | AMS OS shutdown completed
+[Sat May  2 18:00:35 2026
+] SYSTEM | AMS OS Booted
+[Sat May  2 18:00:35 2026
+] SYSTEM | Resource monitor thread started
+[Sat May  2 18:00:35 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 18:00:35 2026
+] RESOURCE | RAM block assigned to auto-start PID 9866 | Digital Clock | Start: 0MB | End: 50MB
+[Sat May  2 18:00:35 2026
+] PROCESS | PID: 9866 | Digital Clock | Auto-start PCB created
+[Sat May  2 18:00:35 2026
+] PROCESS | PID: 9866 | Digital Clock | Auto-start task added to ready queue
+[Sat May  2 18:00:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 18:00:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 18:00:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 18:00:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 18:01:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 18:01:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 18:01:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Sat May  2 18:01:11 2026
+] PROCESS | PID: 0 | Calculator | Task selected for launch
+[Sat May  2 18:01:11 2026
+] RESOURCE | Resources granted to Calculator | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 18:01:11 2026
+] RESOURCE | RAM block assigned to PID 9867 | Calculator | Start: 50MB | End: 150MB
+[Sat May  2 18:01:11 2026
+] PROCESS | PID: 9867 | Calculator | PCB Created
+[Sat May  2 18:01:11 2026
+] PROCESS | PID: 9867 | Calculator | Added to Ready Queue
+[Sat May  2 18:01:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262114MB | Available CPU Cores: 6
+[Sat May  2 18:01:15 2026
+] SYSTEM | Scheduler started
+[Sat May  2 18:01:15 2026
+] SYSTEM | CPU execution slot assigned to PID 9866 | Process: Digital Clock
+[Sat May  2 18:01:15 2026
+] PROCESS | PID: 9866 | Digital Clock | Dispatched by scheduler
+[Sat May  2 18:01:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1898MB | Available HDD: 262114MB | Available CPU Cores: 6
+[Sat May  2 18:01:21 2026
+] SYSTEM | CPU execution slot released from PID 9866
+[Sat May  2 18:01:21 2026
+] PROCESS | PID: 9866 | Digital Clock | Process terminated
+[Sat May  2 18:01:21 2026
+] RESOURCE | Resources released from PID 9866 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Sat May  2 18:01:21 2026
+] PROCESS | PID: 9867 | Calculator | Aging applied, priority improved from 2 to 1
+[Sat May  2 18:01:21 2026
+] SYSTEM | CPU execution slot assigned to PID 9867 | Process: Calculator
+[Sat May  2 18:01:21 2026
+] PROCESS | PID: 9867 | Calculator | Dispatched by scheduler
+[Sat May  2 18:01:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 262124MB | Available CPU Cores: 7
+[Sat May  2 18:01:28 2026
+] SYSTEM | CPU execution slot released from PID 9867
+[Sat May  2 18:01:28 2026
+] PROCESS | PID: 9867 | Calculator | Process terminated
+[Sat May  2 18:01:28 2026
+] RESOURCE | Resources released from PID 9867 | RAM: 100MB | HDD: 20MB | CPU: 1
+[Sat May  2 18:01:28 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 18:01:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:01:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:01:36 2026
+] SYSTEM | Task execution mode changed to Separate Terminal Mode
+[Sat May  2 18:01:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:01:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:01:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:01:51 2026
+] SYSTEM | Scheduler started
+[Sat May  2 18:01:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:01:59 2026
+] PROCESS | PID: 0 | Minesweeper | Task selected for launch
+[Sat May  2 18:01:59 2026
+] RESOURCE | Resources granted to Minesweeper | RAM: 220MB | HDD: 40MB | CPU: 1
+[Sat May  2 18:01:59 2026
+] RESOURCE | RAM block assigned to PID 9868 | Minesweeper | Start: 0MB | End: 220MB
+[Sat May  2 18:01:59 2026
+] PROCESS | PID: 9868 | Minesweeper | PCB Created
+[Sat May  2 18:01:59 2026
+] PROCESS | PID: 9868 | Minesweeper | Added to Ready Queue
+[Sat May  2 18:02:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1828MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 18:02:01 2026
+] SYSTEM | Scheduler started
+[Sat May  2 18:02:01 2026
+] SYSTEM | CPU execution slot assigned to PID 9868 | Process: Minesweeper
+[Sat May  2 18:02:01 2026
+] PROCESS | PID: 9868 | Minesweeper | Dispatched by scheduler
+[Sat May  2 18:02:02 2026
+] SYSTEM | CPU execution slot released from PID 9868
+[Sat May  2 18:02:02 2026
+] PROCESS | PID: 9868 | Minesweeper | Process terminated
+[Sat May  2 18:02:02 2026
+] RESOURCE | Resources released from PID 9868 | RAM: 220MB | HDD: 40MB | CPU: 1
+[Sat May  2 18:02:02 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 18:02:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:28 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Sat May  2 18:02:28 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Sat May  2 18:02:28 2026
+] RESOURCE | RAM block assigned to PID 9876 | Snake Game | Start: 0MB | End: 250MB
+[Sat May  2 18:02:28 2026
+] PROCESS | PID: 9876 | Snake Game | PCB Created
+[Sat May  2 18:02:28 2026
+] PROCESS | PID: 9876 | Snake Game | Added to Ready Queue
+[Sat May  2 18:02:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 262104MB | Available CPU Cores: 7
+[Sat May  2 18:02:31 2026
+] SYSTEM | Scheduler started
+[Sat May  2 18:02:31 2026
+] SYSTEM | CPU execution slot assigned to PID 9876 | Process: Snake Game
+[Sat May  2 18:02:31 2026
+] PROCESS | PID: 9876 | Snake Game | Dispatched by scheduler
+[Sat May  2 18:02:32 2026
+] SYSTEM | CPU execution slot released from PID 9876
+[Sat May  2 18:02:32 2026
+] PROCESS | PID: 9876 | Snake Game | Process terminated
+[Sat May  2 18:02:32 2026
+] RESOURCE | Resources released from PID 9876 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Sat May  2 18:02:32 2026
+] SYSTEM | Scheduler finished
+[Sat May  2 18:02:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:02:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:03:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:03:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:03:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:03:10 2026
+] SYSTEM | Task execution mode changed to Scheduler-Controlled Mode
+[Sat May  2 18:03:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:03:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:03:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 262144MB | Available CPU Cores: 8
+[Sat May  2 18:03:26 2026
+] SYSTEM | AMS OS shutdown requested
+[Sat May  2 18:03:30 2026
+] SYSTEM | Resource monitor thread stopped
+[Sat May  2 18:03:30 2026
+] SYSTEM | Shutdown cleanup completed, no active processes
+[Sat May  2 18:03:33 2026
+] SYSTEM | AMS OS shutdown completed
