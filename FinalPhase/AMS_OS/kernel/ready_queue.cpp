@@ -1,6 +1,7 @@
 #include "ready_queue.h"
 #include <iomanip>
 #include "console_colors.h"
+#include "runtime_reporter.h"
 
 /*
 Function: ReadyQueueManager
@@ -248,6 +249,11 @@ void ReadyQueueManager::applyAging(
                 item.processName,
                 "Aging applied, priority improved from " +
                 to_string(oldPriority) + " to " + to_string(pcb.priority)
+            );
+            RuntimeReport::event(
+                "AGING",
+                "PID " + to_string(item.pid) + " priority improved " +
+                to_string(oldPriority) + " -> " + to_string(pcb.priority)
             );
         } else {
             item.priority = pcb.priority;

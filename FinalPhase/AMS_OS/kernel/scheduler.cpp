@@ -1,6 +1,7 @@
 #include "scheduler.h"
 #include <fstream>
 #include "console_colors.h"
+#include "runtime_reporter.h"
 
 /*
 Function: Scheduler
@@ -26,18 +27,21 @@ bool Scheduler::selectNextProcess(
     if (!readyQueueManager.isSystemQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromSystemQueue();
         cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from System Queue using FCFS.\n";
+        RuntimeReport::event("SCHEDULING", "Selected PID " + to_string(selectedItem.pid) + " from System Queue (FCFS)");
         return true;
     }
 
     if (!readyQueueManager.isInteractiveQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromInteractiveQueue();
         cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from Interactive Queue using Round Robin.\n";
+        RuntimeReport::event("SCHEDULING", "Selected PID " + to_string(selectedItem.pid) + " from Interactive Queue (Round Robin)");
         return true;
     }
 
     if (!readyQueueManager.isBackgroundQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromBackgroundQueue();
         cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from Background Queue using low priority scheduling.\n";
+        RuntimeReport::event("SCHEDULING", "Selected PID " + to_string(selectedItem.pid) + " from Background Queue");
         return true;
     }
 
@@ -174,6 +178,7 @@ bool Scheduler::runProcess(
     cout << "========================================================\n";
 
     processManager.updateProcessState(item.pid, RUNNING_STATE);
+    RuntimeReport::event("CONTEXT_SWITCH", "Dispatch PID " + to_string(item.pid) + " (" + item.processName + ")");
     writeSchedulerGUIStatus(
 	    resourceManager,
 	    processManager,
@@ -196,7 +201,8 @@ bool Scheduler::runProcess(
 	    "CPU execution slot released from PID " + to_string(item.pid)
 	);
 
-	releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+		releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+        RuntimeReport::event("RESOURCE", "Released all resources for PID " + to_string(item.pid));
 	writeSchedulerGUIStatus(
 	    resourceManager,
 	    processManager,
@@ -230,7 +236,8 @@ bool Scheduler::runProcess(
 		"CPU execution slot released from PID " + to_string(item.pid)
 	    );
 
-	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+		    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+            RuntimeReport::event("RESOURCE", "Released all resources for PID " + to_string(item.pid));
             writeSchedulerGUIStatus(
 		    resourceManager,
 		    processManager,
@@ -257,6 +264,7 @@ bool Scheduler::runProcess(
 	);
 
 	processManager.updateProcessState(item.pid, READY_STATE);
+    RuntimeReport::event("CONTEXT_SWITCH", "Quantum expired, paused PID " + to_string(item.pid) + " and returned to READY");
         writeSchedulerGUIStatus(
 		    resourceManager,
 		    processManager,
@@ -415,4 +423,3 @@ void Scheduler::runScheduler(
     logger.logSystemEvent("Scheduler finished");
     cout << "\n==================== AMS OS SCHEDULER FINISHED ====================\n";
 }
-
