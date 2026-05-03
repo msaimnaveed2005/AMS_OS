@@ -501,7 +501,7 @@ void drawProcessCounters(sf::RenderWindow &window, sf::Font &font, GUIStatus sta
         {"TERMINATED", sf::Color(255, 80, 90)}
     };
 
-    for (int i = 0; i < states.size(); i++) {
+    for (size_t i = 0; i < states.size(); i++) {
         float x = 785 + i * 115;
         float y = 155;
 
@@ -546,7 +546,7 @@ void drawProcessTable(
     vector<string> headers = {"PID", "PROCESS", "STATE", "PRI", "RAM BLOCK"};
     vector<float> colX = {x + 20, x + 105, x + 385, x + 520, x + 600};
 
-    for (int i = 0; i < headers.size(); i++) {
+    for (size_t i = 0; i < headers.size(); i++) {
         sf::Text text = makeText(font, headers[i], 13, colX[i], headerY, sf::Color(85, 200, 255));
         text.setStyle(sf::Text::Bold);
         window.draw(text);
@@ -906,4 +906,3 @@ if (event.type == sf::Event::MouseButtonPressed) {
 
     return 0;
 }
-
