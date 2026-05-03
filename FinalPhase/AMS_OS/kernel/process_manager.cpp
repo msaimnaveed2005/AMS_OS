@@ -1,5 +1,6 @@
 #include "process_manager.h"
 #include <iomanip>
+#include "console_colors.h"
 
 /*
 Function: ProcessManager
@@ -27,17 +28,17 @@ bool ProcessManager::createPCB(
     int coresRequired
 ) {
     if (pid <= 0) {
-        cout << "\n[PROCESS MANAGER] Invalid PID. PCB creation failed.\n";
+        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Invalid PID. PCB creation failed.\n";
         return false;
     }
 
     if (processName.empty()) {
-        cout << "\n[PROCESS MANAGER] Invalid process name. PCB creation failed.\n";
+        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Invalid process name. PCB creation failed.\n";
         return false;
     }
 
     if (processTable.find(pid) != processTable.end()) {
-        cout << "\n[PROCESS MANAGER] Process with this PID already exists.\n";
+        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process with this PID already exists.\n";
         return false;
     }
 
@@ -56,7 +57,7 @@ bool ProcessManager::createPCB(
 	newProcess.memoryEnd = -1;
     processTable[pid] = newProcess;
 
-    cout << "\n[PROCESS MANAGER] PCB created successfully.\n";
+    cout << "\n" << Color::process("[PROCESS MANAGER]") << " PCB created successfully.\n";
     cout << "PID: " << pid << "\n";
     cout << "Process Name: " << processName << "\n";
     cout << "Process Type: " << getProcessTypeName(processType) << "\n";
@@ -106,13 +107,13 @@ Returns: true if state is updated, otherwise false.
 */
 bool ProcessManager::updateProcessState(int pid, ProcessState newState) {
     if (processTable.find(pid) == processTable.end()) {
-        cout << "\n[PROCESS MANAGER] Process not found. State update failed.\n";
+        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process not found. State update failed.\n";
         return false;
     }
 
     processTable[pid].processState = newState;
 
-    cout << "\n[PROCESS MANAGER] Process state updated.\n";
+    cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process state updated.\n";
     cout << "PID: " << pid << "\n";
     cout << "New State: " << getProcessStateName(newState) << "\n";
 
@@ -127,17 +128,17 @@ Returns: true if process is removed, otherwise false.
 */
 bool ProcessManager::removeProcess(int pid) {
     if (processTable.find(pid) == processTable.end()) {
-        cout << "\n[PROCESS MANAGER] Process not found. Removal failed.\n";
+        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process not found. Removal failed.\n";
         return false;
     }
 
-    cout << "\n[PROCESS MANAGER] Removing process from PCB table.\n";
+    cout << "\n" << Color::process("[PROCESS MANAGER]") << " Removing process from PCB table.\n";
     cout << "PID: " << pid << "\n";
     cout << "Process Name: " << processTable[pid].processName << "\n";
 
     processTable.erase(pid);
 
-    cout << "[PROCESS MANAGER] Process removed successfully.\n";
+    cout << Color::process("[PROCESS MANAGER]") << " Process removed successfully.\n";
 
     return true;
 }
@@ -264,10 +265,10 @@ Parameters: None.
 Returns: Nothing.
 */
 void ProcessManager::displayPCBTable() {
-    cout << "\n======================================= PCB TABLE =======================================\n";
+    cout << Color::table("\n======================================= PCB TABLE =======================================\n");
 
     if (processTable.empty()) {
-        cout << "No process exists in the PCB table.\n";
+        cout << Color::warning("No process exists in the PCB table.") << "\n";
         cout << "=========================================================================================\n";
         return;
     }

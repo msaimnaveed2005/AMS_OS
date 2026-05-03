@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include <fstream>
+#include "console_colors.h"
 
 /*
 Function: Scheduler
@@ -24,19 +25,19 @@ bool Scheduler::selectNextProcess(
 ) {
     if (!readyQueueManager.isSystemQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromSystemQueue();
-        cout << "\n[SCHEDULER] Selected process from System Queue using FCFS.\n";
+        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from System Queue using FCFS.\n";
         return true;
     }
 
     if (!readyQueueManager.isInteractiveQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromInteractiveQueue();
-        cout << "\n[SCHEDULER] Selected process from Interactive Queue using Round Robin.\n";
+        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from Interactive Queue using Round Robin.\n";
         return true;
     }
 
     if (!readyQueueManager.isBackgroundQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromBackgroundQueue();
-        cout << "\n[SCHEDULER] Selected process from Background Queue using low priority scheduling.\n";
+        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from Background Queue using low priority scheduling.\n";
         return true;
     }
 
@@ -58,13 +59,13 @@ void Scheduler::releaseCompletedProcess(
     PCB pcb;
 
     if (!processManager.getPCB(pid, pcb)) {
-        cout << "\n[SCHEDULER] PCB not found. Cannot release resources.\n";
+        cout << "\n" << Color::scheduler("[SCHEDULER]") << " PCB not found. Cannot release resources.\n";
         return;
     }
 
     processManager.updateProcessState(pid, TERMINATED_STATE);
     logger.logProcessEvent(pid, pcb.processName, "Process terminated");
-    cout << "\n[SCHEDULER] Releasing resources for completed process.\n";
+    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Releasing resources for completed process.\n";
     cout << "PID: " << pid << "\n";
     cout << "Process: " << pcb.processName << "\n";
     resourceManager.releaseMemoryBlock(pid);
@@ -157,7 +158,7 @@ bool Scheduler::runProcess(
     PCB pcb;
 
     if (!processManager.getPCB(item.pid, pcb)) {
-        cout << "\n[SCHEDULER] Process not found in PCB table. Skipping PID: " << item.pid << "\n";
+        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Process not found in PCB table. Skipping PID: " << item.pid << "\n";
         return true;
     }
 	syncManager.acquireCPUCores(pcb.coresRequired);
@@ -166,8 +167,8 @@ bool Scheduler::runProcess(
 	    "CPU execution slot assigned to PID " + to_string(item.pid) +
 	    " | Process: " + item.processName
 	);
-    cout << "\n==================== CONTEXT SWITCH ====================\n";
-    cout << "[SCHEDULER] Dispatching Process\n";
+    cout << Color::scheduler("\n==================== CONTEXT SWITCH ====================\n");
+    cout  << Color::scheduler("[SCHEDULER]") << " Dispatching Process\n";
     cout << "PID: " << item.pid << "\n";
     cout << "Process Name: " << item.processName << "\n";
     cout << "========================================================\n";
@@ -183,11 +184,11 @@ bool Scheduler::runProcess(
     kill(item.pid, SIGCONT);
 
     if (pcb.processType == SYSTEM_PROCESS || pcb.processType == KERNEL_PROCESS) {
-        cout << "[SCHEDULER] System process running with FCFS until completion.\n";
+        cout << Color::scheduler("[SCHEDULER]") << " System process running with FCFS until completion.\n";
 
        waitpid(item.pid, &status, 0);
 
-	cout << "\n[SCHEDULER] System process completed.\n";
+	cout << "\n" << Color::success("[SCHEDULER]") << " System process completed.\n";
 
 	syncManager.releaseCPUCores(pcb.coresRequired);
 
@@ -207,11 +208,11 @@ bool Scheduler::runProcess(
 
     if (pcb.processType == INTERACTIVE_PROCESS || pcb.processType == AUTO_RUNNING_PROCESS) {
         quantum = interactiveQuantum;
-        cout << "[SCHEDULER] Interactive process running with quantum: "
+        cout << Color::scheduler("[SCHEDULER]") << " Interactive process running with quantum: "
              << quantum << " seconds.\n";
     } else {
         quantum = backgroundQuantum;
-        cout << "[SCHEDULER] Background process running with quantum: "
+        cout <<  Color::scheduler("[SCHEDULER]") << " Background process running with quantum: "
              << quantum << " seconds.\n";
     }
 
@@ -221,7 +222,7 @@ bool Scheduler::runProcess(
         pid_t result = waitpid(item.pid, &status, WNOHANG);
 
        if (result == item.pid) {
-	    cout << "\n[SCHEDULER] Process completed within time quantum.\n";
+	    cout << "\n" << Color::success("[SCHEDULER]") << " Process completed within time quantum.\n";
 
 	    syncManager.releaseCPUCores(pcb.coresRequired);
 
@@ -239,12 +240,12 @@ bool Scheduler::runProcess(
 	    return true;
 	}
 
-        cout << "[SCHEDULER] Time slice " << i << "/" << quantum
+        cout << Color::scheduler("[SCHEDULER]") << " Time slice " << i << "/" << quantum
              << " completed for PID " << item.pid << "\n";
     }
 
-    cout << "\n[SCHEDULER] Time quantum expired for PID: " << item.pid << "\n";
-    cout << "[SCHEDULER] Pausing process and moving it back to ready queue.\n";
+    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Time quantum expired for PID: " << item.pid << "\n";
+    cout <<  Color::scheduler("[SCHEDULER]") << " Pausing process and moving it back to ready queue.\n";
 
     kill(item.pid, SIGSTOP);
 	waitpid(item.pid, &status, WUNTRACED);
@@ -363,16 +364,16 @@ void Scheduler::runScheduler(
     string osModeName,
     string taskModeName
 ) {
-    cout << "\n==================== AMS OS SCHEDULER STARTED ====================\n";
+    cout << Color::scheduler("\n==================== AMS OS SCHEDULER STARTED ====================\n");
     logger.logSystemEvent("Scheduler started");
     if (!readyQueueManager.hasReadyProcess()) {
-    cout << "[SCHEDULER] No process available in ready queue.\n";
-    cout << "[SCHEDULER] Waiting briefly for ready queue notification.\n";
+    cout <<  Color::scheduler("[SCHEDULER]") << " No process available in ready queue.\n";
+    cout <<Color::scheduler("[SCHEDULER]") << " Waiting briefly for ready queue notification.\n";
 
     syncManager.waitForReadyQueueSignal(2);
 
     if (!readyQueueManager.hasReadyProcess()) {
-        cout << "[SCHEDULER] Still no process available.\n";
+        cout <<  Color::scheduler("[SCHEDULER]") << " Still no process available.\n";
         cout << "==================================================================\n";
         return;
     }
@@ -405,10 +406,10 @@ void Scheduler::runScheduler(
     taskModeName
        );
 
-    cout << "\n[SCHEDULER] Current Resource Status:\n";
+    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Current Resource Status:\n";
     resourceManager.displayResources();
 
-    cout << "\n[SCHEDULER] Current Ready Queue Status:\n";
+    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Current Ready Queue Status:\n";
     readyQueueManager.displayReadyQueues();
 }
     logger.logSystemEvent("Scheduler finished");
