@@ -172,49 +172,74 @@ string getTaskExecutionModeName(bool separateTerminalMode) {
 /*
 Function: showMainMenu
 Purpose: Displays the AMS OS menu according to current user or kernel mode.
-Parameters: Current OS mode.
+Parameters: Current OS mode and task execution mode.
 Returns: Nothing.
 */
 void showMainMenu(OSMode currentMode, bool separateTerminalMode) {
-    cout << Color::section("\n========== AMS OS MAIN MENU ==========\n");
-    cout << "Current Mode: " << Color::kernel(getModeName(currentMode)) << "\n";
-    cout << "Task Execution Mode: "
-     << Color::process(getTaskExecutionModeName(separateTerminalMode)) << "\n";
-    cout << "--------------------------------------\n";
+    string modeColor = Color::BRIGHT_GREEN;
 
-    cout << "1. Show Task Catalog\n";
-    cout << "2. Show Task Details\n";
-    cout << "3. Launch Task\n";
-    cout << "4. Show Resources\n";
-    cout << "20. Show RAM Memory Layout\n";
-    cout << "7. Show PCB Table\n";
-    cout << "11. Run Scheduler\n";
-    cout << "12. Show Ready Queues\n";
-    cout << "17. Minimize Process\n";
-    cout << "18. Resume Process\n";
-    cout << "21. Close Process\n";
-    cout << "22. Switch to Process\n";
-    cout << "23. Toggle Task Terminal Mode\n";
-    cout << "24. Open Graphical Dashboard\n";
+    if (currentMode == KERNEL_MODE) {
+        modeColor = Color::BRIGHT_MAGENTA;
+    }
+
+    string taskModeColor = Color::BRIGHT_BLUE;
+
+    if (separateTerminalMode) {
+        taskModeColor = Color::BRIGHT_YELLOW;
+    }
+
+    cout << "\n";
+    Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
+    cout << Color::paint("                    AMS OS MAIN MENU\n", Color::BRIGHT_CYAN + Color::BOLD);
+    Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
+
+    cout << Color::label("Current Mode: ") 
+         << Color::paint(getModeName(currentMode), modeColor + Color::BOLD) << "\n";
+
+    cout << Color::label("Task Execution Mode: ")
+         << Color::paint(getTaskExecutionModeName(separateTerminalMode), taskModeColor + Color::BOLD) << "\n";
+
+    Color::line('-', 62, Color::GRAY);
+
+    cout << Color::paint(" USER OPERATIONS\n", Color::BRIGHT_GREEN + Color::BOLD);
+
+    cout << Color::number(" 1.")  << " Show Task Catalog\n";
+    cout << Color::number(" 2.")  << " Show Task Details\n";
+    cout << Color::number(" 3.")  << " Launch Task\n";
+    cout << Color::number(" 4.")  << " Show Resources\n";
+    cout << Color::number(" 7.")  << " Show PCB Table\n";
+    cout << Color::number("11.")  << " Run Scheduler\n";
+    cout << Color::number("12.")  << " Show Ready Queues\n";
+    cout << Color::number("17.")  << " Minimize Process\n";
+    cout << Color::number("18.")  << " Resume Process\n";
+    cout << Color::number("20.")  << " Show RAM Memory Layout\n";
+    cout << Color::number("21.")  << " Close Process\n";
+    cout << Color::number("22.")  << " Switch to Process\n";
+    cout << Color::number("23.")  << " Toggle Task Terminal Mode\n";
+    cout << Color::number("24.")  << " Open Graphical Dashboard\n";
+
     if (currentMode == USER_MODE) {
-        cout << "13. Switch to Kernel Mode\n";
+        cout << Color::number("13.") << " Switch to Kernel Mode\n";
     }
 
     if (currentMode == KERNEL_MODE) {
-        cout << Color::kernel("\n---------- KERNEL MODE TOOLS ----------\n");
-        cout << "5. Diagnostic: Test Resource Allocation\n";
-        cout << "6. Diagnostic: Test Resource Release\n";
-        cout << "8. Diagnostic: Create Dummy PCB\n";
-        cout << "9. Diagnostic: Update Process State\n";
-        cout << "10. Diagnostic: Remove PCB\n";
-        cout << "14. Switch to User Mode\n";
-        cout << "15. View System Log\n";
-        cout << "16. Kill Process\n";
-        cout << "19. Deadlock Detection\n";
+        Color::line('-', 62, Color::BRIGHT_MAGENTA);
+        cout << Color::kernel(" KERNEL MODE TOOLS\n");
+
+        cout << Color::number(" 5.")  << " Diagnostic: Test Resource Allocation\n";
+        cout << Color::number(" 6.")  << " Diagnostic: Test Resource Release\n";
+        cout << Color::number(" 8.")  << " Diagnostic: Create Dummy PCB\n";
+        cout << Color::number(" 9.")  << " Diagnostic: Update Process State\n";
+        cout << Color::number("10.")  << " Diagnostic: Remove PCB\n";
+        cout << Color::number("14.")  << " Switch to User Mode\n";
+        cout << Color::number("15.")  << " View System Log\n";
+        cout << Color::number("16.")  << " Kill Process\n";
+        cout << Color::number("19.")  << " Deadlock Detection\n";
     }
 
-    cout << "0. Shutdown AMS OS\n";
-    cout << "======================================\n";
+    Color::line('-', 62, Color::GRAY);
+    cout << Color::number(" 0.") << " Shutdown AMS OS\n";
+    Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
 }
 
 /*

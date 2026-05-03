@@ -1,6 +1,6 @@
 #ifndef CONSOLE_COLORS_H
 #define CONSOLE_COLORS_H
-
+#include <iostream>
 #include <string>
 
 using namespace std;
@@ -24,6 +24,7 @@ namespace Color {
     const string BRIGHT_BLUE = "\033[94m";
     const string BRIGHT_MAGENTA = "\033[95m";
     const string BRIGHT_CYAN = "\033[96m";
+    const string BRIGHT_WHITE = "\033[97m";  // Added BRIGHT_WHITE
 
     /*
     Function: paint
@@ -174,6 +175,58 @@ namespace Color {
     inline string section(string text) {
         return BOLD + WHITE + text + RESET;
     }
+
+/*
+Function: cell
+Purpose: Prints a colored table cell without breaking alignment.
+Parameters: Text, column width, and color code.
+Returns: Nothing.
+*/
+inline void cell(string text, int width, string color) {
+    cout << color << text << RESET;
+
+    int padding = width - static_cast<int>(text.length());
+
+    if (padding > 0) {
+        cout << string(padding, ' ');
+    }
+}
+
+/*
+Function: line
+Purpose: Prints a colored horizontal line.
+Parameters: Character, count, and color code.
+Returns: Nothing.
+*/
+inline void line(char character, int count, string color) {
+    cout << color;
+
+    for (int i = 0; i < count; i++) {
+        cout << character;
+    }
+
+    cout << RESET << "\n";
+}
+
+/*
+Function: number
+Purpose: Colors menu option numbers.
+Parameters: Text.
+Returns: Colored text.
+*/
+inline string number(string text) {
+    return BOLD + BRIGHT_CYAN + text + RESET;
+}
+
+/*
+Function: label
+Purpose: Colors labels in menu and tables.
+Parameters: Text.
+Returns: Colored text.
+*/
+inline string label(string text) {
+    return BOLD + WHITE + text + RESET;
+}
 }
 
 #endif

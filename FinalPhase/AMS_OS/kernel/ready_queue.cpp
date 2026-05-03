@@ -264,7 +264,10 @@ Parameters: None.
 Returns: Nothing.
 */
 void ReadyQueueManager::displayReadyQueues() {
-    cout << Color::table("\n============================== READY QUEUES ==============================\n");
+    cout << "\n";
+Color::line('=', 90, Color::BRIGHT_BLUE + Color::BOLD);
+cout << Color::paint("                              READY QUEUES\n", Color::BRIGHT_BLUE + Color::BOLD);
+Color::line('=', 90, Color::BRIGHT_BLUE + Color::BOLD);
 
     if (!hasReadyProcess()) {
         cout << "No process currently exists in ready queues.\n";
@@ -276,7 +279,7 @@ void ReadyQueueManager::displayReadyQueues() {
     queue<ReadyQueueItem> tempInteractiveQueue = interactiveQueue;
     queue<ReadyQueueItem> tempBackgroundQueue = backgroundQueue;
 
-    cout <<Color::kernel( "\n[Queue 1: System Queue, Highest Priority, FCFS]")<<"\n";
+    cout << Color::kernel("\n[Queue 1: System Queue, Highest Priority, FCFS]\n");
     if (tempSystemQueue.empty()) {
         cout << "Empty\n";
     } else {
@@ -298,7 +301,7 @@ void ReadyQueueManager::displayReadyQueues() {
         }
     }
 
-    cout << Color::scheduler("\n[Queue 2: Interactive Queue, Medium Priority, Round Robin]")<<"\n";
+   cout << Color::scheduler("\n[Queue 2: Interactive Queue, Medium Priority, Round Robin]\n");
     if (tempInteractiveQueue.empty()) {
         cout << "Empty\n";
     } else {
@@ -320,7 +323,7 @@ void ReadyQueueManager::displayReadyQueues() {
         }
     }
 
-    cout << Color::resource("\n[Queue 3: Background Queue, Low Priority]")<<"\n";
+    cout << Color::resource("\n[Queue 3: Background Queue, Low Priority]\n");
     if (tempBackgroundQueue.empty()) {
         cout << "Empty\n";
     } else {

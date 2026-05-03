@@ -147,10 +147,18 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::displayResources() {
-    cout << Color::resource("\n========== AMS OS RESOURCE STATUS ==========\n");
-    cout << "RAM Available: " << availableRAM << " MB / " << totalRAM << " MB\n";
-    cout << "HDD Available: " << availableHDD << " MB / " << totalHDD << " MB\n";
-    cout << "CPU Cores Available: " << availableCores << " / " << totalCores << "\n";
+    cout << "\n";
+Color::line('=', 58, Color::BRIGHT_YELLOW + Color::BOLD);
+cout << Color::paint("              AMS OS RESOURCE STATUS\n", Color::BRIGHT_YELLOW + Color::BOLD);
+Color::line('=', 58, Color::BRIGHT_YELLOW + Color::BOLD);
+    cout << Color::paint("RAM Available: ", Color::BRIGHT_BLUE + Color::BOLD)
+     << availableRAM << " MB / " << totalRAM << " MB\n";
+
+cout << Color::paint("HDD Available: ", Color::BRIGHT_MAGENTA + Color::BOLD)
+     << availableHDD << " MB / " << totalHDD << " MB\n";
+
+cout << Color::paint("CPU Cores Available: ", Color::BRIGHT_GREEN + Color::BOLD)
+     << availableCores << " / " << totalCores << "\n";
     cout << "===========================================\n";
 }
 
@@ -294,7 +302,10 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::displayMemoryLayout() {
-    cout << Color::memory("\n==================== RAM MEMORY LAYOUT ====================\n");
+    cout << "\n";
+Color::line('=', 74, Color::BRIGHT_MAGENTA + Color::BOLD);
+cout << Color::paint("                         RAM MEMORY LAYOUT\n", Color::BRIGHT_MAGENTA + Color::BOLD);
+Color::line('=', 74, Color::BRIGHT_MAGENTA + Color::BOLD);
 
     if (memoryBlocks.empty()) {
         cout << "No memory layout available.\n";
@@ -302,23 +313,34 @@ void ResourceManager::displayMemoryLayout() {
         return;
     }
 
-    cout << "Start(MB)\tEnd(MB)\t\tStatus\t\tPID\tProcess\n";
+    // Header row
+Color::cell("START", 12, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("END", 12, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("STATUS", 16, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("PID", 10, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("PROCESS", 20, Color::BRIGHT_CYAN + Color::BOLD);
+cout << "\n";
+
+// Line separator for rows
+Color::line('-', 74, Color::GRAY);
     cout << "-----------------------------------------------------------\n";
 
-    for (MemoryBlock block : memoryBlocks) {
-        cout << block.startAddress << "\t\t"
-             << block.endAddress << "\t\t";
+   for (auto block : memoryBlocks) {
+    Color::cell(to_string(block.startAddress), 12, Color::WHITE);
+    Color::cell(to_string(block.endAddress), 12, Color::WHITE);
 
-        if (block.isFree) {
-            cout << "FREE\t\t"
-                 << "-\t"
-                 << "Available\n";
-        } else {
-            cout << "ALLOCATED\t"
-                 << block.pid << "\t"
-                 << block.processName << "\n";
-        }
+    if (block.isFree) {
+        Color::cell("FREE", 16, Color::BRIGHT_GREEN + Color::BOLD);
+        Color::cell("-", 10, Color::GRAY);
+        Color::cell("Available", 20, Color::BRIGHT_GREEN);
+    } else {
+        Color::cell("ALLOCATED", 16, Color::BRIGHT_RED + Color::BOLD);
+        Color::cell(to_string(block.pid), 10, Color::BRIGHT_YELLOW);
+        Color::cell(block.processName, 20, Color::BRIGHT_WHITE + Color::BOLD);
     }
+
+    cout << "\n";
+}
 
     cout << "===========================================================\n";
 }
