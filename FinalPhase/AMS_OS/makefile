@@ -6,7 +6,11 @@ KERNEL_SRC = kernel/main.cpp \
              kernel/process_manager.cpp \
              kernel/task_catalog.cpp \
              kernel/ready_queue.cpp \
-             kernel/scheduler.cpp
+             kernel/scheduler.cpp \
+             kernel/logger.cpp \
+             kernel/deadlock_manager.cpp \
+             kernel/sync_manager.cpp \
+             kernel/runtime_reporter.cpp
 
 OS_OUTPUT = OS
 

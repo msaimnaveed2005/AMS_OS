@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <limits>
 #include <cstdlib>
-#include <cstring>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fstream>
@@ -22,6 +21,7 @@
 #include "logger.h"
 #include "deadlock_manager.h"
 #include "sync_manager.h"
+#include "runtime_reporter.h"
 
 using namespace std;
 
@@ -64,6 +64,7 @@ void bootScreen() {
     }
 
     cout << "\n" << Color::success("System Loaded Successfully.") << "\n";
+    RuntimeReport::reset();
 }
 
 /*
@@ -190,7 +191,8 @@ void showMainMenu(OSMode currentMode, bool separateTerminalMode) {
 
     cout << "\n";
     Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
-    cout << Color::paint("                    AMS OS MAIN MENU\n", Color::BRIGHT_CYAN + Color::BOLD);
+    cout << Color::paint("                 AMS OS CONTROL CENTER\n", Color::BRIGHT_CYAN + Color::BOLD);
+    cout << Color::paint("                    Premium Console UI\n", Color::BRIGHT_BLUE);
     Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
 
     cout << Color::label("Current Mode: ") 
@@ -248,11 +250,6 @@ Purpose: Displays a message for modules that will be connected in future steps.
 Parameters: Name of the selected module.
 Returns: Nothing.
 */
-void showComingSoonMessage(string moduleName) {
-    cout << "\n[" << moduleName << "] module selected.\n";
-    cout << "This module will be connected in the next implementation steps.\n";
-}
-
 /*
 Function: testResourceAllocation
 Purpose: Allows the user to manually test resource allocation.
@@ -607,6 +604,7 @@ void launchTaskUsingIPCForkTest(
         if (response.granted == 0) {
             cout << Color::child("[CHILD PROCESS]") << " Resource request denied by kernel.\n";
             cout << Color::child("[CHILD PROCESS]") << " Terminating process.\n";
+            RuntimeReport::event("RESOURCE", "Kernel denied resource request for task " + selectedTask.taskName);
             exit(2);
         }
 
@@ -647,6 +645,7 @@ void launchTaskUsingIPCForkTest(
         response.granted = 1;
 
          cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Resources available. Granting request.\n";
+        RuntimeReport::event("RESOURCE", "Granted PID " + to_string(pid) + " | " + string(request.processName));
 	int memoryStart = -1;
 int memoryEnd = -1;
 
@@ -662,6 +661,7 @@ if (!memoryAllocated) {
     response.granted = 0;
 
     cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " RAM block allocation failed. Denying request.\n";
+    RuntimeReport::event("RESOURCE", "Denied PID " + to_string(pid) + " due to RAM block allocation failure");
 
     logger.logResourceEvent(
         "RAM block allocation failed for " + string(request.processName)
@@ -725,6 +725,7 @@ readyQueueManager.displayReadyQueues();
         response.granted = 0;
 
         cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Resources unavailable. Denying request.\n";
+        RuntimeReport::event("RESOURCE", "Denied PID " + to_string(pid) + " due to insufficient resources");
 	logger.logResourceEvent("Resources denied for process " + string(request.processName));
     }
 
@@ -1386,6 +1387,7 @@ void autoStartDigitalClock(
 
         if (response.granted == 0) {
             cout << "[CHILD CLOCK] Resource request denied by kernel.\n";
+            RuntimeReport::event("RESOURCE", "Kernel denied auto-start clock request");
             exit(2);
         }
 
@@ -1425,6 +1427,7 @@ void autoStartDigitalClock(
         response.granted = 1;
 
         cout << Color::kernel("[KERNEL/PARENT]") << " Resources available. Auto-start request granted.\n";
+        RuntimeReport::event("RESOURCE", "Auto-start granted PID " + to_string(pid) + " | " + string(request.processName));
 int memoryStart = -1;
 int memoryEnd = -1;
 
