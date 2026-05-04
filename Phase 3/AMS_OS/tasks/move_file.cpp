@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
+#include <unistd.h>
+#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -14,7 +16,8 @@ int main() {
     string sourceFile;
     string destinationFile;
 
-    cout << "\n========== MOVE FILE TASK ==========\n";
+    UI::panelHeader("Move File", "Virtual disk utility");
+    UI::taskControlHint(getpid());
 
     cout << "Enter source file name: ";
     cin >> sourceFile;
@@ -26,13 +29,14 @@ int main() {
     string destinationPath = "data/virtual_disk/" + destinationFile;
 
     if (rename(sourcePath.c_str(), destinationPath.c_str()) == 0) {
-        cout << "File moved/renamed successfully.\n";
-        cout << "From: " << sourcePath << "\n";
-        cout << "To: " << destinationPath << "\n";
+        cout << UI::paint("File moved/renamed successfully.\n", UI::GREEN + UI::BOLD);
+        UI::keyValue("From", sourcePath);
+        UI::keyValue("To", destinationPath);
     } else {
-        cout << "Error: File could not be moved. Check if source exists.\n";
+        cout << UI::paint("Error: File could not be moved. Check if source exists.\n", UI::RED + UI::BOLD);
         return 1;
     }
 
+    UI::panelFooter();
     return 0;
 }

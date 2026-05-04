@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <unistd.h>
+#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -16,10 +17,10 @@ int main() {
     string line;
     string fileName;
 
-    cout << "\n========== NOTEPAD WITH AUTO-SAVE TASK ==========\n";
-    cout << "Notepad started as a separate executable.\n";
-    cout << "Every line you type will be auto-saved immediately.\n";
-    cout << "Type EXIT to close Notepad.\n\n";
+    UI::panelHeader("Notepad", "Auto-save editor");
+    UI::taskControlHint(getpid());
+    cout << "  Every line you type will be auto-saved immediately.\n";
+    cout << "  Type EXIT to close Notepad.\n\n";
 
     cout << "Enter file name for notes: ";
     cin >> fileName;
@@ -29,7 +30,7 @@ int main() {
     ofstream file(filePath, ios::app);
 
     if (!file) {
-        cout << "Error: Could not open or create notepad file.\n";
+        cout << UI::paint("Error: Could not open or create notepad file.\n", UI::RED + UI::BOLD);
         return 1;
     }
 
@@ -54,13 +55,14 @@ int main() {
         */
         file.flush();
 
-        cout << "[AUTO-SAVE] Line saved successfully.\n";
+        cout << UI::paint("[AUTO-SAVE] Line saved successfully.\n", UI::GREEN);
     }
 
     file.close();
 
-    cout << "\nNotepad closed.\n";
-    cout << "File saved at: " << filePath << "\n";
+    cout << "\n" << UI::paint("Notepad closed.\n", UI::GREEN + UI::BOLD);
+    UI::keyValue("File saved at", filePath);
+    UI::panelFooter();
 
     return 0;
 }

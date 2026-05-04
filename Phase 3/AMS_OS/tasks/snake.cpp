@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <unistd.h>
+#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -14,15 +16,15 @@ int main() {
     int score = 0;
     char move;
 
-    cout << "\n========== SNAKE GAME TASK ==========\n";
-    cout << "Simple Snake Simulation\n";
-    cout << "Use W A S D to move. Press Q to quit.\n";
+    UI::panelHeader("Snake Game", "Text simulation");
+    UI::taskControlHint(getpid());
+    cout << "  Use W A S D to move. Press Q to quit.\n";
 
     srand(time(0));
 
     while (true) {
-        cout << "\nSnake Position: [*]\n";
-        cout << "Score: " << score << "\n";
+        cout << "\n  " << UI::paint("Snake", UI::BOLD) << "  [*]\n";
+        UI::keyValue("Score", to_string(score), 8);
         cout << "Enter move: ";
         cin >> move;
 
@@ -40,15 +42,17 @@ int main() {
 
             if (food == 1) {
                 score += 10;
-                cout << "Food eaten. Score increased.\n";
+                cout << UI::paint("Food eaten. Score increased.\n", UI::GREEN + UI::BOLD);
             } else {
                 cout << "Snake moved.\n";
             }
         } else {
-            cout << "Invalid move.\n";
+            cout << UI::paint("Invalid move.\n", UI::YELLOW + UI::BOLD);
         }
     }
 
-    cout << "Snake Game ended. Final Score: " << score << "\n";
+    cout << UI::paint("Snake Game ended.\n", UI::GREEN + UI::BOLD);
+    UI::keyValue("Final Score", to_string(score));
+    UI::panelFooter();
     return 0;
 }

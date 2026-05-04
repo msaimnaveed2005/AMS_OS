@@ -1,4 +1,5 @@
 #include "task_catalog.h"
+#include "ui.h"
 #include <iomanip>
 
 /*
@@ -199,6 +200,18 @@ void TaskCatalog::initializePhase3Tasks() {
     processKiller.executablePath = "./build/process_killer";
     processKiller.description = "Kernel mode process killer information task.";
     taskList.push_back(processKiller);
+
+    TaskInfo calendar;
+    calendar.taskID = 16;
+    calendar.taskName = "Calendar";
+    calendar.processType = AUTO_RUNNING_PROCESS;
+    calendar.priority = 2;
+    calendar.ramRequired = 50;
+    calendar.hddRequired = 10;
+    calendar.coresRequired = 1;
+    calendar.executablePath = "./build/calendar";
+    calendar.description = "Auto-running monthly calendar task.";
+    taskList.push_back(calendar);
 }
 
 /*
@@ -208,38 +221,41 @@ Parameters: None.
 Returns: Nothing.
 */
 void TaskCatalog::displayAvailableTasks() {
-    cout << "\n============================== AMS OS TASK CATALOG ==============================\n";
+    UI::panelHeader("Task Catalog", to_string(taskList.size()) + " available tasks", 92);
 
     if (taskList.empty()) {
-        cout << "No tasks are available in the task catalog.\n";
-        cout << "=================================================================================\n";
+        UI::emptyState("No tasks are available in the task catalog.", 92);
         return;
     }
 
+    cout << "  ";
     cout << left
          << setw(6)  << "ID"
-         << setw(20) << "Task Name"
-         << setw(18) << "Type"
+         << setw(22) << "Task Name"
+         << setw(16) << "Type"
          << setw(10) << "Priority"
-         << setw(10) << "RAM"
-         << setw(10) << "HDD"
-         << setw(6)  << "CPU" << "\n";
+         << setw(11) << "RAM"
+         << setw(11) << "HDD"
+         << setw(6)  << "CPU"
+         << "Description" << "\n";
 
-    cout << "---------------------------------------------------------------------------------\n";
+    cout << "  " << UI::paint(UI::repeat('-', 86) + "\n", UI::DIM);
 
     for (TaskInfo task : taskList) {
+        cout << "  ";
         cout << left
              << setw(6)  << task.taskID
-             << setw(20) << task.taskName
-             << setw(18) << getProcessTypeName(task.processType)
+             << setw(22) << UI::fit(task.taskName, 20)
+             << setw(16) << getProcessTypeName(task.processType)
              << setw(10) << task.priority
-             << setw(10) << (to_string(task.ramRequired) + "MB")
-             << setw(10) << (to_string(task.hddRequired) + "MB")
+             << setw(11) << (to_string(task.ramRequired) + " MB")
+             << setw(11) << (to_string(task.hddRequired) + " MB")
              << setw(6)  << task.coresRequired
+             << UI::fit(task.description, 26)
              << "\n";
     }
 
-    cout << "=================================================================================\n";
+    UI::panelFooter(92);
 }
 
 /*
@@ -256,17 +272,16 @@ bool TaskCatalog::displayTaskDetails(int taskID) {
         return false;
     }
 
-    cout << "\n==================== TASK DETAILS ====================\n";
-    cout << "Task ID: " << selectedTask.taskID << "\n";
-    cout << "Task Name: " << selectedTask.taskName << "\n";
-    cout << "Task Type: " << getProcessTypeName(selectedTask.processType) << "\n";
-    cout << "Priority: " << selectedTask.priority << "\n";
-    cout << "RAM Required: " << selectedTask.ramRequired << " MB\n";
-    cout << "HDD Required: " << selectedTask.hddRequired << " MB\n";
-    cout << "CPU Cores Required: " << selectedTask.coresRequired << "\n";
-    cout << "Executable Path: " << selectedTask.executablePath << "\n";
-    cout << "Description: " << selectedTask.description << "\n";
-    cout << "======================================================\n";
+    UI::panelHeader("Task Details", selectedTask.taskName);
+    UI::keyValue("Task ID", to_string(selectedTask.taskID));
+    UI::keyValue("Task Type", getProcessTypeName(selectedTask.processType));
+    UI::keyValue("Priority", to_string(selectedTask.priority));
+    UI::keyValue("RAM Required", to_string(selectedTask.ramRequired) + " MB");
+    UI::keyValue("HDD Required", to_string(selectedTask.hddRequired) + " MB");
+    UI::keyValue("CPU Cores Required", to_string(selectedTask.coresRequired));
+    UI::keyValue("Executable Path", selectedTask.executablePath);
+    UI::keyValue("Description", selectedTask.description);
+    UI::panelFooter();
 
     return true;
 }

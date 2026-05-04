@@ -91,6 +91,38 @@ public:
     bool isBackgroundQueueEmpty();
 
     /*
+    Function: getSystemQueueCount
+    Purpose: Returns number of processes waiting in the system queue.
+    Parameters: None.
+    Returns: System queue count.
+    */
+    int getSystemQueueCount();
+
+    /*
+    Function: getInteractiveQueueCount
+    Purpose: Returns number of processes waiting in the interactive queue.
+    Parameters: None.
+    Returns: Interactive queue count.
+    */
+    int getInteractiveQueueCount();
+
+    /*
+    Function: getBackgroundQueueCount
+    Purpose: Returns number of processes waiting in the background queue.
+    Parameters: None.
+    Returns: Background queue count.
+    */
+    int getBackgroundQueueCount();
+
+    /*
+    Function: getTotalReadyCount
+    Purpose: Returns total number of processes waiting in all ready queues.
+    Parameters: None.
+    Returns: Total ready process count.
+    */
+    int getTotalReadyCount();
+
+    /*
     Function: removeFromSystemQueue
     Purpose: Removes and returns the front process from system queue.
     Parameters: None.

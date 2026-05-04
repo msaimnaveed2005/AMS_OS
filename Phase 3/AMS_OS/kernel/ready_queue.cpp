@@ -1,4 +1,5 @@
 #include "ready_queue.h"
+#include "ui.h"
 #include <iomanip>
 
 /*
@@ -85,6 +86,46 @@ Returns: true if empty, otherwise false.
 */
 bool ReadyQueueManager::isBackgroundQueueEmpty() {
     return backgroundQueue.empty();
+}
+
+/*
+Function: getSystemQueueCount
+Purpose: Returns number of processes waiting in the system queue.
+Parameters: None.
+Returns: System queue count.
+*/
+int ReadyQueueManager::getSystemQueueCount() {
+    return static_cast<int>(systemQueue.size());
+}
+
+/*
+Function: getInteractiveQueueCount
+Purpose: Returns number of processes waiting in the interactive queue.
+Parameters: None.
+Returns: Interactive queue count.
+*/
+int ReadyQueueManager::getInteractiveQueueCount() {
+    return static_cast<int>(interactiveQueue.size());
+}
+
+/*
+Function: getBackgroundQueueCount
+Purpose: Returns number of processes waiting in the background queue.
+Parameters: None.
+Returns: Background queue count.
+*/
+int ReadyQueueManager::getBackgroundQueueCount() {
+    return static_cast<int>(backgroundQueue.size());
+}
+
+/*
+Function: getTotalReadyCount
+Purpose: Returns total number of processes waiting in all ready queues.
+Parameters: None.
+Returns: Total ready process count.
+*/
+int ReadyQueueManager::getTotalReadyCount() {
+    return getSystemQueueCount() + getInteractiveQueueCount() + getBackgroundQueueCount();
 }
 
 /*
@@ -263,11 +304,10 @@ Parameters: None.
 Returns: Nothing.
 */
 void ReadyQueueManager::displayReadyQueues() {
-    cout << "\n============================== READY QUEUES ==============================\n";
+    UI::panelHeader("Ready Queues", "Multilevel scheduling view", 86);
 
     if (!hasReadyProcess()) {
-        cout << "No process currently exists in ready queues.\n";
-        cout << "=========================================================================\n";
+        UI::emptyState("No process currently exists in ready queues.", 86);
         return;
     }
 
@@ -275,73 +315,43 @@ void ReadyQueueManager::displayReadyQueues() {
     queue<ReadyQueueItem> tempInteractiveQueue = interactiveQueue;
     queue<ReadyQueueItem> tempBackgroundQueue = backgroundQueue;
 
-    cout << "\n[Queue 1: System Queue, Highest Priority, FCFS]\n";
-    if (tempSystemQueue.empty()) {
-        cout << "Empty\n";
-    } else {
-        cout << left
-             << setw(8) << "PID"
-             << setw(22) << "Process Name"
-             << setw(12) << "Priority"
-             << "\n";
+    auto printQueue = [](const string &title, const string &policy, queue<ReadyQueueItem> targetQueue) {
+        cout << "\n  " << UI::paint(title, UI::BOLD) << "  " << UI::paint(policy, UI::DIM) << "\n";
 
-        while (!tempSystemQueue.empty()) {
-            ReadyQueueItem item = tempSystemQueue.front();
-            tempSystemQueue.pop();
-
-            cout << left
-                 << setw(8) << item.pid
-                 << setw(22) << item.processName
-                 << setw(12) << item.priority
-                 << "\n";
+        if (targetQueue.empty()) {
+            cout << "  " << UI::paint("No waiting processes.", UI::DIM) << "\n";
+            return;
         }
-    }
 
-    cout << "\n[Queue 2: Interactive Queue, Medium Priority, Round Robin]\n";
-    if (tempInteractiveQueue.empty()) {
-        cout << "Empty\n";
-    } else {
-        cout << left
+        cout << "  " << left
              << setw(8) << "PID"
-             << setw(22) << "Process Name"
+             << setw(26) << "Process Name"
              << setw(12) << "Priority"
-             << "\n";
+             << "Queue Position\n";
+        cout << "  " << UI::paint(UI::repeat('-', 72) + "\n", UI::DIM);
 
-        while (!tempInteractiveQueue.empty()) {
-            ReadyQueueItem item = tempInteractiveQueue.front();
-            tempInteractiveQueue.pop();
+        int position = 1;
 
-            cout << left
+        while (!targetQueue.empty()) {
+            ReadyQueueItem item = targetQueue.front();
+            targetQueue.pop();
+
+            cout << "  " << left
                  << setw(8) << item.pid
-                 << setw(22) << item.processName
+                 << setw(26) << UI::fit(item.processName, 24)
                  << setw(12) << item.priority
+                 << position
                  << "\n";
+
+            position++;
         }
-    }
+    };
 
-    cout << "\n[Queue 3: Background Queue, Low Priority]\n";
-    if (tempBackgroundQueue.empty()) {
-        cout << "Empty\n";
-    } else {
-        cout << left
-             << setw(8) << "PID"
-             << setw(22) << "Process Name"
-             << setw(12) << "Priority"
-             << "\n";
+    printQueue("Queue 1: System", "Highest priority | FCFS", tempSystemQueue);
+    printQueue("Queue 2: Interactive", "Medium priority | Round Robin", tempInteractiveQueue);
+    printQueue("Queue 3: Background", "Low priority", tempBackgroundQueue);
 
-        while (!tempBackgroundQueue.empty()) {
-            ReadyQueueItem item = tempBackgroundQueue.front();
-            tempBackgroundQueue.pop();
-
-            cout << left
-                 << setw(8) << item.pid
-                 << setw(22) << item.processName
-                 << setw(12) << item.priority
-                 << "\n";
-        }
-    }
-
-    cout << "=========================================================================\n";
+    UI::panelFooter(86);
 }
 
 /*

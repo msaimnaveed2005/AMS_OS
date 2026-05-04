@@ -114,6 +114,30 @@ public:
     */
     int getAvailableCores();
 
+    /*
+    Function: getTotalRAM
+    Purpose: Returns total configured RAM.
+    Parameters: None.
+    Returns: Total RAM.
+    */
+    int getTotalRAM();
+
+    /*
+    Function: getTotalHDD
+    Purpose: Returns total configured hard drive space.
+    Parameters: None.
+    Returns: Total HDD.
+    */
+    int getTotalHDD();
+
+    /*
+    Function: getTotalCores
+    Purpose: Returns total configured CPU cores.
+    Parameters: None.
+    Returns: Total CPU cores.
+    */
+    int getTotalCores();
+
 /*
 Function: allocateMemoryBlock
 Purpose: Allocates a simulated RAM block to a process using first-fit allocation.

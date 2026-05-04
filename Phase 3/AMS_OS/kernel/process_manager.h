@@ -179,6 +179,22 @@ bool updateProcessPriority(int pid, int newPriority);
 	Returns: Vector of process IDs.
 	*/
 	vector<int> getAllPIDs();
+
+    /*
+    Function: getProcessCount
+    Purpose: Returns total number of processes in the PCB table.
+    Parameters: None.
+    Returns: Process count.
+    */
+    int getProcessCount();
+
+    /*
+    Function: getProcessStateCount
+    Purpose: Counts processes currently in a selected state.
+    Parameters: Process state.
+    Returns: Process count for that state.
+    */
+    int getProcessStateCount(ProcessState state);
 /*
 Function: updateMemoryBlock
 Purpose: Updates the memory start and end address of a process.

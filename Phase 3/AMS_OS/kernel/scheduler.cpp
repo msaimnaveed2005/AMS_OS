@@ -1,4 +1,5 @@
 #include "scheduler.h"
+#include "ui.h"
 
 /*
 Function: Scheduler
@@ -110,11 +111,11 @@ bool Scheduler::runProcess(
 	    "CPU execution slot assigned to PID " + to_string(item.pid) +
 	    " | Process: " + item.processName
 	);
-    cout << "\n==================== CONTEXT SWITCH ====================\n";
-    cout << "[SCHEDULER] Dispatching Process\n";
-    cout << "PID: " << item.pid << "\n";
-    cout << "Process Name: " << item.processName << "\n";
-    cout << "========================================================\n";
+    UI::panelHeader("Context Switch", "Scheduler dispatch");
+    UI::keyValue("PID", to_string(item.pid));
+    UI::keyValue("Process Name", item.processName);
+    UI::keyValue("Queue", readyQueueManager.getQueueName(item.priority));
+    UI::panelFooter();
 
     processManager.updateProcessState(item.pid, RUNNING_STATE);
     logger.logProcessEvent(item.pid, item.processName, "Dispatched by scheduler");
@@ -208,7 +209,7 @@ void Scheduler::runScheduler(
     Logger &logger,
     SyncManager &syncManager
 ) {
-    cout << "\n==================== AMS OS SCHEDULER STARTED ====================\n";
+    UI::panelHeader("AMS OS Scheduler", "Started");
     logger.logSystemEvent("Scheduler started");
     if (!readyQueueManager.hasReadyProcess()) {
     cout << "[SCHEDULER] No process available in ready queue.\n";
@@ -218,7 +219,7 @@ void Scheduler::runScheduler(
 
     if (!readyQueueManager.hasReadyProcess()) {
         cout << "[SCHEDULER] Still no process available.\n";
-        cout << "==================================================================\n";
+        UI::panelFooter();
         return;
     }
 }
@@ -255,5 +256,5 @@ void Scheduler::runScheduler(
     readyQueueManager.displayReadyQueues();
 }
     logger.logSystemEvent("Scheduler finished");
-    cout << "\n==================== AMS OS SCHEDULER FINISHED ====================\n";
+    UI::panelHeader("AMS OS Scheduler", "Finished");
 }

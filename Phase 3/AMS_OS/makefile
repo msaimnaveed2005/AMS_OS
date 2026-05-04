@@ -1,20 +1,37 @@
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall
+UI_HEADER = kernel/ui.h
 
 KERNEL_SRC = kernel/main.cpp \
              kernel/resource_manager.cpp \
              kernel/process_manager.cpp \
              kernel/task_catalog.cpp \
              kernel/ready_queue.cpp \
-             kernel/scheduler.cpp
+             kernel/scheduler.cpp \
+             kernel/logger.cpp \
+             kernel/deadlock_manager.cpp \
+             kernel/sync_manager.cpp
 
 OS_OUTPUT = OS
 
 TASKS = build/calculator \
+        build/calendar \
         build/notepad \
         build/clock \
         build/music_player \
-        build/file_copy
+        build/file_copy \
+        build/create_file \
+        build/delete_file \
+        build/download_simulator \
+        build/file_info \
+        build/minesweeper \
+        build/move_file \
+        build/process_killer \
+        build/snake \
+        build/system_info \
+        build/task_manager
+
+.PHONY: all folders run clean
 
 all: folders $(OS_OUTPUT) $(TASKS)
 
@@ -23,31 +40,15 @@ folders:
 	mkdir -p data
 	mkdir -p data/virtual_disk
 
-$(OS_OUTPUT): $(KERNEL_SRC)
+$(OS_OUTPUT): $(KERNEL_SRC) $(UI_HEADER)
 	$(CXX) $(CXXFLAGS) $(KERNEL_SRC) -o $(OS_OUTPUT)
 
-build/calculator: tasks/calculator.cpp
-	$(CXX) $(CXXFLAGS) tasks/calculator.cpp -o build/calculator
-
-build/notepad: tasks/notepad.cpp
-	$(CXX) $(CXXFLAGS) tasks/notepad.cpp -o build/notepad
-
-build/clock: tasks/clock.cpp
-	$(CXX) $(CXXFLAGS) tasks/clock.cpp -o build/clock
-
-build/music_player: tasks/music_player.cpp
-	$(CXX) $(CXXFLAGS) tasks/music_player.cpp -o build/music_player
-
-build/file_copy: tasks/file_copy.cpp
-	$(CXX) $(CXXFLAGS) tasks/file_copy.cpp -o build/file_copy
+build/%: tasks/%.cpp $(UI_HEADER) | folders
+	$(CXX) $(CXXFLAGS) $< -o $@
 
 run:
 	./OS 2 256 8
 
 clean:
 	rm -f OS
-	rm -f build/calculator
-	rm -f build/notepad
-	rm -f build/clock
-	rm -f build/music_player
-	rm -f build/file_copy
+	rm -f $(TASKS)

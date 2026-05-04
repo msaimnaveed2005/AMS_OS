@@ -1,4 +1,6 @@
 #include <iostream>
+#include <unistd.h>
+#include "../kernel/ui.h"
 using namespace std;
 
 /*
@@ -11,13 +13,13 @@ int main() {
     int choice;
     double num1, num2;
 
-    cout << "\n========== CALCULATOR TASK ==========\n";
-    cout << "Calculator started as separate executable.\n";
+    UI::panelHeader("Calculator", "AMS OS task executable");
+    UI::taskControlHint(getpid());
 
-    cout << "\n1. Addition\n";
-    cout << "2. Subtraction\n";
-    cout << "3. Multiplication\n";
-    cout << "4. Division\n";
+    UI::menuItem(1, "Addition");
+    UI::menuItem(2, "Subtraction");
+    UI::menuItem(3, "Multiplication");
+    UI::menuItem(4, "Division");
     cout << "Enter choice: ";
     cin >> choice;
 
@@ -29,29 +31,30 @@ int main() {
 
     switch (choice) {
         case 1:
-            cout << "Result: " << num1 + num2 << endl;
+            UI::keyValue("Result", to_string(num1 + num2));
             break;
 
         case 2:
-            cout << "Result: " << num1 - num2 << endl;
+            UI::keyValue("Result", to_string(num1 - num2));
             break;
 
         case 3:
-            cout << "Result: " << num1 * num2 << endl;
+            UI::keyValue("Result", to_string(num1 * num2));
             break;
 
         case 4:
             if (num2 == 0) {
-                cout << "Error: Division by zero is not allowed.\n";
+                cout << UI::paint("Error: Division by zero is not allowed.\n", UI::RED + UI::BOLD);
             } else {
-                cout << "Result: " << num1 / num2 << endl;
+                UI::keyValue("Result", to_string(num1 / num2));
             }
             break;
 
         default:
-            cout << "Invalid calculator option.\n";
+            cout << UI::paint("Invalid calculator option.\n", UI::YELLOW + UI::BOLD);
     }
 
-    cout << "Calculator task completed.\n";
+    cout << UI::paint("Calculator task completed.\n", UI::GREEN + UI::BOLD);
+    UI::panelFooter();
     return 0;
 }

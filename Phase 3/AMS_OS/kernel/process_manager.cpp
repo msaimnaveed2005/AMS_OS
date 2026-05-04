@@ -1,4 +1,5 @@
 #include "process_manager.h"
+#include "ui.h"
 #include <iomanip>
 
 /*
@@ -264,52 +265,52 @@ Parameters: None.
 Returns: Nothing.
 */
 void ProcessManager::displayPCBTable() {
-    cout << "\n======================================= PCB TABLE =======================================\n";
+    UI::panelHeader("PCB Table", to_string(processTable.size()) + " tracked process(es)", 110);
 
     if (processTable.empty()) {
-        cout << "No process exists in the PCB table.\n";
-        cout << "=========================================================================================\n";
+        UI::emptyState("No process exists in the PCB table.", 110);
         return;
     }
 
-	   cout << left
-	     << setw(8)  << "PID"
-	     << setw(20) << "Name"
-	     << setw(18) << "Type"
-	     << setw(15) << "State"
-	     << setw(10) << "Priority"
-	     << setw(12) << "WaitTime"
-	     << setw(16) << "RAM Block"
-	     << setw(10) << "RAM"
-	     << setw(10) << "HDD"
-	     << setw(6)  << "CPU" << "\n";
+    cout << "  " << left
+         << setw(8)  << "PID"
+         << setw(20) << "Name"
+         << setw(15) << "State"
+         << setw(16) << "Type"
+         << setw(10) << "Priority"
+         << setw(11) << "Wait"
+         << setw(16) << "RAM Block"
+         << setw(10) << "RAM"
+         << setw(10) << "HDD"
+         << setw(6)  << "CPU" << "\n";
 
-    cout << "-----------------------------------------------------------------------------------------\n";
+    cout << "  " << UI::paint(UI::repeat('-', 102) + "\n", UI::DIM);
 
     for (auto process : processTable) {
         PCB pcb = process.second;
         string ramBlock;
 
-	if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
-	    ramBlock = "N/A";
-	} else {
-	    ramBlock = to_string(pcb.memoryStart) + "-" + to_string(pcb.memoryEnd);
-	}
-	cout << left
-	     << setw(8)  << pcb.pid
-	     << setw(20) << pcb.processName
-	     << setw(18) << getProcessTypeName(pcb.processType)
-	     << setw(15) << getProcessStateName(pcb.processState)
-	     << setw(10) << pcb.priority
-	     << setw(12) << pcb.waitingTime
-	     << setw(16) << ramBlock
-	     << setw(10) << (to_string(pcb.ramRequired) + "MB")
-	     << setw(10) << (to_string(pcb.hddRequired) + "MB")
-	     << setw(6)  << pcb.coresRequired
-	     << "\n";
-	    }
+        if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
+            ramBlock = "N/A";
+        } else {
+            ramBlock = to_string(pcb.memoryStart) + "-" + to_string(pcb.memoryEnd);
+        }
 
-    cout << "=========================================================================================\n";
+        cout << "  " << left
+             << setw(8)  << pcb.pid
+             << setw(20) << UI::fit(pcb.processName, 18)
+             << setw(15) << getProcessStateName(pcb.processState)
+             << setw(16) << getProcessTypeName(pcb.processType)
+             << setw(10) << pcb.priority
+             << setw(11) << pcb.waitingTime
+             << setw(16) << ramBlock
+             << setw(10) << (to_string(pcb.ramRequired) + "MB")
+             << setw(10) << (to_string(pcb.hddRequired) + "MB")
+             << setw(6)  << pcb.coresRequired
+             << "\n";
+    }
+
+    UI::panelFooter(110);
 }
 
 /*
@@ -372,4 +373,32 @@ vector<int> ProcessManager::getAllPIDs() {
     }
 
     return pids;
+}
+
+/*
+Function: getProcessCount
+Purpose: Returns total number of processes in the PCB table.
+Parameters: None.
+Returns: Process count.
+*/
+int ProcessManager::getProcessCount() {
+    return static_cast<int>(processTable.size());
+}
+
+/*
+Function: getProcessStateCount
+Purpose: Counts processes currently in a selected state.
+Parameters: Process state.
+Returns: Process count for that state.
+*/
+int ProcessManager::getProcessStateCount(ProcessState state) {
+    int count = 0;
+
+    for (auto process : processTable) {
+        if (process.second.processState == state) {
+            count++;
+        }
+    }
+
+    return count;
 }

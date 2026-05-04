@@ -1,4 +1,5 @@
 #include "resource_manager.h"
+#include "ui.h"
 
 /*
 Function: ResourceManager
@@ -147,11 +148,42 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::displayResources() {
-    cout << "\n========== AMS OS RESOURCE STATUS ==========\n";
-    cout << "RAM Available: " << availableRAM << " MB / " << totalRAM << " MB\n";
-    cout << "HDD Available: " << availableHDD << " MB / " << totalHDD << " MB\n";
-    cout << "CPU Cores Available: " << availableCores << " / " << totalCores << "\n";
-    cout << "===========================================\n";
+    UI::panelHeader("Resource Status", "Live capacity overview", 88);
+
+    cout << "  " << left
+         << setw(10) << "Resource"
+         << setw(16) << "Used"
+         << setw(18) << "Available"
+         << setw(12) << "Capacity"
+         << "Load\n";
+    cout << "  " << UI::paint(UI::repeat('-', 80) + "\n", UI::DIM);
+
+    int usedRAM = totalRAM - availableRAM;
+    int usedHDD = totalHDD - availableHDD;
+    int usedCores = totalCores - availableCores;
+
+    cout << "  " << left
+         << setw(10) << "RAM"
+         << setw(16) << (to_string(usedRAM) + " MB")
+         << setw(18) << (to_string(availableRAM) + " MB")
+         << setw(12) << (to_string(totalRAM) + " MB")
+         << UI::usageBar(usedRAM, totalRAM) << "\n";
+
+    cout << "  " << left
+         << setw(10) << "HDD"
+         << setw(16) << (to_string(usedHDD) + " MB")
+         << setw(18) << (to_string(availableHDD) + " MB")
+         << setw(12) << (to_string(totalHDD) + " MB")
+         << UI::usageBar(usedHDD, totalHDD) << "\n";
+
+    cout << "  " << left
+         << setw(10) << "CPU"
+         << setw(16) << (to_string(usedCores) + " cores")
+         << setw(18) << (to_string(availableCores) + " cores")
+         << setw(12) << (to_string(totalCores) + " cores")
+         << UI::usageBar(usedCores, totalCores) << "\n";
+
+    UI::panelFooter(88);
 }
 
 /*
@@ -182,6 +214,36 @@ Returns: Available CPU cores.
 */
 int ResourceManager::getAvailableCores() {
     return availableCores;
+}
+
+/*
+Function: getTotalRAM
+Purpose: Returns total configured RAM.
+Parameters: None.
+Returns: Total RAM.
+*/
+int ResourceManager::getTotalRAM() {
+    return totalRAM;
+}
+
+/*
+Function: getTotalHDD
+Purpose: Returns total configured hard drive space.
+Parameters: None.
+Returns: Total HDD.
+*/
+int ResourceManager::getTotalHDD() {
+    return totalHDD;
+}
+
+/*
+Function: getTotalCores
+Purpose: Returns total configured CPU cores.
+Parameters: None.
+Returns: Total CPU cores.
+*/
+int ResourceManager::getTotalCores() {
+    return totalCores;
 }
 
 
@@ -294,31 +356,34 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::displayMemoryLayout() {
-    cout << "\n==================== RAM MEMORY LAYOUT ====================\n";
+    UI::panelHeader("RAM Memory Layout", to_string(memoryBlocks.size()) + " block(s)", 86);
 
     if (memoryBlocks.empty()) {
-        cout << "No memory layout available.\n";
-        cout << "===========================================================\n";
+        UI::emptyState("No memory layout available.", 86);
         return;
     }
 
-    cout << "Start(MB)\tEnd(MB)\t\tStatus\t\tPID\tProcess\n";
-    cout << "-----------------------------------------------------------\n";
+    cout << "  " << left
+         << setw(12) << "Start MB"
+         << setw(12) << "End MB"
+         << setw(12) << "Size"
+         << setw(14) << "Status"
+         << setw(10) << "PID"
+         << "Process\n";
+    cout << "  " << UI::paint(UI::repeat('-', 78) + "\n", UI::DIM);
 
     for (MemoryBlock block : memoryBlocks) {
-        cout << block.startAddress << "\t\t"
-             << block.endAddress << "\t\t";
+        int blockSize = block.endAddress - block.startAddress;
 
-        if (block.isFree) {
-            cout << "FREE\t\t"
-                 << "-\t"
-                 << "Available\n";
-        } else {
-            cout << "ALLOCATED\t"
-                 << block.pid << "\t"
-                 << block.processName << "\n";
-        }
+        cout << "  " << left
+             << setw(12) << block.startAddress
+             << setw(12) << block.endAddress
+             << setw(12) << (to_string(blockSize) + " MB")
+             << setw(14) << (block.isFree ? "FREE" : "ALLOCATED")
+             << setw(10) << (block.isFree ? "-" : to_string(block.pid))
+             << (block.isFree ? "Available" : UI::fit(block.processName, 24))
+             << "\n";
     }
 
-    cout << "===========================================================\n";
+    UI::panelFooter(86);
 }

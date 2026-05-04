@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <unistd.h>
+#include "../kernel/ui.h"
 using namespace std;
 
 /*
@@ -14,8 +16,8 @@ int main() {
     string destinationPath;
     string line;
 
-    cout << "\n========== FILE COPY TASK ==========\n";
-    cout << "File Copy started as separate executable.\n";
+    UI::panelHeader("File Copy", "Virtual disk utility");
+    UI::taskControlHint(getpid());
 
     cout << "Enter source file path: ";
     cin >> sourcePath;
@@ -27,12 +29,12 @@ int main() {
     ofstream destinationFile(destinationPath);
 
     if (!sourceFile) {
-        cout << "Error: Source file could not be opened.\n";
+        cout << UI::paint("Error: Source file could not be opened.\n", UI::RED + UI::BOLD);
         return 1;
     }
 
     if (!destinationFile) {
-        cout << "Error: Destination file could not be created.\n";
+        cout << UI::paint("Error: Destination file could not be created.\n", UI::RED + UI::BOLD);
         return 1;
     }
 
@@ -43,8 +45,10 @@ int main() {
     sourceFile.close();
     destinationFile.close();
 
-    cout << "File copied successfully.\n";
-    cout << "File Copy task completed.\n";
+    cout << UI::paint("File copied successfully.\n", UI::GREEN + UI::BOLD);
+    UI::keyValue("Source", sourcePath);
+    UI::keyValue("Destination", destinationPath);
+    UI::panelFooter();
 
     return 0;
 }

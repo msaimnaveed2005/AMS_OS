@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <unistd.h>
+#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -22,12 +24,16 @@ int main() {
     mineRow = rand() % 3;
     mineCol = rand() % 3;
 
-    cout << "\n========== MINESWEEPER GAME TASK ==========\n";
-    cout << "Simple 3x3 Minesweeper Simulation\n";
-    cout << "Enter row and column values between 0 and 2.\n";
+    UI::panelHeader("Minesweeper", "3x3 text simulation");
+    UI::taskControlHint(getpid());
+    cout << "  Enter row and column values between 0 and 2.\n";
 
     while (attempts > 0) {
-        cout << "\nAttempts left: " << attempts << "\n";
+        cout << "\n  0   1   2\n";
+        cout << "  ? | ? | ?\n";
+        cout << "  ? | ? | ?\n";
+        cout << "  ? | ? | ?\n";
+        UI::keyValue("Attempts left", to_string(attempts));
         cout << "Enter row: ";
         cin >> row;
 
@@ -35,19 +41,21 @@ int main() {
         cin >> col;
 
         if (row < 0 || row > 2 || col < 0 || col > 2) {
-            cout << "Invalid cell.\n";
+            cout << UI::paint("Invalid cell.\n", UI::YELLOW + UI::BOLD);
             continue;
         }
 
         if (row == mineRow && col == mineCol) {
-            cout << "Boom. You hit a mine.\n";
+            cout << UI::paint("Boom. You hit a mine.\n", UI::RED + UI::BOLD);
+            UI::panelFooter();
             return 0;
         }
 
-        cout << "Safe cell.\n";
+        cout << UI::paint("Safe cell.\n", UI::GREEN + UI::BOLD);
         attempts--;
     }
 
-    cout << "You survived the Minesweeper simulation.\n";
+    cout << UI::paint("You survived the Minesweeper simulation.\n", UI::GREEN + UI::BOLD);
+    UI::panelFooter();
     return 0;
 }
