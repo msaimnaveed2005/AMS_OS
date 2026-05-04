@@ -1,5 +1,4 @@
 #include "sync_manager.h"
-#include "console_colors.h"
 
 /*
 Function: SimpleSemaphore
@@ -72,7 +71,7 @@ void SyncManager::acquireCPUCores(int coresRequired) {
         cpuCoreSemaphore.acquire();
     }
 
-    cout << "\n" << Color::scheduler("[SYNC MANAGER]") << " CPU execution slot acquired.\n";
+    cout << "\n[SYNC MANAGER] CPU execution slot acquired.\n";
     cout << "CPU Cores Acquired: " << coresRequired << "\n";
 }
 
@@ -87,7 +86,7 @@ void SyncManager::releaseCPUCores(int coresReleased) {
         cpuCoreSemaphore.release();
     }
 
-    cout << "\n" << Color::scheduler("[SYNC MANAGER]") << " CPU execution slot released.\n";
+    cout << "\n[SYNC MANAGER] CPU execution slot released.\n";
     cout << "CPU Cores Released: " << coresReleased << "\n";
 }
 

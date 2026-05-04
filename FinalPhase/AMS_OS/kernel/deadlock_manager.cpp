@@ -1,6 +1,5 @@
 #include "deadlock_manager.h"
 #include <iomanip>
-#include "console_colors.h"
 
 /*
 Function: DeadlockManager
@@ -50,7 +49,7 @@ Parameters: None.
 Returns: Nothing.
 */
 void DeadlockManager::displayResourceGraph() {
-    cout << Color::deadlock("\n==================== RESOURCE WAIT GRAPH ====================\n");
+    cout << "\n==================== RESOURCE WAIT GRAPH ====================\n";
 
     if (records.empty()) {
         cout << "No resource wait records available.\n";

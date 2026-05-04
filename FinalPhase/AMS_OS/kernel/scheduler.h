@@ -5,7 +5,6 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
-#include <string>
 
 #include "process_manager.h"
 #include "resource_manager.h"
@@ -35,15 +34,12 @@ public:
     Parameters: ProcessManager, ResourceManager, and ReadyQueueManager references.
     Returns: Nothing.
     */
-   void runScheduler(
+    void runScheduler(
     ProcessManager &processManager,
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager,
-    string osModeName,
-    string taskModeName
-);
+    SyncManager &syncManager);
 
     /*
     Function: runProcess
@@ -51,15 +47,13 @@ public:
     Parameters: ReadyQueueItem, ProcessManager, ResourceManager, ReadyQueueManager references.
     Returns: true if process finished, otherwise false.
     */
-   bool runProcess(
+    bool runProcess(
     ReadyQueueItem item,
     ProcessManager &processManager,
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager,
-    string osModeName,
-    string taskModeName
+    SyncManager &syncManager
 );
 
     /*
@@ -85,36 +79,6 @@ public:
         ReadyQueueManager &readyQueueManager,
         ReadyQueueItem &selectedItem
     );
-
-/*
-Function: writeSchedulerGUIStatus
-Purpose: Writes scheduler-side live process status to GUI status file.
-Parameters: ResourceManager, ProcessManager, OS mode name, and task mode name.
-Returns: Nothing.
-*/
-void writeSchedulerGUIStatus(
-    ResourceManager &resourceManager,
-    ProcessManager &processManager,
-    string osModeName,
-    string taskModeName
-);
-
-/*
-Function: runSingleProcessByPID
-Purpose: Dispatches one selected READY process by PID, mainly for GUI click execution.
-Parameters: PID and core AMS OS managers.
-Returns: true if process dispatch is attempted, otherwise false.
-*/
-bool runSingleProcessByPID(
-    int pid,
-    ProcessManager &processManager,
-    ResourceManager &resourceManager,
-    ReadyQueueManager &readyQueueManager,
-    Logger &logger,
-    SyncManager &syncManager,
-    string osModeName,
-    string taskModeName
-);
 };
 
 #endif

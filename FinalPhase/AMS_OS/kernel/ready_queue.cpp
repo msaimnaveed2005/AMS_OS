@@ -1,7 +1,5 @@
 #include "ready_queue.h"
 #include <iomanip>
-#include "console_colors.h"
-#include "runtime_reporter.h"
 
 /*
 Function: ReadyQueueManager
@@ -33,15 +31,15 @@ void ReadyQueueManager::addProcessToReadyQueue(
 
     if (priority <= 1) {
         systemQueue.push(item);
-        cout << "\n" << Color::ready("[READY QUEUE]") << " Process added to System Queue based on priority.\n";
+        cout << "\n[READY QUEUE] Process added to System Queue based on priority.\n";
     } 
     else if (priority == 2) {
         interactiveQueue.push(item);
-        cout << "\n" << Color::ready("[READY QUEUE]") << " Process added to Interactive Queue based on priority.\n";
+        cout << "\n[READY QUEUE] Process added to Interactive Queue based on priority.\n";
     } 
     else {
         backgroundQueue.push(item);
-        cout << "\n" << Color::ready("[READY QUEUE]") << " Process added to Background Queue based on priority.\n";
+        cout << "\n[READY QUEUE] Process added to Background Queue based on priority.\n";
     }
 
     cout << "PID: " << pid << "\n";
@@ -163,7 +161,7 @@ bool ReadyQueueManager::removeProcessByPID(int pid) {
     bool removedFromBackground = removeFromQueueByPID(backgroundQueue, pid);
 
     if (removedFromSystem || removedFromInteractive || removedFromBackground) {
-        cout << "\n" << Color::ready("[READY QUEUE]") << " Process removed from ready queue.\n";
+        cout << "\n[READY QUEUE] Process removed from ready queue.\n";
         cout << "PID: " << pid << "\n";
         return true;
     }
@@ -238,7 +236,7 @@ void ReadyQueueManager::applyAging(
 
             item.priority = pcb.priority;
 
-            cout << "\n" << Color::warning("[AGING]") << " Priority improved for waiting process.\n";
+            cout << "\n[AGING] Priority improved for waiting process.\n";
             cout << "PID: " << item.pid << "\n";
             cout << "Process: " << item.processName << "\n";
             cout << "Old Priority: " << oldPriority << "\n";
@@ -249,11 +247,6 @@ void ReadyQueueManager::applyAging(
                 item.processName,
                 "Aging applied, priority improved from " +
                 to_string(oldPriority) + " to " + to_string(pcb.priority)
-            );
-            RuntimeReport::event(
-                "AGING",
-                "PID " + to_string(item.pid) + " priority improved " +
-                to_string(oldPriority) + " -> " + to_string(pcb.priority)
             );
         } else {
             item.priority = pcb.priority;
@@ -270,10 +263,7 @@ Parameters: None.
 Returns: Nothing.
 */
 void ReadyQueueManager::displayReadyQueues() {
-    cout << "\n";
-Color::line('=', 90, Color::BRIGHT_BLUE + Color::BOLD);
-cout << Color::paint("                              READY QUEUES\n", Color::BRIGHT_BLUE + Color::BOLD);
-Color::line('=', 90, Color::BRIGHT_BLUE + Color::BOLD);
+    cout << "\n============================== READY QUEUES ==============================\n";
 
     if (!hasReadyProcess()) {
         cout << "No process currently exists in ready queues.\n";
@@ -285,7 +275,7 @@ Color::line('=', 90, Color::BRIGHT_BLUE + Color::BOLD);
     queue<ReadyQueueItem> tempInteractiveQueue = interactiveQueue;
     queue<ReadyQueueItem> tempBackgroundQueue = backgroundQueue;
 
-    cout << Color::kernel("\n[Queue 1: System Queue, Highest Priority, FCFS]\n");
+    cout << "\n[Queue 1: System Queue, Highest Priority, FCFS]\n";
     if (tempSystemQueue.empty()) {
         cout << "Empty\n";
     } else {
@@ -307,7 +297,7 @@ Color::line('=', 90, Color::BRIGHT_BLUE + Color::BOLD);
         }
     }
 
-   cout << Color::scheduler("\n[Queue 2: Interactive Queue, Medium Priority, Round Robin]\n");
+    cout << "\n[Queue 2: Interactive Queue, Medium Priority, Round Robin]\n";
     if (tempInteractiveQueue.empty()) {
         cout << "Empty\n";
     } else {
@@ -329,7 +319,7 @@ Color::line('=', 90, Color::BRIGHT_BLUE + Color::BOLD);
         }
     }
 
-    cout << Color::resource("\n[Queue 3: Background Queue, Low Priority]\n");
+    cout << "\n[Queue 3: Background Queue, Low Priority]\n";
     if (tempBackgroundQueue.empty()) {
         cout << "Empty\n";
     } else {
@@ -391,5 +381,5 @@ void ReadyQueueManager::clearAllQueues() {
         backgroundQueue.pop();
     }
 
-    cout << "\n" << Color::ready("[READY QUEUE]") << " All ready queues cleared.\n";
+    cout << "\n[READY QUEUE] All ready queues cleared.\n";
 }
