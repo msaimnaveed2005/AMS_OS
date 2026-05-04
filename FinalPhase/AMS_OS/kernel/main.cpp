@@ -513,14 +513,25 @@ void executeTaskExecutable(TaskInfo selectedTask, bool separateTerminalMode) {
     cout << Color::child("[CHILD PROCESS]") << " Terminal Mode: Scheduler-Controlled\n";
     cout << Color::child("[CHILD PROCESS]") << " Executable Path: " << selectedTask.executablePath << "\n";
 
-    execl(
-        selectedTask.executablePath.c_str(),
+   
+
+    perror("[CHILD PROCESS] direct exec failed");
+    exit(1);
+}
+
+void launchTaskInSeparateTerminal(TaskInfo selectedTask) {
+    cout << "[PARENT PROCESS] Launching task in separate terminal...\n";
+
+    execlp(
+        "xfce4-terminal",
+        "xfce4-terminal",
+        "--execute",
         selectedTask.executablePath.c_str(),
         selectedTask.taskName.c_str(),
         NULL
     );
 
-    perror("[CHILD PROCESS] direct exec failed");
+    perror("[PARENT PROCESS] xfce4-terminal failed to execute task");
     exit(1);
 }
 /*
@@ -1997,6 +2008,20 @@ int getMenuChoiceWithGUIPolling(
     }
 }
 
+void openSchedulingTerminal() {
+    cout << "[PARENT PROCESS] Opening scheduling terminal...\n";
+
+    execlp(
+        "xfce4-terminal",
+        "xfce4-terminal",
+        "--execute",
+        "./build/scheduler_terminal",  // new terminal program that shows scheduling
+        NULL
+    );
+
+    perror("[PARENT PROCESS] Scheduling terminal failed to launch");
+    exit(1);
+}
 
 /*
 Function: main
@@ -2260,6 +2285,8 @@ int main(int argc, char* argv[]) {
 		separateTerminalMode,
 		logger
 	    );
+          case 25:
+	    openSchedulingTerminal();
 	    break;
           case 0:
 	    logger.logSystemEvent("AMS OS shutdown requested");
