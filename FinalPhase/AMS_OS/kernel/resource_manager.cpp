@@ -211,7 +211,7 @@ bool ResourceManager::allocateMemoryBlock(
         return false;
     }
 
-    for (int i = 0; i < memoryBlocks.size(); i++) {
+    for (size_t i = 0; i < memoryBlocks.size(); i++) {
         int blockSize = memoryBlocks[i].endAddress - memoryBlocks[i].startAddress;
 
         if (memoryBlocks[i].isFree && blockSize >= ramRequired) {
@@ -259,7 +259,7 @@ Parameters: PID.
 Returns: true if memory block is released, otherwise false.
 */
 bool ResourceManager::releaseMemoryBlock(int pid) {
-    for (int i = 0; i < memoryBlocks.size(); i++) {
+    for (size_t i = 0; i < memoryBlocks.size(); i++) {
         if (!memoryBlocks[i].isFree && memoryBlocks[i].pid == pid) {
             cout << "\n" << Color::memory("[MEMORY MANAGER]") << " Releasing RAM block.\n";
             cout << "PID: " << pid << "\n";
@@ -286,11 +286,17 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::mergeFreeMemoryBlocks() {
-    for (int i = 0; i < memoryBlocks.size() - 1; i++) {
+    if (memoryBlocks.size() < 2) {
+        return;
+    }
+
+    for (size_t i = 0; i + 1 < memoryBlocks.size(); i++) {
         if (memoryBlocks[i].isFree && memoryBlocks[i + 1].isFree) {
             memoryBlocks[i].endAddress = memoryBlocks[i + 1].endAddress;
             memoryBlocks.erase(memoryBlocks.begin() + i + 1);
-            i--;
+            if (i > 0) {
+                i--;
+            }
         }
     }
 }
