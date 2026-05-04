@@ -1,6 +1,49 @@
 #include "task_catalog.h"
 #include <iomanip>
+#include "console_colors.h"
+/*
+Function: getCatalogTypeColor
+Purpose: Returns color based on process type.
+Parameters: Process type.
+Returns: ANSI color code.
+*/
+string getCatalogTypeColor(ProcessType type) {
+    if (type == SYSTEM_PROCESS || type == KERNEL_PROCESS) {
+        return Color::BRIGHT_MAGENTA + Color::BOLD;
+    }
 
+    if (type == INTERACTIVE_PROCESS) {
+        return Color::BRIGHT_GREEN + Color::BOLD;
+    }
+
+    if (type == BACKGROUND_PROCESS) {
+        return Color::BRIGHT_YELLOW + Color::BOLD;
+    }
+
+    if (type == AUTO_RUNNING_PROCESS) {
+        return Color::BRIGHT_CYAN + Color::BOLD;
+    }
+
+    return Color::WHITE;
+}
+
+/*
+Function: getCatalogPriorityColor
+Purpose: Returns color based on priority.
+Parameters: Priority number.
+Returns: ANSI color code.
+*/
+string getCatalogPriorityColor(int priority) {
+    if (priority == 1) {
+        return Color::BRIGHT_RED + Color::BOLD;
+    }
+
+    if (priority == 2) {
+        return Color::BRIGHT_GREEN + Color::BOLD;
+    }
+
+    return Color::BRIGHT_YELLOW + Color::BOLD;
+}
 /*
 Function: TaskCatalog
 Purpose: Initializes the task catalog with Phase 3 task metadata.
@@ -208,38 +251,52 @@ Parameters: None.
 Returns: Nothing.
 */
 void TaskCatalog::displayAvailableTasks() {
-    cout << "\n============================== AMS OS TASK CATALOG ==============================\n";
+    cout << "\n";
+    Color::line('=', 104, Color::BRIGHT_CYAN + Color::BOLD);
+    cout << Color::paint("                              AMS OS TASK CATALOG\n", Color::BRIGHT_CYAN + Color::BOLD);
+    Color::line('=', 104, Color::BRIGHT_CYAN + Color::BOLD);
 
     if (taskList.empty()) {
-        cout << "No tasks are available in the task catalog.\n";
-        cout << "=================================================================================\n";
+        cout << Color::warning("No tasks are available in the task catalog.") << "\n";
+        Color::line('=', 104, Color::BRIGHT_CYAN + Color::BOLD);
         return;
     }
 
-    cout << left
-         << setw(6)  << "ID"
-         << setw(20) << "Task Name"
-         << setw(18) << "Type"
-         << setw(10) << "Priority"
-         << setw(10) << "RAM"
-         << setw(10) << "HDD"
-         << setw(6)  << "CPU" << "\n";
+    Color::cell("ID", 6, Color::BRIGHT_CYAN + Color::BOLD);
+    Color::cell("TASK NAME", 24, Color::BRIGHT_CYAN + Color::BOLD);
+    Color::cell("TYPE", 18, Color::BRIGHT_CYAN + Color::BOLD);
+    Color::cell("PRI", 8, Color::BRIGHT_CYAN + Color::BOLD);
+    Color::cell("RAM", 10, Color::BRIGHT_CYAN + Color::BOLD);
+    Color::cell("HDD", 10, Color::BRIGHT_CYAN + Color::BOLD);
+    Color::cell("CPU", 8, Color::BRIGHT_CYAN + Color::BOLD);
+    Color::cell("STATUS", 14, Color::BRIGHT_CYAN + Color::BOLD);
+    cout << "\n";
 
-    cout << "---------------------------------------------------------------------------------\n";
+    Color::line('-', 104, Color::GRAY);
 
     for (TaskInfo task : taskList) {
-        cout << left
-             << setw(6)  << task.taskID
-             << setw(20) << task.taskName
-             << setw(18) << getProcessTypeName(task.processType)
-             << setw(10) << task.priority
-             << setw(10) << (to_string(task.ramRequired) + "MB")
-             << setw(10) << (to_string(task.hddRequired) + "MB")
-             << setw(6)  << task.coresRequired
-             << "\n";
+        Color::cell(to_string(task.taskID), 6, Color::WHITE);
+        Color::cell(task.taskName, 24, Color::BRIGHT_WHITE + Color::BOLD);
+        Color::cell(getProcessTypeName(task.processType), 18, getCatalogTypeColor(task.processType));
+        Color::cell(to_string(task.priority), 8, getCatalogPriorityColor(task.priority));
+        Color::cell(to_string(task.ramRequired) + "MB", 10, Color::BRIGHT_BLUE);
+        Color::cell(to_string(task.hddRequired) + "MB", 10, Color::BRIGHT_MAGENTA);
+        Color::cell(to_string(task.coresRequired), 8, Color::BRIGHT_GREEN);
+        Color::cell("READY", 14, Color::BRIGHT_GREEN + Color::BOLD);
+        cout << "\n";
     }
 
-    cout << "=================================================================================\n";
+    Color::line('=', 104, Color::BRIGHT_CYAN + Color::BOLD);
+
+    cout << Color::paint("Legend: ", Color::WHITE + Color::BOLD)
+         << Color::paint("System/Kernel", Color::BRIGHT_MAGENTA + Color::BOLD)
+         << " | "
+         << Color::paint("Interactive", Color::BRIGHT_GREEN + Color::BOLD)
+         << " | "
+         << Color::paint("Background", Color::BRIGHT_YELLOW + Color::BOLD)
+         << " | "
+         << Color::paint("Auto", Color::BRIGHT_CYAN + Color::BOLD)
+         << "\n";
 }
 
 /*

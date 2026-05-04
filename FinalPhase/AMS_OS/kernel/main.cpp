@@ -10,6 +10,9 @@
 #include <cerrno>
 #include <cstring>
 #include <vector>
+#include <sys/select.h>
+#include <cstdio>
+#include "console_colors.h"
 
 #include "resource_manager.h"
 #include "process_manager.h"
@@ -47,12 +50,12 @@ Parameters: None.
 Returns: Nothing.
 */
 void bootScreen() {
-    cout << "=====================================\n";
-    cout << "              AMS OS\n";
-    cout << "      Atomic Management System\n";
-    cout << "=====================================\n";
+    cout << Color::section("=====================================\n");
+    cout << Color::paint("              AMS OS\n", Color::BRIGHT_CYAN + Color::BOLD);
+    cout << Color::paint("      Atomic Management System\n", Color::BRIGHT_GREEN + Color::BOLD);
+    cout << Color::section("=====================================\n");
 
-    cout << "Booting AMS OS";
+    cout << Color::warning("Booting AMS OS");
 
     for (int i = 0; i < 3; i++) {
         cout << ".";
@@ -60,7 +63,7 @@ void bootScreen() {
         sleep(1);
     }
 
-    cout << "\nSystem Loaded Successfully.\n";
+    cout << "\n" << Color::success("System Loaded Successfully.") << "\n";
 }
 
 /*
@@ -77,7 +80,7 @@ bool getHardwareResourcesFromCommandLine(
     int &cores
 ) {
     if (argc != 4) {
-        cout << "\nInvalid startup command.\n";
+        cout << "\n" << Color::error("Invalid startup command.")<<"\n";
         cout << "Usage: ./OS <RAM_GB> <HDD_GB> <CPU_CORES>\n";
         cout << "Example: ./OS 2 256 8\n";
         return false;
@@ -88,7 +91,7 @@ bool getHardwareResourcesFromCommandLine(
     cores = atoi(argv[3]);
 
     if (ramGB <= 0 || hddGB <= 0 || cores <= 0) {
-        cout << "\nInvalid hardware resources entered.\n";
+        cout << "\n" << Color::error("Invalid hardware resources entered.")<<"\n";
         cout << "RAM, HDD, and CPU cores must be greater than zero.\n";
         return false;
     }
@@ -130,7 +133,7 @@ int getValidatedInteger(string message) {
         cin >> value;
 
         if (cin.fail()) {
-            cout << "Invalid input. Please enter a valid number.\n";
+            cout  << Color::error("Invalid input. Please enter a valid number.")<<"\n";
             clearInputBuffer();
         } else {
             return value;
@@ -169,47 +172,74 @@ string getTaskExecutionModeName(bool separateTerminalMode) {
 /*
 Function: showMainMenu
 Purpose: Displays the AMS OS menu according to current user or kernel mode.
-Parameters: Current OS mode.
+Parameters: Current OS mode and task execution mode.
 Returns: Nothing.
 */
 void showMainMenu(OSMode currentMode, bool separateTerminalMode) {
-    cout << "\n========== AMS OS MAIN MENU ==========\n";
-    cout << "Current Mode: " << getModeName(currentMode) << "\n";
-    cout << "Task Execution Mode: " << getTaskExecutionModeName(separateTerminalMode) << "\n";
-    cout << "--------------------------------------\n";
+    string modeColor = Color::BRIGHT_GREEN;
 
-    cout << "1. Show Task Catalog\n";
-    cout << "2. Show Task Details\n";
-    cout << "3. Launch Task\n";
-    cout << "4. Show Resources\n";
-    cout << "20. Show RAM Memory Layout\n";
-    cout << "7. Show PCB Table\n";
-    cout << "11. Run Scheduler\n";
-    cout << "12. Show Ready Queues\n";
-    cout << "17. Minimize Process\n";
-    cout << "18. Resume Process\n";
-    cout << "21. Close Process\n";
-    cout << "22. Switch to Process\n";
-    cout << "23. Toggle Task Terminal Mode\n";
+    if (currentMode == KERNEL_MODE) {
+        modeColor = Color::BRIGHT_MAGENTA;
+    }
+
+    string taskModeColor = Color::BRIGHT_BLUE;
+
+    if (separateTerminalMode) {
+        taskModeColor = Color::BRIGHT_YELLOW;
+    }
+
+    cout << "\n";
+    Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
+    cout << Color::paint("                    AMS OS MAIN MENU\n", Color::BRIGHT_CYAN + Color::BOLD);
+    Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
+
+    cout << Color::label("Current Mode: ") 
+         << Color::paint(getModeName(currentMode), modeColor + Color::BOLD) << "\n";
+
+    cout << Color::label("Task Execution Mode: ")
+         << Color::paint(getTaskExecutionModeName(separateTerminalMode), taskModeColor + Color::BOLD) << "\n";
+
+    Color::line('-', 62, Color::GRAY);
+
+    cout << Color::paint(" USER OPERATIONS\n", Color::BRIGHT_GREEN + Color::BOLD);
+
+    cout << Color::number(" 1.")  << " Show Task Catalog\n";
+    cout << Color::number(" 2.")  << " Show Task Details\n";
+    cout << Color::number(" 3.")  << " Launch Task\n";
+    cout << Color::number(" 4.")  << " Show Resources\n";
+    cout << Color::number(" 7.")  << " Show PCB Table\n";
+    cout << Color::number("11.")  << " Run Scheduler\n";
+    cout << Color::number("12.")  << " Show Ready Queues\n";
+    cout << Color::number("17.")  << " Minimize Process\n";
+    cout << Color::number("18.")  << " Resume Process\n";
+    cout << Color::number("20.")  << " Show RAM Memory Layout\n";
+    cout << Color::number("21.")  << " Close Process\n";
+    cout << Color::number("22.")  << " Switch to Process\n";
+    cout << Color::number("23.")  << " Toggle Task Terminal Mode\n";
+    cout << Color::number("24.")  << " Open Graphical Dashboard\n";
+
     if (currentMode == USER_MODE) {
-        cout << "13. Switch to Kernel Mode\n";
+        cout << Color::number("13.") << " Switch to Kernel Mode\n";
     }
 
     if (currentMode == KERNEL_MODE) {
-        cout << "\n---------- KERNEL MODE TOOLS ----------\n";
-        cout << "5. Diagnostic: Test Resource Allocation\n";
-        cout << "6. Diagnostic: Test Resource Release\n";
-        cout << "8. Diagnostic: Create Dummy PCB\n";
-        cout << "9. Diagnostic: Update Process State\n";
-        cout << "10. Diagnostic: Remove PCB\n";
-        cout << "14. Switch to User Mode\n";
-        cout << "15. View System Log\n";
-        cout << "16. Kill Process\n";
-        cout << "19. Deadlock Detection\n";
+        Color::line('-', 62, Color::BRIGHT_MAGENTA);
+        cout << Color::kernel(" KERNEL MODE TOOLS\n");
+
+        cout << Color::number(" 5.")  << " Diagnostic: Test Resource Allocation\n";
+        cout << Color::number(" 6.")  << " Diagnostic: Test Resource Release\n";
+        cout << Color::number(" 8.")  << " Diagnostic: Create Dummy PCB\n";
+        cout << Color::number(" 9.")  << " Diagnostic: Update Process State\n";
+        cout << Color::number("10.")  << " Diagnostic: Remove PCB\n";
+        cout << Color::number("14.")  << " Switch to User Mode\n";
+        cout << Color::number("15.")  << " View System Log\n";
+        cout << Color::number("16.")  << " Kill Process\n";
+        cout << Color::number("19.")  << " Deadlock Detection\n";
     }
 
-    cout << "0. Shutdown AMS OS\n";
-    cout << "======================================\n";
+    Color::line('-', 62, Color::GRAY);
+    cout << Color::number(" 0.") << " Shutdown AMS OS\n";
+    Color::line('=', 62, Color::BRIGHT_CYAN + Color::BOLD);
 }
 
 /*
@@ -444,7 +474,7 @@ IPCResourceResponse childSendResourceRequest(
     request.hddRequired = selectedTask.hddRequired;
     request.coresRequired = selectedTask.coresRequired;
 
-    cout << "\n[CHILD PROCESS] Sending IPC resource request to kernel.\n";
+    cout << "\n" << Color::child("[CHILD PROCESS]") << " Sending IPC resource request to kernel.\n";
     write(requestWritePipe, &request, sizeof(request));
 
     read(responseReadPipe, &response, sizeof(response));
@@ -461,10 +491,10 @@ Returns: Nothing. If exec succeeds, this function does not return.
 */
 void executeTaskExecutable(TaskInfo selectedTask, bool separateTerminalMode) {
     if (separateTerminalMode) {
-        cout << "[CHILD PROCESS] Opening task in separate terminal window.\n";
-        cout << "[CHILD PROCESS] Terminal Mode: Separate Terminal\n";
-        cout << "[CHILD PROCESS] Terminal: xfce4-terminal\n";
-        cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
+        cout << Color::child("[CHILD PROCESS]") << " Opening task in separate terminal window.\n";
+        cout << Color::child("[CHILD PROCESS]") << " Terminal Mode: Separate Terminal\n";
+        cout << Color::child("[CHILD PROCESS]") << " Terminal: xfce4-terminal\n";
+        cout << Color::child("[CHILD PROCESS]") << " Executable Path: " << selectedTask.executablePath << "\n";
 
         execlp(
             "xfce4-terminal",
@@ -476,12 +506,12 @@ void executeTaskExecutable(TaskInfo selectedTask, bool separateTerminalMode) {
         );
 
         perror("[CHILD PROCESS] xfce4-terminal failed");
-        cout << "[CHILD PROCESS] Falling back to direct scheduler-controlled exec.\n";
+        cout << Color::child("[CHILD PROCESS]") << " Falling back to direct scheduler-controlled exec.\n";
     }
 
-    cout << "[CHILD PROCESS] Running task directly under AMS OS scheduler.\n";
-    cout << "[CHILD PROCESS] Terminal Mode: Scheduler-Controlled\n";
-    cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
+    cout << Color::child("[CHILD PROCESS]") << " Running task directly under AMS OS scheduler.\n";
+    cout << Color::child("[CHILD PROCESS]") << " Terminal Mode: Scheduler-Controlled\n";
+    cout << Color::child("[CHILD PROCESS]") << " Executable Path: " << selectedTask.executablePath << "\n";
 
     execl(
         selectedTask.executablePath.c_str(),
@@ -518,7 +548,7 @@ void launchTaskUsingIPCForkTest(
     taskID = getValidatedInteger("Enter Task ID to launch: ");
 
     if (!taskCatalog.getTaskByID(taskID, selectedTask)) {
-        cout << "\nInvalid Task ID. No task found.\n";
+        cout << "\n" << Color::error("Invalid Task ID. No task found.")<<"\n";
         return;
     }
     logger.logProcessEvent(0, selectedTask.taskName, "Task selected for launch");
@@ -561,9 +591,9 @@ void launchTaskUsingIPCForkTest(
         close(requestPipe[0]);
         close(responsePipe[1]);
 
-        cout << "\n[CHILD PROCESS] Child created successfully.\n";
-        cout << "[CHILD PROCESS] PID: " << getpid() << "\n";
-        cout << "[CHILD PROCESS] Parent PID: " << getppid() << "\n";
+        cout << "\n" << Color::child("[CHILD PROCESS]") << " Child created successfully.\n";
+        cout <<  Color::child("[CHILD PROCESS]") << " PID: " << getpid() << "\n";
+        cout << Color::child("[CHILD PROCESS]") << " Parent PID: " << getppid() << "\n";
 
         IPCResourceResponse response = childSendResourceRequest(
             requestPipe[1],
@@ -575,18 +605,18 @@ void launchTaskUsingIPCForkTest(
         close(responsePipe[0]);
 
         if (response.granted == 0) {
-            cout << "[CHILD PROCESS] Resource request denied by kernel.\n";
-            cout << "[CHILD PROCESS] Terminating process.\n";
+            cout << Color::child("[CHILD PROCESS]") << " Resource request denied by kernel.\n";
+            cout << Color::child("[CHILD PROCESS]") << " Terminating process.\n";
             exit(2);
         }
 
-       cout << "[CHILD PROCESS] Resource request granted by kernel.\n";
-	cout << "[CHILD PROCESS] Process is now waiting for scheduler dispatch.\n";
+       cout << Color::child("[CHILD PROCESS]") << " Resource request granted by kernel.\n";
+	cout << Color::child("[CHILD PROCESS]") << " Process is now waiting for scheduler dispatch.\n";
 
 	raise(SIGSTOP);
 
-	cout << "[CHILD PROCESS] Scheduler resumed this process.\n";
-	cout << "[CHILD PROCESS] Loading task executable in separate terminal using exec.\n";
+	cout << Color::child("[CHILD PROCESS]") << " Scheduler resumed this process.\n";
+	cout << Color::child("[CHILD PROCESS]") << " Loading task executable in separate terminal using exec.\n";
 
 	executeTaskExecutable(selectedTask, separateTerminalMode);
 }
@@ -602,7 +632,7 @@ void launchTaskUsingIPCForkTest(
 
     read(requestPipe[0], &request, sizeof(request));
 
-    cout << "\n[KERNEL/PARENT] IPC resource request received.\n";
+    cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " IPC resource request received.\n";
     cout << "Child PID: " << pid << "\n";
     cout << "Process Name: " << request.processName << "\n";
     cout << "RAM Requested: " << request.ramRequired << " MB\n";
@@ -616,7 +646,7 @@ void launchTaskUsingIPCForkTest(
         )) {
         response.granted = 1;
 
-        cout << "\n[KERNEL/PARENT] Resources available. Granting request.\n";
+         cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Resources available. Granting request.\n";
 	int memoryStart = -1;
 int memoryEnd = -1;
 
@@ -631,7 +661,7 @@ bool memoryAllocated = resourceManager.allocateMemoryBlock(
 if (!memoryAllocated) {
     response.granted = 0;
 
-    cout << "\n[KERNEL/PARENT] RAM block allocation failed. Denying request.\n";
+    cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " RAM block allocation failed. Denying request.\n";
 
     logger.logResourceEvent(
         "RAM block allocation failed for " + string(request.processName)
@@ -688,13 +718,13 @@ readyQueueManager.addProcessToReadyQueue(
 syncManager.notifyReadyQueue();
 
 logger.logProcessEvent(pid, request.processName, "Added to Ready Queue");
-cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
+cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Current Ready Queue Status:\n";
 readyQueueManager.displayReadyQueues();
 
     } else {
         response.granted = 0;
 
-        cout << "\n[KERNEL/PARENT] Resources unavailable. Denying request.\n";
+        cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Resources unavailable. Denying request.\n";
 	logger.logResourceEvent("Resources denied for process " + string(request.processName));
     }
 
@@ -709,19 +739,19 @@ readyQueueManager.displayReadyQueues();
 	    waitpid(pid, &status, WUNTRACED);
 
 	    if (WIFSTOPPED(status)) {
-		cout << "\n[KERNEL/PARENT] Child process is paused and waiting in ready queue.\n";
-		cout << "[KERNEL/PARENT] Run scheduler from menu to execute this process.\n";
+		cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Child process is paused and waiting in ready queue.\n";
+		cout << Color::kernel("[KERNEL/PARENT]") <<" Run scheduler from menu to execute this process.\n";
 	    }
 
-	    cout << "\n[KERNEL/PARENT] Current PCB Table:\n";
+	    cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Current PCB Table:\n";
 	    processManager.displayPCBTable();
 
-	    cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
+	    cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Current Ready Queue Status:\n";
 	    readyQueueManager.displayReadyQueues();
 	} else {
 	    waitpid(pid, &status, 0);
 
-	    cout << "\n[KERNEL/PARENT] Denied child process has terminated.\n";
+	    cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Denied child process has terminated.\n";
 	    resourceManager.displayResources();
 	}
 }
@@ -1181,7 +1211,7 @@ void runDeadlockDetectionSimulation(
     bool deadlockDetected = deadlockManager.detectDeadlock(victimPID, victimName);
 
     if (deadlockDetected) {
-        cout << "\nDeadlock detected among processes\n";
+        cout << "\n" << Color::deadlock("Deadlock detected among processes") << "\n";
         cout << "[DEADLOCK MANAGER] Circular wait condition found.\n";
         cout << "[DEADLOCK MANAGER] Victim selected for termination.\n";
         cout << "Victim PID: " << victimPID << "\n";
@@ -1380,7 +1410,7 @@ void autoStartDigitalClock(
 
     read(requestPipe[0], &request, sizeof(request));
 
-    cout << "\n[KERNEL/PARENT] Auto-start IPC resource request received.\n";
+    cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " Auto-start IPC resource request received.\n";
     cout << "Child PID: " << pid << "\n";
     cout << "Process Name: " << request.processName << "\n";
     cout << "RAM Requested: " << request.ramRequired << " MB\n";
@@ -1394,7 +1424,7 @@ void autoStartDigitalClock(
         )) {
         response.granted = 1;
 
-        cout << "[KERNEL/PARENT] Resources available. Auto-start request granted.\n";
+        cout << Color::kernel("[KERNEL/PARENT]") << " Resources available. Auto-start request granted.\n";
 int memoryStart = -1;
 int memoryEnd = -1;
 
@@ -1409,7 +1439,7 @@ bool memoryAllocated = resourceManager.allocateMemoryBlock(
 if (!memoryAllocated) {
     response.granted = 0;
 
-    cout << "\n[KERNEL/PARENT] RAM block allocation failed for auto-start Digital Clock.\n";
+    cout << "\n" << Color::kernel("[KERNEL/PARENT]") << " RAM block allocation failed for auto-start Digital Clock.\n";
 
     logger.logResourceEvent(
         "Auto-start RAM block allocation failed for " + string(request.processName)
@@ -1470,11 +1500,11 @@ if (!memoryAllocated) {
 
         logger.logProcessEvent(pid, request.processName, "Auto-start task added to ready queue");
 
-        cout << "[KERNEL/PARENT] Digital Clock auto-started and added to ready queue.\n";
+        cout << Color::kernel("[KERNEL/PARENT]") << " Digital Clock auto-started and added to ready queue.\n";
     } else {
         response.granted = 0;
 
-        cout << "[KERNEL/PARENT] Not enough resources for auto-start Digital Clock.\n";
+        cout << Color::kernel("[KERNEL/PARENT]") << " Not enough resources for auto-start Digital Clock.\n";
 
         logger.logResourceEvent("Auto-start Digital Clock denied due to insufficient resources");
     }
@@ -1490,7 +1520,7 @@ if (!memoryAllocated) {
         waitpid(pid, &status, WUNTRACED);
 
         if (WIFSTOPPED(status)) {
-            cout << "[KERNEL/PARENT] Auto-start Digital Clock is waiting in ready queue.\n";
+            cout << Color::kernel("[KERNEL/PARENT]") << " Auto-start Digital Clock is waiting in ready queue.\n";
         }
     } else {
         waitpid(pid, &status, 0);
@@ -1525,13 +1555,13 @@ void closeProcess(
     pid = getValidatedInteger("Enter PID to close: ");
 
     if (!processManager.getPCB(pid, pcb)) {
-        cout << "\n[CLOSE PROCESS] No process found with PID: " << pid << "\n";
+        cout << "\n" << Color::success("[CLOSE PROCESS]") << " No process found with PID: " << pid << "\n";
         logger.logProcessEvent(pid, "Unknown", "Close failed, PID not found");
         return;
     }
 
     if (pcb.processState == TERMINATED_STATE) {
-        cout << "\n[CLOSE PROCESS] Process is already terminated.\n";
+        cout << "\n" << Color::success("[CLOSE PROCESS]") << " Process is already terminated.\n";
         logger.logProcessEvent(pid, pcb.processName, "Close failed, process already terminated");
         return;
     }
@@ -1552,12 +1582,12 @@ void closeProcess(
     cin >> confirmation;
 
     if (confirmation != 'y' && confirmation != 'Y') {
-        cout << "\n[CLOSE PROCESS] Close cancelled.\n";
+        cout << "\n" << Color::success("[CLOSE PROCESS]") << " Close cancelled.\n";
         logger.logProcessEvent(pid, pcb.processName, "Close cancelled by user");
         return;
     }
 
-    cout << "\n[CLOSE PROCESS] Closing process PID: " << pid << "\n";
+    cout << "\n" << Color::success("[CLOSE PROCESS]") << " Closing process PID: " << pid << "\n";
 
     /*
     The process can be in READY, BLOCKED, or paused using SIGSTOP.
@@ -1574,9 +1604,9 @@ void closeProcess(
             waitpid(pid, &status, WNOHANG);
         }
 
-        cout << "[CLOSE PROCESS] Process close signal sent successfully.\n";
+        cout << Color::success("[CLOSE PROCESS]") << " Process close signal sent successfully.\n";
     } else {
-        cout << "[CLOSE PROCESS] Process may already be finished. Continuing cleanup.\n";
+        cout << Color::success("[CLOSE PROCESS]") << " Process may already be finished. Continuing cleanup.\n";
     }
 
     readyQueueManager.removeProcessByPID(pid);
@@ -1602,7 +1632,7 @@ void closeProcess(
 
     processManager.removeProcess(pid);
 
-    cout << "\n[CLOSE PROCESS] Process closed successfully.\n";
+    cout << "\n" << Color::success("[CLOSE PROCESS]") << " Process closed successfully.\n";
 
     cout << "\nUpdated PCB Table:\n";
     processManager.displayPCBTable();
@@ -1724,6 +1754,250 @@ void switchToProcess(
     // Memory layout is shown from main menu option 20.
     cout << "Use menu option 20 to view complete RAM memory layout.\n";
 }
+
+/*
+Function: writeGUIStatusFile
+Purpose: Writes current AMS OS status to a file so the graphical dashboard can display it.
+Parameters: ResourceManager, ProcessManager, OS mode, and task execution mode.
+Returns: Nothing.
+*/
+void writeGUIStatusFile(
+    ResourceManager &resourceManager,
+    ProcessManager &processManager,
+    OSMode currentMode,
+    bool separateTerminalMode
+) {
+    ofstream file("data/gui_status.txt");
+
+    if (!file) {
+        cout << "\n[GUI STATUS] Could not write GUI status file.\n";
+        return;
+    }
+
+    file << "OS_MODE=" << getModeName(currentMode) << "\n";
+    file << "TASK_MODE=" << getTaskExecutionModeName(separateTerminalMode) << "\n";
+
+    file << "RAM_AVAILABLE=" << resourceManager.getAvailableRAM() << "\n";
+    file << "RAM_TOTAL=" << resourceManager.getTotalRAM() << "\n";
+
+    file << "HDD_AVAILABLE=" << resourceManager.getAvailableHDD() << "\n";
+    file << "HDD_TOTAL=" << resourceManager.getTotalHDD() << "\n";
+
+    file << "CORES_AVAILABLE=" << resourceManager.getAvailableCores() << "\n";
+    file << "CORES_TOTAL=" << resourceManager.getTotalCores() << "\n";
+
+    vector<PCB> pcbList = processManager.getAllPCBs();
+
+    for (PCB pcb : pcbList) {
+        string ramBlock;
+
+        if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
+            ramBlock = "N/A";
+        } else {
+            ramBlock = to_string(pcb.memoryStart) + "-" + to_string(pcb.memoryEnd) + " MB";
+        }
+
+        file << "PROCESS="
+             << pcb.pid << "|"
+             << pcb.processName << "|"
+             << processManager.getProcessStateName(pcb.processState) << "|"
+             << pcb.priority << "|"
+             << ramBlock
+             << "\n";
+    }
+
+    file.close();
+}
+
+/*
+Function: openGraphicalDashboard
+Purpose: Opens the SFML graphical dashboard as a separate process.
+Parameters: ResourceManager, ProcessManager, OS mode, task execution mode, and Logger.
+Returns: Nothing.
+*/
+void openGraphicalDashboard(
+    ResourceManager &resourceManager,
+    ProcessManager &processManager,
+    OSMode currentMode,
+    bool separateTerminalMode,
+    Logger &logger
+) {
+    writeGUIStatusFile(
+        resourceManager,
+        processManager,
+        currentMode,
+        separateTerminalMode
+    );
+
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        cout << "\n[GUI] Failed to launch graphical dashboard.\n";
+        logger.logSystemEvent("Failed to launch graphical dashboard");
+        return;
+    }
+
+    if (pid == 0) {
+        execl(
+            "./build/gui_dashboard",
+            "./build/gui_dashboard",
+            NULL
+        );
+
+        perror("[GUI] Dashboard exec failed");
+        exit(1);
+    }
+
+    cout << "\n[GUI] AMS OS Graphical Dashboard launched.\n";
+    cout << "Dashboard PID: " << pid << "\n";
+
+    logger.logSystemEvent("Graphical dashboard launched with PID " + to_string(pid));
+}
+
+/*
+Function: readGUIRunCommand
+Purpose: Reads a GUI command file to check if the GUI requested a READY process dispatch.
+Parameters: None.
+Returns: PID requested by GUI, or -1 if no command exists.
+*/
+int readGUIRunCommand() {
+    ifstream file("data/gui_command.txt");
+
+    if (!file) {
+        return -1;
+    }
+
+    string line;
+    getline(file, line);
+    file.close();
+
+    if (line.empty()) {
+        return -1;
+    }
+
+    ofstream clearFile("data/gui_command.txt", ios::trunc);
+    clearFile.close();
+
+    if (line.find("RUN_PID=") == 0) {
+        string pidText = line.substr(8);
+
+        try {
+            return stoi(pidText);
+        } catch (...) {
+            return -1;
+        }
+    }
+
+    return -1;
+}
+
+/*
+Function: executeGUICommandIfAvailable
+Purpose: Checks whether GUI requested process execution and dispatches that process.
+Parameters: AMS OS managers, scheduler, mode info, and logger.
+Returns: true if GUI command was executed or handled, otherwise false.
+*/
+bool executeGUICommandIfAvailable(
+    Scheduler &scheduler,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    OSMode currentMode,
+    bool separateTerminalMode
+) {
+    int requestedPID = readGUIRunCommand();
+
+    if (requestedPID == -1) {
+        return false;
+    }
+
+    cout << "\n"<< Color::process("[GUI COMMAND]") << " Run request received from graphical dashboard.\n";
+    cout << "Requested PID: " << requestedPID << "\n";
+
+    scheduler.runSingleProcessByPID(
+        requestedPID,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger,
+        syncManager,
+        getModeName(currentMode),
+        getTaskExecutionModeName(separateTerminalMode)
+    );
+
+    writeGUIStatusFile(
+        resourceManager,
+        processManager,
+        currentMode,
+        separateTerminalMode
+    );
+
+    return true;
+}
+
+/*
+Function: getMenuChoiceWithGUIPolling
+Purpose: Waits for user menu input while also polling GUI command requests.
+Parameters: AMS OS managers, scheduler, current mode, task execution mode, and logger.
+Returns: User menu choice, or -999 if a GUI command was handled.
+*/
+int getMenuChoiceWithGUIPolling(
+    Scheduler &scheduler,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    OSMode currentMode,
+    bool separateTerminalMode
+) {
+    cout << "Enter your choice: ";
+    cout.flush();
+
+    while (true) {
+        if (executeGUICommandIfAvailable(
+                scheduler,
+                processManager,
+                resourceManager,
+                readyQueueManager,
+                logger,
+                syncManager,
+                currentMode,
+                separateTerminalMode
+            )) {
+            return -999;
+        }
+
+        fd_set inputSet;
+        FD_ZERO(&inputSet);
+        FD_SET(STDIN_FILENO, &inputSet);
+
+        timeval timeout;
+        timeout.tv_sec = 0;
+        timeout.tv_usec = 300000;
+
+        int result = select(STDIN_FILENO + 1, &inputSet, NULL, NULL, &timeout);
+
+        if (result > 0 && FD_ISSET(STDIN_FILENO, &inputSet)) {
+            int choice;
+            cin >> choice;
+
+            if (cin.fail()) {
+                cout << Color::error("Invalid input. Please enter a valid number.")<<"\n";
+                clearInputBuffer();
+                cout << "Enter your choice: ";
+                cout.flush();
+                continue;
+            }
+
+            return choice;
+        }
+    }
+}
+
+
 /*
 Function: main
 Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
@@ -1768,8 +2042,27 @@ int main(int argc, char* argv[]) {
 	    separateTerminalMode
 	);
     do {
+	writeGUIStatusFile(
+	    resourceManager,
+	    processManager,
+	    currentMode,
+	    separateTerminalMode
+	);
         showMainMenu(currentMode, separateTerminalMode);
-        choice = getValidatedInteger("Enter your choice: ");
+        choice = getMenuChoiceWithGUIPolling(
+		    scheduler,
+		    processManager,
+		    resourceManager,
+		    readyQueueManager,
+		    logger,
+		    syncManager,
+		    currentMode,
+		    separateTerminalMode
+		);
+
+		if (choice == -999) {
+		    continue;
+		}
 
         switch (choice) {
             case 1:
@@ -1846,7 +2139,9 @@ int main(int argc, char* argv[]) {
 			    resourceManager,
 			    readyQueueManager,
 			    logger,
-			    syncManager
+			    syncManager,
+			    getModeName(currentMode),
+			    getTaskExecutionModeName(separateTerminalMode)
 			);
 		    break;
 		   
@@ -1957,6 +2252,15 @@ int main(int argc, char* argv[]) {
 		getTaskExecutionModeName(separateTerminalMode)
 	    );
 	    break;
+          case 24:
+	    openGraphicalDashboard(
+		resourceManager,
+		processManager,
+		currentMode,
+		separateTerminalMode,
+		logger
+	    );
+	    break;
           case 0:
 	    logger.logSystemEvent("AMS OS shutdown requested");
 	    syncManager.stopResourceMonitor();
@@ -1973,7 +2277,7 @@ int main(int argc, char* argv[]) {
 	    logger.logSystemEvent("AMS OS shutdown completed");
 	    break;
             default:
-                cout << "\nInvalid choice. Please select a valid option from the menu.\n";
+                cout << "\n" << Color::error("Invalid choice. Please select a valid option from the menu.")<<"\n";
         }
 
     } while (choice != 0);

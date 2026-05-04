@@ -186,6 +186,15 @@ Parameters: PID, memory start, and memory end.
 Returns: true if memory block is updated, otherwise false.
 */
 bool updateMemoryBlock(int pid, int memoryStart, int memoryEnd);
+
+
+/*
+Function: getAllPCBs
+Purpose: Returns all process control blocks currently stored in the PCB table.
+Parameters: None.
+Returns: Vector of PCB records.
+*/
+vector<PCB> getAllPCBs();
 };
 
 

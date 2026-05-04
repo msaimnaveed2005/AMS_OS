@@ -143,6 +143,30 @@ Parameters: None.
 Returns: Nothing.
 */
 void displayMemoryLayout();
+
+/*
+Function: getTotalRAM
+Purpose: Returns total RAM.
+Parameters: None.
+Returns: Total RAM.
+*/
+int getTotalRAM();
+
+/*
+Function: getTotalHDD
+Purpose: Returns total HDD.
+Parameters: None.
+Returns: Total HDD.
+*/
+int getTotalHDD();
+
+/*
+Function: getTotalCores
+Purpose: Returns total CPU cores.
+Parameters: None.
+Returns: Total CPU cores.
+*/
+int getTotalCores();
 };
 
 #endif
