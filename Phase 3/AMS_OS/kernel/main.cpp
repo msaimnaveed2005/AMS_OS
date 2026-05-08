@@ -48,55 +48,99 @@ Parameters: None.
 Returns: Nothing.
 */
 void bootScreen() {
+    UI::clearScreen();
+    UI::asciiLogo();
     UI::panelHeader("AMS OS", "Atomic Management System");
-    cout << "  " << UI::paint("Kernel boot sequence initialized", UI::BOLD) << "\n";
-    cout << "  Loading resource manager, scheduler, IPC, and task services\n\n";
-
-    cout << "  Booting AMS OS";
+    UI::bootStep("BOOT", "Kernel boot sequence initialized");
+    UI::bootStep("RAM", "Memory manager online");
+    UI::bootStep("CPU", "Multilevel scheduler online");
+    UI::bootStep("IPC", "Fork/exec task bridge online");
+    cout << "\n  " << UI::paint("Loading AMS OS", UI::BRIGHT_MAGENTA + UI::BOLD);
 
     for (int i = 0; i < 3; i++) {
-        cout << ".";
+        cout << UI::paint(".", UI::YELLOW + UI::BOLD);
         cout.flush();
         sleep(1);
     }
 
-    cout << "\n  " << UI::paint("System loaded successfully.", UI::GREEN + UI::BOLD) << "\n";
+    cout << "\n  " << UI::statusPill("READY", UI::GREEN)
+         << " " << UI::paint("System loaded successfully.", UI::WHITE + UI::BOLD) << "\n";
 }
 
 /*
-Function: getHardwareResourcesFromCommandLine
-Purpose: Reads RAM, HDD, and CPU cores from command-line arguments before OS starts.
+Function: readPositiveStartupValue
+Purpose: Reads and validates a positive integer startup resource value from terminal.
+Parameters: Prompt shown to the user.
+Returns: Positive integer entered by the user.
+*/
+int readPositiveStartupValue(const string &prompt) {
+    int value;
+
+    while (true) {
+        cout << prompt;
+        cin >> value;
+
+        if (!cin.fail() && value > 0) {
+            return value;
+        }
+
+        cout << "Invalid value. Enter a number greater than zero.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
+
+/*
+Function: getHardwareResourcesFromStartup
+Purpose: Reads RAM, HDD, and CPU cores before OS boot from command-line arguments
+         or from interactive Xubuntu terminal prompts.
 Parameters: argc, argv, and references to RAM, HDD, and CPU core variables.
 Returns: true if valid resources are provided, otherwise false.
 */
-bool getHardwareResourcesFromCommandLine(
+bool getHardwareResourcesFromStartup(
     int argc,
     char* argv[],
     int &ram,
     int &hdd,
     int &cores
 ) {
-    if (argc != 4) {
+    int ramGB;
+    int hddGB;
+
+    if (argc == 4) {
+        ramGB = atoi(argv[1]);
+        hddGB = atoi(argv[2]);
+        cores = atoi(argv[3]);
+
+        if (ramGB <= 0 || hddGB <= 0 || cores <= 0) {
+            cout << "\nInvalid hardware resources entered.\n";
+            cout << "RAM, HDD, and CPU cores must be greater than zero.\n";
+            return false;
+        }
+    } else if (argc == 1) {
+        UI::clearScreen();
+        UI::asciiLogo();
+        UI::panelHeader("Hardware Resource Setup", "Enter resources before boot");
+        cout << "  " << UI::paint("Recommended project instance:", UI::BOLD)
+             << " 2 GB RAM, 256 GB HDD, 8 CPU cores.\n\n";
+
+        ramGB = readPositiveStartupValue("Enter RAM size in GB: ");
+        hddGB = readPositiveStartupValue("Enter hard drive size in GB: ");
+        cores = readPositiveStartupValue("Enter number of CPU cores: ");
+    } else {
         cout << "\nInvalid startup command.\n";
         cout << "Usage: ./OS <RAM_GB> <HDD_GB> <CPU_CORES>\n";
         cout << "Example: ./OS 2 256 8\n";
-        return false;
-    }
-
-    int ramGB = atoi(argv[1]);
-    int hddGB = atoi(argv[2]);
-    cores = atoi(argv[3]);
-
-    if (ramGB <= 0 || hddGB <= 0 || cores <= 0) {
-        cout << "\nInvalid hardware resources entered.\n";
-        cout << "RAM, HDD, and CPU cores must be greater than zero.\n";
+        cout << "Or run ./OS and enter resources interactively.\n";
         return false;
     }
 
     ram = ramGB * 1024;
     hdd = hddGB * 1024;
 
-    UI::panelHeader("Hardware Resource Setup");
+    UI::panelHeader("Hardware Resource Setup", "Accepted");
+    cout << "  " << UI::statusPill("GRANTED", UI::GREEN)
+         << " " << UI::paint("Hardware resources locked for AMS OS boot.\n", UI::WHITE);
     UI::keyValue("RAM Provided", to_string(ramGB) + " GB (" + to_string(ram) + " MB)");
     UI::keyValue("Hard Drive Provided", to_string(hddGB) + " GB (" + to_string(hdd) + " MB)");
     UI::keyValue("CPU Cores Provided", to_string(cores));
@@ -316,8 +360,10 @@ void showInstructionGuide(TaskCatalog &taskCatalog) {
     UI::panelHeader("AMS OS Instruction Guide", "Final project workflow", 92);
 
     cout << "  " << UI::paint("Startup", UI::BOLD) << "\n";
-    cout << "  Run: ./OS <RAM_GB> <HDD_GB> <CPU_CORES>\n";
+    cout << "  Run: ./OS and enter hardware resources when prompted.\n";
+    cout << "  Fast run: ./OS <RAM_GB> <HDD_GB> <CPU_CORES>\n";
     cout << "  Example: ./OS 2 256 8\n";
+    cout << "  Hardware resources are accepted before the AMS OS boot screen.\n";
     cout << "  Digital Clock and Calendar are auto-started after boot.\n\n";
 
     cout << "  " << UI::paint("Task Flow", UI::BOLD) << "\n";
@@ -1865,8 +1911,8 @@ void switchToProcess(
 }
 /*
 Function: main
-Purpose: Starts AMS OS, initializes resources from command-line arguments, and controls the main menu.
-Parameters: argc and argv for command-line resource input.
+Purpose: Starts AMS OS, collects startup resources, boots the system, and controls the main menu.
+Parameters: argc and argv for optional command-line resource input.
 Returns: Program exit status.
 */
 int main(int argc, char* argv[]) {
@@ -1876,11 +1922,14 @@ int main(int argc, char* argv[]) {
     int choice;
     bool separateTerminalMode = true;
     OSMode currentMode = USER_MODE;
-    bootScreen();
+
     createRequiredDirectories();
-    if (!getHardwareResourcesFromCommandLine(argc, argv, ram, hdd, cores)) {
+
+    if (!getHardwareResourcesFromStartup(argc, argv, ram, hdd, cores)) {
         return 1;
     }
+
+    bootScreen();
 
         ResourceManager resourceManager(ram, hdd, cores);
 	ProcessManager processManager;
@@ -1944,7 +1993,8 @@ int main(int argc, char* argv[]) {
             readyQueueManager,
             taskCatalog
         );
-        choice = getValidatedInteger("Enter your choice: ");
+        UI::commandPrompt("Enter command: ");
+        choice = getValidatedInteger("");
 
         switch (choice) {
             case 1:

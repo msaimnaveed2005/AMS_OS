@@ -13,7 +13,10 @@ Run these commands from an Xubuntu terminal inside the project folder.
 1. Open terminal in the project folder.
 2. Build everything:
    make
-3. Start AMS OS with hardware resources:
+3. Start AMS OS and enter hardware resources when prompted:
+   ./OS
+   Recommended values: 2 GB RAM, 256 GB HDD, 8 CPU cores
+4. Optional fast start with resources already supplied:
    ./OS 2 256 8
 
 Default kernel password:
@@ -21,8 +24,8 @@ admin
 
 Final Project Feature Checklist
 -------------------------------
-- Named OS with boot and shutdown screens.
-- Hardware resources supplied at startup: RAM, HDD, CPU cores.
+- Named OS with colorful ANSI boot banner, dashboard panels, and shutdown screens.
+- Hardware resources supplied at startup: RAM, HDD, CPU cores, shown in styled setup panels.
 - 16 separate task executables under tasks/.
 - Fork/exec process creation for tasks.
 - IPC pipe request from child to kernel for RAM/HDD/CPU approval.
@@ -46,7 +49,7 @@ Final Project Feature Checklist
 Recommended Demo Sequence
 -------------------------
 1. Run make.
-2. Start ./OS 2 256 8.
+2. Start `./OS` and enter `2`, `256`, and `8`, or use `./OS 2 256 8`.
 3. Open Instruction Guide from menu option 24.
 4. Show Task Catalog with option 1.
 5. Launch Calculator or Notepad with option 3.

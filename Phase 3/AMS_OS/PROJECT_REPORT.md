@@ -19,10 +19,16 @@ AMS OS: Atomic Management System
 
 ```bash
 make
+./OS
+```
+
+AMS OS first prompts for RAM, HDD, and CPU cores, then shows the boot screen. For quick demos, you can also run:
+
+```bash
 ./OS 2 256 8
 ```
 
-The command above starts AMS OS with:
+The quick demo command above starts AMS OS with:
 
 - RAM: 2 GB
 - HDD: 256 GB
@@ -76,8 +82,8 @@ AMS OS includes 16 separate task source files under `tasks/`:
 
 | Manual Requirement | Implementation |
 | --- | --- |
-| Named OS with boot loading screen | `bootScreen()` in `kernel/main.cpp` |
-| Hardware resources entered at startup | `./OS <RAM_GB> <HDD_GB> <CPU_CORES>` |
+| Named OS with boot loading screen | `bootScreen()` in `kernel/main.cpp` displays a colorful ANSI logo, boot stages, and loading animation |
+| Hardware resources entered at startup | `./OS` prompts for RAM/HDD/CPU before boot in styled panels, or `./OS <RAM_GB> <HDD_GB> <CPU_CORES>` for quick demos |
 | Minimum 15 tasks | 16 task source files and executables |
 | Separate code file per task | All tasks live under `tasks/` |
 | Process creation | `fork()` in normal and auto-start task launch paths |
@@ -105,7 +111,7 @@ AMS OS includes 16 separate task source files under `tasks/`:
 ## Demo Sequence
 
 1. Build with `make`.
-2. Run `./OS 2 256 8`.
+2. Run `./OS` and enter `2`, `256`, and `8`, or use quick start `./OS 2 256 8`.
 3. Show the boot screen and startup resource summary.
 4. Open menu option 24, Instruction Guide.
 5. Open menu option 1, Task Catalog.
