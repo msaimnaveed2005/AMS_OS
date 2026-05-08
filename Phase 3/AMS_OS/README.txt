@@ -19,6 +19,7 @@ Run these commands from an Xubuntu terminal inside the project folder.
 4. Optional fast start with resources already supplied:
    ./OS 2 256 8
 
+
 Default kernel password:
 admin
 

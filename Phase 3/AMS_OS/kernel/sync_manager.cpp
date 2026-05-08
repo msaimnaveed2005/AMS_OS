@@ -48,6 +48,10 @@ Returns: Nothing.
 */
 SyncManager::SyncManager(int totalCores) : cpuCoreSemaphore(totalCores) {
     monitorRunning = false;
+
+    for (int coreIndex = 0; coreIndex < totalCores; coreIndex++) {
+        availableCoreIDs.push(coreIndex);
+    }
 }
 
 /*
@@ -88,6 +92,57 @@ void SyncManager::releaseCPUCores(int coresReleased) {
 
     cout << "\n[SYNC MANAGER] CPU execution slot released.\n";
     cout << "CPU Cores Released: " << coresReleased << "\n";
+}
+
+/*
+Function: acquireCoreSet
+Purpose: Acquires a set of CPU core IDs for process execution.
+Parameters: Number of cores required.
+Returns: Vector of assigned core IDs.
+*/
+vector<int> SyncManager::acquireCoreSet(int coresRequired) {
+    vector<int> assignedCores;
+
+    if (coresRequired <= 0) {
+        return assignedCores;
+    }
+
+    acquireCPUCores(coresRequired);
+
+    unique_lock<mutex> lock(cpuCoreMutex);
+
+    for (int i = 0; i < coresRequired; i++) {
+        if (availableCoreIDs.empty()) {
+            break;
+        }
+
+        assignedCores.push_back(availableCoreIDs.front());
+        availableCoreIDs.pop();
+    }
+
+    return assignedCores;
+}
+
+/*
+Function: releaseCoreSet
+Purpose: Releases assigned CPU core IDs back to scheduler pool.
+Parameters: Vector of core IDs.
+Returns: Nothing.
+*/
+void SyncManager::releaseCoreSet(const vector<int> &coreIDs) {
+    if (coreIDs.empty()) {
+        return;
+    }
+
+    {
+        unique_lock<mutex> lock(cpuCoreMutex);
+
+        for (int coreID : coreIDs) {
+            availableCoreIDs.push(coreID);
+        }
+    }
+
+    releaseCPUCores(static_cast<int>(coreIDs.size()));
 }
 
 /*

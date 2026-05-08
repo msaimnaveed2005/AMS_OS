@@ -30,6 +30,8 @@ namespace UI {
     const std::string BRIGHT_CYAN = "\033[96m";
     const std::string BRIGHT_BLUE = "\033[94m";
     const std::string BRIGHT_MAGENTA = "\033[95m";
+    const std::string BRIGHT_GREEN = "\033[92m";
+    const std::string BRIGHT_YELLOW = "\033[93m";
 
     /*
     Function: paint
@@ -112,6 +114,20 @@ namespace UI {
     inline void sectionTitle(const std::string &title, int width = 78) {
         std::cout << "\n" << paint("[" + title + "]", BOLD) << "\n";
         std::cout << paint(repeat('-', std::min(width, 78)) + "\n", DIM);
+    }
+
+    /*
+    Function: sectionBanner
+    Purpose: Prints a colorful section banner line for dashboard groups.
+    Parameters: Title text and accent color.
+    Returns: Nothing.
+    */
+    inline void sectionBanner(const std::string &title, const std::string &accent = BRIGHT_MAGENTA) {
+        std::cout << "\n  "
+                  << paint("◆", accent + BOLD) << " "
+                  << paint(title, accent + BOLD)
+                  << paint(" " + repeat('·', std::max(0, 46 - static_cast<int>(title.length()))), DIM)
+                  << "\n";
     }
 
     /*
@@ -230,6 +246,64 @@ namespace UI {
     }
 
     /*
+    Function: modeSplash
+    Purpose: Creates a compact colorful mode indicator row.
+    Parameters: Primary mode and secondary mode.
+    Returns: Nothing.
+    */
+    inline void modeSplash(const std::string &primary, const std::string &secondary) {
+        std::cout << "  "
+                  << statusPill(primary, BRIGHT_GREEN)
+                  << "  "
+                  << statusPill(secondary, BRIGHT_BLUE)
+                  << "\n";
+    }
+
+    /*
+    Function: infoLine
+    Purpose: Prints a standard informational message line.
+    Parameters: Message text.
+    Returns: Nothing.
+    */
+    inline void infoLine(const std::string &message) {
+        std::cout << "  " << paint("ℹ", BRIGHT_CYAN + BOLD) << " "
+                  << paint(message, WHITE) << "\n";
+    }
+
+    /*
+    Function: successLine
+    Purpose: Prints a standard success message line.
+    Parameters: Message text.
+    Returns: Nothing.
+    */
+    inline void successLine(const std::string &message) {
+        std::cout << "  " << paint("✓", BRIGHT_GREEN + BOLD) << " "
+                  << paint(message, BRIGHT_GREEN) << "\n";
+    }
+
+    /*
+    Function: warnLine
+    Purpose: Prints a standard warning message line.
+    Parameters: Message text.
+    Returns: Nothing.
+    */
+    inline void warnLine(const std::string &message) {
+        std::cout << "  " << paint("!", BRIGHT_YELLOW + BOLD) << " "
+                  << paint(message, BRIGHT_YELLOW) << "\n";
+    }
+
+    /*
+    Function: errorLine
+    Purpose: Prints a standard error message line.
+    Parameters: Message text.
+    Returns: Nothing.
+    */
+    inline void errorLine(const std::string &message) {
+        std::cout << "  " << paint("x", RED + BOLD) << " "
+                  << paint(message, RED + BOLD) << "\n";
+    }
+
+    /*
     Function: asciiLogo
     Purpose: Prints a colorful AMS OS startup logo for the terminal interface.
     Parameters: None.
@@ -304,7 +378,8 @@ namespace UI {
         if (autoManaged) {
             std::cout << "  " << paint("Auto task: it finishes on its own, or can be closed from Kernel Mode.\n", DIM);
         } else {
-            std::cout << "  " << paint("Close/Minimize: return to AMS OS and use menu options 21 or 17 with this PID.\n", DIM);
+            std::cout << "  " << paint("Task controls: Close (menu 21) or Minimize (menu 17) using this PID.\n", DIM);
+            std::cout << "  " << paint("Quick terminal controls: Ctrl+C closes task, Ctrl+Z minimizes task.\n", DIM);
         }
     }
 }

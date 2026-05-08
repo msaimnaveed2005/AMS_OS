@@ -1,5 +1,8 @@
 #include "deadlock_manager.h"
 #include <iomanip>
+#include <map>
+#include <set>
+#include <functional>
 
 /*
 Function: DeadlockManager
@@ -85,21 +88,51 @@ Parameters: Victim PID and victim name references.
 Returns: true if deadlock is detected, otherwise false.
 */
 bool DeadlockManager::detectDeadlock(int &victimPID, string &victimName) {
-    for (size_t i = 0; i < records.size(); i++) {
-        for (size_t j = 0; j < records.size(); j++) {
-            if (i == j) {
+    map<int, vector<int>> waitForGraph;
+    map<int, string> pidToName;
+
+    for (const DeadlockRecord &record : records) {
+        pidToName[record.pid] = record.processName;
+    }
+
+    for (const DeadlockRecord &waitingRecord : records) {
+        for (const DeadlockRecord &holdingRecord : records) {
+            if (waitingRecord.pid == holdingRecord.pid) {
                 continue;
             }
 
-            bool firstWaitingForSecond =
-                records[i].waitingForResource == records[j].holdingResource;
+            if (waitingRecord.waitingForResource == holdingRecord.holdingResource) {
+                waitForGraph[waitingRecord.pid].push_back(holdingRecord.pid);
+            }
+        }
+    }
 
-            bool secondWaitingForFirst =
-                records[j].waitingForResource == records[i].holdingResource;
+    set<int> globalVisited;
+    set<int> activeStack;
 
-            if (firstWaitingForSecond && secondWaitingForFirst) {
-                victimPID = records[j].pid;
-                victimName = records[j].processName;
+    function<bool(int)> hasCycle = [&](int currentPID) {
+        globalVisited.insert(currentPID);
+        activeStack.insert(currentPID);
+
+        for (int nextPID : waitForGraph[currentPID]) {
+            if (activeStack.find(nextPID) != activeStack.end()) {
+                victimPID = max(currentPID, nextPID);
+                victimName = pidToName[victimPID];
+                return true;
+            }
+
+            if (globalVisited.find(nextPID) == globalVisited.end() && hasCycle(nextPID)) {
+                return true;
+            }
+        }
+
+        activeStack.erase(currentPID);
+        return false;
+    };
+
+    for (const auto &entry : pidToName) {
+        if (globalVisited.find(entry.first) == globalVisited.end()) {
+            if (hasCycle(entry.first)) {
                 return true;
             }
         }

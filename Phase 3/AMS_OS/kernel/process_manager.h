@@ -13,6 +13,7 @@ enum ProcessState {
     READY_STATE,
     RUNNING_STATE,
     BLOCKED_STATE,
+    MINIMIZED_STATE,
     TERMINATED_STATE
 };
 
@@ -34,8 +35,11 @@ struct PCB {
     int hddRequired;
     int coresRequired;
     int waitingTime;
-int memoryStart;
-int memoryEnd;
+    int turnaroundTime;
+    int assignedCore;
+    string queueType;
+    int memoryStart;
+    int memoryEnd;
 };
 
 class ProcessManager {
@@ -202,6 +206,38 @@ Parameters: PID, memory start, and memory end.
 Returns: true if memory block is updated, otherwise false.
 */
 bool updateMemoryBlock(int pid, int memoryStart, int memoryEnd);
+
+/*
+Function: updateAssignedCore
+Purpose: Updates assigned CPU core for a process.
+Parameters: PID and core index.
+Returns: true if updated, otherwise false.
+*/
+bool updateAssignedCore(int pid, int assignedCore);
+
+/*
+Function: updateQueueType
+Purpose: Updates queue type label of a process.
+Parameters: PID and queue type.
+Returns: true if updated, otherwise false.
+*/
+bool updateQueueType(int pid, string queueType);
+
+/*
+Function: incrementTurnaroundTime
+Purpose: Increments turnaround time for a process.
+Parameters: PID and increment value.
+Returns: true if updated, otherwise false.
+*/
+bool incrementTurnaroundTime(int pid, int incrementValue);
+
+/*
+Function: displayProcessesByState
+Purpose: Displays processes filtered by a lifecycle state.
+Parameters: Target process state and list title.
+Returns: Nothing.
+*/
+void displayProcessesByState(ProcessState state, string title);
 };
 
 
