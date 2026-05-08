@@ -1,6 +1,20 @@
 #include "scheduler.h"
 #include "ui.h"
 
+namespace {
+bool sendSignalToScheduledProcess(int pid, int signalNumber) {
+    if (pid <= 0) {
+        return false;
+    }
+
+    if (kill(-pid, signalNumber) == 0) {
+        return true;
+    }
+
+    return kill(pid, signalNumber) == 0;
+}
+}
+
 /*
 Function: Scheduler
 Purpose: Initializes scheduler time quantum values.
@@ -119,7 +133,7 @@ bool Scheduler::runProcess(
 
     processManager.updateProcessState(item.pid, RUNNING_STATE);
     logger.logProcessEvent(item.pid, item.processName, "Dispatched by scheduler");
-    kill(item.pid, SIGCONT);
+    sendSignalToScheduledProcess(item.pid, SIGCONT);
 
     if (pcb.processType == SYSTEM_PROCESS || pcb.processType == KERNEL_PROCESS) {
         cout << "[SCHEDULER] System process running with FCFS until completion.\n";
@@ -173,8 +187,34 @@ bool Scheduler::runProcess(
     cout << "\n[SCHEDULER] Time quantum expired for PID: " << item.pid << "\n";
     cout << "[SCHEDULER] Pausing process and moving it back to ready queue.\n";
 
-    kill(item.pid, SIGSTOP);
-	waitpid(item.pid, &status, WUNTRACED);
+    sendSignalToScheduledProcess(item.pid, SIGSTOP);
+	pid_t stopWaitResult = waitpid(item.pid, &status, WUNTRACED);
+
+	if (stopWaitResult == item.pid && (WIFEXITED(status) || WIFSIGNALED(status))) {
+	    cout << "\n[SCHEDULER] Process finished while its quantum was expiring.\n";
+
+	    syncManager.releaseCPUCores(pcb.coresRequired);
+
+	    logger.logSystemEvent(
+		"CPU execution slot released after PID " + to_string(item.pid) + " finished"
+	    );
+
+	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+	    return true;
+	}
+
+	if (stopWaitResult == -1) {
+	    cout << "\n[SCHEDULER] Process is no longer waitable. Cleaning PCB and resources.\n";
+
+	    syncManager.releaseCPUCores(pcb.coresRequired);
+
+	    logger.logSystemEvent(
+		"CPU execution slot released after PID " + to_string(item.pid) + " became non-waitable"
+	    );
+
+	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+	    return true;
+	}
 
 	syncManager.releaseCPUCores(pcb.coresRequired);
 

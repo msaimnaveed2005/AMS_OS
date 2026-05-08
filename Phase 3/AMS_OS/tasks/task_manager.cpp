@@ -16,7 +16,7 @@ int main() {
     cout << "  This task confirms Task Manager is running as a separate process.\n";
     cout << "  For full PCB table and process states, use AMS OS kernel menu option 7.\n";
     UI::keyValue("Current Task PID", to_string(getpid()));
-    UI::keyValue("Parent Kernel PID", to_string(getppid()));
+    UI::keyValue("Parent Kernel PID", to_string(UI::parentProcessID()));
     UI::panelFooter();
 
     return 0;

@@ -165,6 +165,25 @@ string getTaskExecutionModeName(bool separateTerminalMode) {
     return "Scheduler-Controlled Mode";
 }
 
+/*
+Function: sendSignalToProcessGroup
+Purpose: Sends a signal to the AMS OS child process group, then falls back to
+         the single PID if a process group is not available.
+Parameters: PID and signal number.
+Returns: true if either signal call succeeds, otherwise false.
+*/
+bool sendSignalToProcessGroup(int pid, int signalNumber) {
+    if (pid <= 0) {
+        return false;
+    }
+
+    if (kill(-pid, signalNumber) == 0) {
+        return true;
+    }
+
+    return kill(pid, signalNumber) == 0;
+}
+
 
 /*
 Function: showMainMenu
@@ -566,13 +585,15 @@ void executeTaskExecutable(TaskInfo selectedTask, bool separateTerminalMode) {
     if (separateTerminalMode) {
         cout << "[CHILD PROCESS] Opening task in separate terminal window.\n";
         cout << "[CHILD PROCESS] Terminal Mode: Separate Terminal\n";
-        cout << "[CHILD PROCESS] Terminal: xfce4-terminal --hold\n";
+        cout << "[CHILD PROCESS] Terminal: xfce4-terminal --disable-server\n";
         cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
 
         execlp(
             "xfce4-terminal",
             "xfce4-terminal",
-            "--hold",
+            "--disable-server",
+            "--title",
+            selectedTask.taskName.c_str(),
             "--execute",
             selectedTask.executablePath.c_str(),
             selectedTask.taskName.c_str(),
@@ -662,6 +683,8 @@ void launchTaskUsingIPCForkTest(
     }
 
     if (pid == 0) {
+        setpgid(0, 0);
+
         close(requestPipe[0]);
         close(responsePipe[1]);
 
@@ -965,7 +988,7 @@ void kernelKillProcess(
 	SIGTERM may not terminate a stopped process immediately, so the program can get stuck at waitpid().
 	SIGKILL is used here because Kernel Mode Process Killer should forcefully terminate the process.
 	*/
-	int killResult = kill(pid, SIGKILL);
+	int killResult = sendSignalToProcessGroup(pid, SIGKILL) ? 0 : -1;
 
 	if (killResult == 0) {
 	    int status;
@@ -995,6 +1018,8 @@ void kernelKillProcess(
     readyQueueManager.removeProcessByPID(pid);
 
     processManager.updateProcessState(pid, TERMINATED_STATE);
+
+    resourceManager.releaseMemoryBlock(pid);
 
     resourceManager.releaseResources(
         pcb.ramRequired,
@@ -1069,7 +1094,7 @@ void minimizeProcess(
     Try to pause real child process.
     If it is already stopped, this does not break the program.
     */
-    kill(pid, SIGSTOP);
+    sendSignalToProcessGroup(pid, SIGSTOP);
 
     processManager.updateProcessState(pid, BLOCKED_STATE);
 
@@ -1168,7 +1193,7 @@ bool forceTerminateProcessByPID(
     cout << "Process Name: " << pcb.processName << "\n";
     cout << "Reason: " << reason << "\n";
 
-    int killResult = kill(pid, SIGKILL);
+    int killResult = sendSignalToProcessGroup(pid, SIGKILL) ? 0 : -1;
 
     if (killResult == 0) {
         int status;
@@ -1357,7 +1382,7 @@ void gracefulShutdownCleanup(
         cout << "PID: " << pid << "\n";
         cout << "Process Name: " << pcb.processName << "\n";
 
-        kill(pid, SIGKILL);
+        sendSignalToProcessGroup(pid, SIGKILL);
 
         int status;
         waitpid(pid, &status, WNOHANG);
@@ -1450,6 +1475,8 @@ void autoStartTask(
     }
 
     if (pid == 0) {
+        setpgid(0, 0);
+
         close(requestPipe[0]);
         close(responsePipe[1]);
 
@@ -1675,7 +1702,7 @@ void closeProcess(
     The process can be in READY, BLOCKED, or paused using SIGSTOP.
     SIGKILL ensures the simulator does not freeze while closing a stopped process.
     */
-    int killResult = kill(pid, SIGKILL);
+    int killResult = sendSignalToProcessGroup(pid, SIGKILL) ? 0 : -1;
 
     if (killResult == 0) {
         int status;
@@ -1894,6 +1921,20 @@ int main(int argc, char* argv[]) {
 	    syncManager,
 	    separateTerminalMode
 	);
+
+	if (readyQueueManager.hasReadyProcess()) {
+	    UI::sectionTitle("Auto-start Dispatch");
+	    cout << "Dispatching startup tasks so clock and calendar run immediately after boot.\n";
+
+	    scheduler.runScheduler(
+		    processManager,
+		    resourceManager,
+		    readyQueueManager,
+		    logger,
+		    syncManager
+		);
+	}
+
     do {
         showMainMenu(
             currentMode,

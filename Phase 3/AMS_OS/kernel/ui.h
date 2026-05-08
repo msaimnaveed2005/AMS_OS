@@ -10,6 +10,12 @@
 #include <utility>
 #include <vector>
 
+#ifdef _WIN32
+#include <process.h>
+#else
+#include <unistd.h>
+#endif
+
 namespace UI {
     const std::string RESET = "\033[0m";
     const std::string BOLD = "\033[1m";
@@ -132,6 +138,20 @@ namespace UI {
     */
     inline void clearScreen() {
         std::cout << "\033[2J\033[H";
+    }
+
+    /*
+    Function: parentProcessID
+    Purpose: Returns the parent process ID where supported by the target platform.
+    Parameters: None.
+    Returns: Parent process ID on Linux, or 0 on Windows syntax-check builds.
+    */
+    inline int parentProcessID() {
+#ifdef _WIN32
+        return 0;
+#else
+        return getppid();
+#endif
     }
 
     /*

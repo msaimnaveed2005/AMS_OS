@@ -4,9 +4,12 @@ AMS OS - MiniOS X Final Project
 Target Platform
 ---------------
 Linux Xubuntu with g++, make, and xfce4-terminal installed.
+Install if needed:
+sudo apt install build-essential xfce4-terminal
 
 Build and Run
 -------------
+Run these commands from an Xubuntu terminal inside the project folder.
 1. Open terminal in the project folder.
 2. Build everything:
    make
@@ -26,6 +29,7 @@ Final Project Feature Checklist
 - RAM block assignment and memory layout table.
 - Resource allocation and release for RAM, HDD, and CPU cores.
 - Xubuntu separate-terminal task execution by default.
+- Xfce terminal process-group control for close, minimize, resume, and scheduler signals.
 - User mode and kernel mode.
 - Close, minimize, resume, and switch process controls.
 - PCB table with process state, type, priority, wait time, and RAM block.
@@ -33,10 +37,11 @@ Final Project Feature Checklist
 - FCFS for system queue, Round Robin for interactive queue, background queue for low priority tasks.
 - Priority aging to reduce starvation.
 - Synchronization through mutex, condition variable, semaphore, and monitor thread.
-- Auto-start Digital Clock and Calendar after boot.
+- Auto-start Digital Clock and Calendar after boot, then dispatch them immediately.
 - System log file at data/system_log.txt.
 - Deadlock detection simulation with circular wait message.
 - Virtual disk file tasks under data/virtual_disk.
+- Submission report source included in PROJECT_REPORT.md.
 
 Recommended Demo Sequence
 -------------------------

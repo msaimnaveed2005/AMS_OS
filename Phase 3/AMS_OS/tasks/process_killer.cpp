@@ -16,7 +16,7 @@ int main() {
     cout << "  Process Killer is a privileged Kernel Mode operation.\n";
     cout << "  Use AMS OS Kernel Mode menu option 16 to kill real processes.\n";
     UI::keyValue("Current Task PID", to_string(getpid()));
-    UI::keyValue("Parent Kernel PID", to_string(getppid()));
+    UI::keyValue("Parent Kernel PID", to_string(UI::parentProcessID()));
     UI::panelFooter();
 
     return 0;

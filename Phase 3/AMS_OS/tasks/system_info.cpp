@@ -14,7 +14,7 @@ int main() {
     UI::panelHeader("System Information", "AMS OS task executable");
     UI::taskControlHint(getpid());
     UI::keyValue("Current Process PID", to_string(getpid()));
-    UI::keyValue("Parent Kernel PID", to_string(getppid()));
+    UI::keyValue("Parent Kernel PID", to_string(UI::parentProcessID()));
     UI::keyValue("Operating System", "AMS OS Simulation");
     UI::keyValue("Execution Mode", "User Task Executable");
     cout << "  " << UI::paint("Resource details are managed by AMS OS kernel.\n", UI::DIM);

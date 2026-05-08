@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall
+CXXFLAGS = -std=c++17 -Wall -pthread
 UI_HEADER = kernel/ui.h
 
 KERNEL_SRC = kernel/main.cpp \

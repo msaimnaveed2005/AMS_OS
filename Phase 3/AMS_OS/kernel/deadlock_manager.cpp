@@ -85,8 +85,8 @@ Parameters: Victim PID and victim name references.
 Returns: true if deadlock is detected, otherwise false.
 */
 bool DeadlockManager::detectDeadlock(int &victimPID, string &victimName) {
-    for (int i = 0; i < records.size(); i++) {
-        for (int j = 0; j < records.size(); j++) {
+    for (size_t i = 0; i < records.size(); i++) {
+        for (size_t j = 0; j < records.size(); j++) {
             if (i == j) {
                 continue;
             }

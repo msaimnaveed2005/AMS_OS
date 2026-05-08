@@ -12,18 +12,21 @@ Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    string sourcePath;
-    string destinationPath;
+    string sourceFileName;
+    string destinationFileName;
     string line;
 
     UI::panelHeader("File Copy", "Virtual disk utility");
     UI::taskControlHint(getpid());
 
-    cout << "Enter source file path: ";
-    cin >> sourcePath;
+    cout << "Enter source file name: ";
+    cin >> sourceFileName;
 
-    cout << "Enter destination file path: ";
-    cin >> destinationPath;
+    cout << "Enter destination file name: ";
+    cin >> destinationFileName;
+
+    string sourcePath = "data/virtual_disk/" + sourceFileName;
+    string destinationPath = "data/virtual_disk/" + destinationFileName;
 
     ifstream sourceFile(sourcePath);
     ofstream destinationFile(destinationPath);
