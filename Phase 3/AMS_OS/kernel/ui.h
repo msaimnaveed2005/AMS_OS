@@ -25,6 +25,11 @@ namespace UI {
     const std::string YELLOW = "\033[33m";
     const std::string RED = "\033[31m";
     const std::string BLUE = "\033[34m";
+    const std::string MAGENTA = "\033[35m";
+    const std::string WHITE = "\033[37m";
+    const std::string BRIGHT_CYAN = "\033[96m";
+    const std::string BRIGHT_BLUE = "\033[94m";
+    const std::string BRIGHT_MAGENTA = "\033[95m";
 
     /*
     Function: paint
@@ -75,7 +80,7 @@ namespace UI {
     Returns: Nothing.
     */
     inline void panelHeader(const std::string &title, const std::string &subtitle = "", int width = 78) {
-        std::cout << "\n" << paint("+" + repeat('-', width - 2) + "+\n", CYAN);
+        std::cout << "\n" << paint("╔" + repeat('=', width - 2) + "╗\n", BRIGHT_CYAN);
         std::string content = " " + title;
 
         if (!subtitle.empty()) {
@@ -83,9 +88,9 @@ namespace UI {
             content += repeat(' ', std::max(1, gap)) + subtitle;
         }
 
-        std::cout << paint("|", CYAN) << std::left << std::setw(width - 2)
-                  << fit(content, width - 2) << paint("|\n", CYAN);
-        std::cout << paint("+" + repeat('-', width - 2) + "+\n", CYAN);
+        std::cout << paint("║", BRIGHT_CYAN) << std::left << std::setw(width - 2)
+                  << fit(content, width - 2) << paint("║\n", BRIGHT_CYAN);
+        std::cout << paint("╠" + repeat('=', width - 2) + "╣\n", BRIGHT_CYAN);
     }
 
     /*
@@ -95,7 +100,7 @@ namespace UI {
     Returns: Nothing.
     */
     inline void panelFooter(int width = 78) {
-        std::cout << paint("+" + repeat('-', width - 2) + "+\n", CYAN);
+        std::cout << paint("╚" + repeat('=', width - 2) + "╝\n", BRIGHT_CYAN);
     }
 
     /*
@@ -211,14 +216,62 @@ namespace UI {
     Returns: Nothing.
     */
     inline void menuItem(int id, const std::string &label, const std::string &hint = "") {
-        std::cout << "  " << std::right << std::setw(2) << id << "  "
-                  << std::left << std::setw(30) << label;
+        std::ostringstream idText;
+        idText << std::right << std::setw(2) << id;
+
+        std::cout << "  " << paint("[" + idText.str() + "]", BRIGHT_MAGENTA + BOLD) << "  "
+                  << std::left << std::setw(30) << paint(label, WHITE);
 
         if (!hint.empty()) {
             std::cout << paint(hint, DIM);
         }
 
         std::cout << "\n";
+    }
+
+    /*
+    Function: asciiLogo
+    Purpose: Prints a colorful AMS OS startup logo for the terminal interface.
+    Parameters: None.
+    Returns: Nothing.
+    */
+    inline void asciiLogo() {
+        const std::vector<std::pair<std::string, std::string>> lines = {
+            {R"(        ___       __  ___   _____    ____  _____)", BRIGHT_CYAN},
+            {R"(       /   |     /  |/  /  / ___/   / __ \/ ___/)", BRIGHT_BLUE},
+            {R"(      / /| |    / /|_/ /   \__ \   / / / /\__ \ )", BRIGHT_MAGENTA},
+            {R"(     / ___ |   / /  / /   ___/ /  / /_/ /___/ /)", BRIGHT_BLUE},
+            {R"(    /_/  |_|  /_/  /_/   /____/   \____//____/ )", BRIGHT_CYAN}
+        };
+
+        std::cout << "\n";
+        for (const auto &line : lines) {
+            std::cout << paint(line.first, line.second + BOLD) << "\n";
+        }
+        std::cout << paint("        Atomic Management System Simulator", YELLOW + BOLD) << "\n";
+    }
+
+    /*
+    Function: bootStep
+    Purpose: Prints one colored boot-stage message.
+    Parameters: Boot stage label and message.
+    Returns: Nothing.
+    */
+    inline void bootStep(const std::string &label, const std::string &message) {
+        std::cout << "  " << statusPill(label, GREEN) << " "
+                  << paint(message, WHITE) << "\n";
+    }
+
+    /*
+    Function: commandPrompt
+    Purpose: Prints a colorful command prompt marker before user input.
+    Parameters: Prompt text.
+    Returns: Nothing.
+    */
+    inline void commandPrompt(const std::string &text) {
+        std::cout << paint("\nams-os", BRIGHT_CYAN + BOLD)
+                  << paint(" :: ", DIM)
+                  << paint(text, YELLOW + BOLD);
     }
 
     /*
