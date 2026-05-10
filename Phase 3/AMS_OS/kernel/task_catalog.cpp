@@ -94,37 +94,63 @@ void TaskCatalog::displayAvailableTasks() {
         return;
     }
 
-    cout << "  ";
-    cout << UI::paint("ID", UI::WHITE + UI::BOLD);
-    cout << string(4, ' ');
-    cout << UI::paint("Task Name", UI::WHITE + UI::BOLD);
-    cout << string(13, ' ');
-    cout << UI::paint("Type", UI::WHITE + UI::BOLD);
-    cout << string(12, ' ');
-    cout << UI::paint("Priority", UI::WHITE + UI::BOLD);
-    cout << string(4, ' ');
-    cout << UI::paint("RAM", UI::WHITE + UI::BOLD);
-    cout << string(8, ' ');
-    cout << UI::paint("HDD", UI::WHITE + UI::BOLD);
-    cout << string(8, ' ');
-    cout << UI::paint("CPU", UI::WHITE + UI::BOLD);
-    cout << string(3, ' ');
-    cout << UI::paint("Description", UI::WHITE + UI::BOLD) << "\n";
-
-    cout << "  " << UI::paint(UI::repeat('-', 86) + "\n", UI::DIM);
+    UI::sectionBanner("Catalog Layout", UI::BRIGHT_CYAN);
+    cout << "  " << UI::paint("Each task card shows type, priority, and resource profile.", UI::DIM) << "\n";
+    cout << "  " << UI::paint(UI::repeat('-', 86), UI::DIM) << "\n";
 
     for (const TaskInfo &task : taskList) {
-        cout << "  ";
-        cout << left
-             << setw(6)  << UI::paint(std::to_string(task.taskID), UI::WHITE + UI::BOLD)
-             << setw(22) << UI::paint(UI::fit(task.taskName, 20), UI::WHITE + UI::BOLD)
-             << setw(16) << UI::paint(getProcessTypeName(task.processType), UI::WHITE)
-             << setw(10) << UI::paint(std::to_string(task.priority), UI::WHITE)
-             << setw(11) << UI::paint(std::to_string(task.ramRequired) + " MB", UI::WHITE)
-             << setw(11) << UI::paint(std::to_string(task.hddRequired) + " MB", UI::WHITE)
-             << setw(6)  << UI::paint(std::to_string(task.coresRequired), UI::WHITE)
-             << UI::paint(UI::fit(task.description, 26), UI::WHITE)
+        string typeStyle = UI::WHITE;
+        switch (task.processType) {
+            case SYSTEM_PROCESS:
+            case KERNEL_PROCESS:
+                typeStyle = UI::YELLOW;
+                break;
+            case INTERACTIVE_PROCESS:
+                typeStyle = UI::GREEN;
+                break;
+            case BACKGROUND_PROCESS:
+                typeStyle = UI::BRIGHT_CYAN;
+                break;
+            case AUTO_RUNNING_PROCESS:
+                typeStyle = UI::ROYAL_BLUE;
+                break;
+            default:
+                typeStyle = UI::WHITE;
+        }
+
+        string priorityStyle = UI::GREEN;
+        if (task.priority <= 1) {
+            priorityStyle = UI::YELLOW;
+        } else if (task.priority >= 3) {
+            priorityStyle = UI::BRIGHT_CYAN;
+        }
+
+        string taskLabel = "Task " + std::to_string(task.taskID) + " - " + UI::fit(task.taskName, 24);
+        string typePill = UI::statusPill(getProcessTypeName(task.processType), typeStyle);
+        string priorityPill = UI::statusPill("P" + std::to_string(task.priority), priorityStyle);
+
+        cout << "  "
+             << UI::paint(">", UI::ROYAL_BLUE + UI::BOLD) << " "
+             << UI::paint(taskLabel, UI::WHITE + UI::BOLD)
+             << "  " << typePill
+             << "  " << priorityPill
              << "\n";
+
+        cout << "    " << UI::paint("Resources:", UI::LIGHT_BLUE)
+             << " RAM " << UI::paint(std::to_string(task.ramRequired) + " MB", UI::WHITE + UI::BOLD)
+             << " | HDD " << UI::paint(std::to_string(task.hddRequired) + " MB", UI::WHITE + UI::BOLD)
+             << " | CPU " << UI::paint(std::to_string(task.coresRequired) + " core(s)", UI::WHITE + UI::BOLD)
+             << "\n";
+
+        cout << "    " << UI::paint("Description:", UI::LIGHT_BLUE)
+             << " " << UI::paint(UI::fit(task.description, 70), UI::WHITE)
+             << "\n";
+
+        cout << "    " << UI::paint("Exec:", UI::SLATE_GRAY)
+             << " " << UI::paint(UI::fit(task.executablePath, 74), UI::SLATE_GRAY)
+             << "\n";
+
+        cout << "  " << UI::paint(UI::repeat('-', 86), UI::DIM) << "\n";
     }
 
     UI::panelFooter(92);

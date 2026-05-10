@@ -312,7 +312,7 @@ void showMainMenu(
     UI::menuItem(1, "Task Catalog", "Browse available programs");
     UI::menuItem(2, "Task Details", "Inspect requirements");
     UI::menuItem(3, "Launch Task", "Fork + IPC resource request");
-    UI::menuItem(24, "Instruction Guide", "How to run and control AMS OS");
+    UI::menuItem(23, "Instruction Guide", "How to run and control AMS OS");
 
     UI::sectionBanner("System Monitor", UI::BRIGHT_BLUE);
     UI::menuItem(4, "Resource Status", "RAM, HDD, and CPU usage");
@@ -326,11 +326,10 @@ void showMainMenu(
     UI::menuItem(18, "Resume Process", "Return to ready queue");
     UI::menuItem(21, "Close Process", "Release resources");
     UI::menuItem(22, "Switch to Process", "Focus selected PID");
-    UI::menuItem(23, "Task Terminal Mode", "Locked: separate terminal per task");
-    UI::menuItem(25, "Running Tasks List", "View RUNNING processes");
-    UI::menuItem(26, "Minimized Tasks List", "View MINIMIZED processes");
-    UI::menuItem(27, "Input Interrupt", "Move process to BLOCKED");
-    UI::menuItem(28, "Complete Interrupt", "Resume BLOCKED process");
+    UI::menuItem(24, "Running Tasks List", "View RUNNING processes");
+    UI::menuItem(25, "Minimized Tasks List", "View MINIMIZED processes");
+    UI::menuItem(26, "Input Interrupt", "Move process to BLOCKED");
+    UI::menuItem(27, "Complete Interrupt", "Resume BLOCKED process");
 
     if (currentMode == USER_MODE) {
         UI::sectionBanner("Access", UI::CYAN);
@@ -389,7 +388,7 @@ void showInstructionGuide(TaskCatalog &taskCatalog) {
     cout << "  Close Process   : Menu 21 releases RAM/HDD/CPU and removes PCB.\n";
     cout << "  Minimize Process: Menu 17 pauses task execution and moves it to MINIMIZED.\n";
     cout << "  Resume Process  : Menu 18 returns MINIMIZED or BLOCKED tasks to READY.\n";
-    cout << "  Input Interrupt : Menu 27 moves a task to BLOCKED; menu 28 completes it.\n";
+    cout << "  Input Interrupt : Menu 26 moves a task to BLOCKED; menu 27 completes it.\n";
     cout << "  Switch Process  : Menu 22 focuses a process already loaded in RAM.\n\n";
 
     cout << "  " << UI::paint("Kernel Tools", UI::BOLD) << "\n";
@@ -2296,34 +2295,25 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 23:
-                separateTerminalMode = true;
-                UI::panelHeader("Task Execution Mode", "Locked");
-                UI::keyValue("Current Mode", "Separate Terminal Mode");
-                UI::infoLine("Each task will run in its own Ubuntu terminal window.");
-                UI::panelFooter();
-                logger.logSystemEvent("Task execution mode confirmed as Separate Terminal Mode (locked)");
-                break;
-
-            case 24:
                 showInstructionGuide(taskCatalog);
                 demoPause();
                 break;
 
-            case 25:
+            case 24:
                 processManager.displayProcessesByState(RUNNING_STATE, "Running Tasks List");
                 demoPause();
                 break;
 
-            case 26:
+            case 25:
                 processManager.displayProcessesByState(MINIMIZED_STATE, "Minimized Tasks List");
                 demoPause();
                 break;
 
-            case 27:
+            case 26:
                 handleInputInterrupt(processManager, readyQueueManager, logger);
                 break;
 
-            case 28:
+            case 27:
                 completeInterrupt(processManager, readyQueueManager, logger, syncManager);
                 break;
 

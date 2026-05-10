@@ -401,13 +401,13 @@ AMS OS supports manual process control:
 | User Mode and Kernel Mode | Complete | `OSMode` with password-protected Kernel Mode |
 | Hardware access in Kernel Mode | Complete | Kernel Mode process kill/resource tools |
 | Time and calendar auto-start | Complete | Clock and Calendar auto-start after boot |
-| Instruction guide | Complete | Menu option 24 |
+| Instruction guide | Complete | Menu option 23 |
 | RAM location and size | Complete | Memory block start/end stored in PCB |
 | Ready queue scheduling | Complete | `ReadyQueueManager` and `Scheduler` |
 | Multilevel queue scheduling | Complete | System, Interactive, Background queues |
 | Different algorithms per queue | Complete | FCFS and Round Robin |
-| Interrupt moves task to blocked | Complete | Menu option 27 |
-| Resume after interrupt | Complete | Menu option 28 |
+| Interrupt moves task to blocked | Complete | Menu option 26 |
+| Resume after interrupt | Complete | Menu option 27 |
 | Process lifecycle removal | Complete | Scheduler and close/kill release resources |
 | Data saved to hard disk | Complete | Virtual disk under `data/virtual_disk/` |
 | Threads | Complete | Resource monitor thread |

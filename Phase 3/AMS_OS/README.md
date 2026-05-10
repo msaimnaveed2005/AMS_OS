@@ -117,7 +117,7 @@ deadlock detection, and other privileged controls.
 1. Build the project with `make`.
 2. Start AMS OS with `./OS 2 256 8`.
 3. Review the boot screen and startup hardware summary.
-4. Open the Instruction Guide with menu option `24`.
+4. Open the Instruction Guide with menu option `23`.
 5. View the Task Catalog with option `1`.
 6. Launch a task with option `3`.
 7. Dispatch ready tasks with option `11`.

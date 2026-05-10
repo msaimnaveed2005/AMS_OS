@@ -46,6 +46,61 @@ bool isTaskTerminalHidden(int pid) {
 
     return hasAnyWindow && !hasVisibleWindow;
 }
+
+bool isTaskTerminalVisible(int pid) {
+    if (pid <= 0) {
+        return false;
+    }
+
+    ostringstream visibleCommand;
+    visibleCommand << "xdotool search --onlyvisible --pid " << pid << " 2>/dev/null";
+
+    return commandHasOutput(visibleCommand.str());
+}
+
+void restoreVisibleMinimizedTasks(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager
+) {
+    vector<int> pids = processManager.getAllPIDs();
+
+    for (int pid : pids) {
+        PCB pcb;
+
+        if (!processManager.getPCB(pid, pcb)) {
+            continue;
+        }
+
+        if (pcb.processState != MINIMIZED_STATE) {
+            continue;
+        }
+
+        if (!isTaskTerminalVisible(pid)) {
+            continue;
+        }
+
+        processManager.updateProcessState(pid, READY_STATE);
+        processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
+        readyQueueManager.addProcessToReadyQueue(
+            pid,
+            pcb.processName,
+            pcb.processType,
+            pcb.priority
+        );
+        syncManager.notifyReadyQueue();
+
+        logger.logProcessEvent(
+            pid,
+            pcb.processName,
+            "Terminal restored from window controls, process moved back to READY"
+        );
+        UI::successLine(
+            "[SCHEDULER] Terminal restored for PID " + to_string(pid) + ". Process returned to READY."
+        );
+    }
+}
 }
 
 /*
@@ -340,6 +395,9 @@ void Scheduler::runScheduler(
     UI::panelHeader("AMS OS Scheduler", "Started");
     logger.logSystemEvent("Scheduler started");
     UI::infoLine("[SCHEDULER] Multilevel queue scheduler started.");
+
+    restoreVisibleMinimizedTasks(processManager, readyQueueManager, logger, syncManager);
+
     if (!readyQueueManager.hasReadyProcess()) {
     UI::warnLine("[SCHEDULER] No process available in ready queue.");
     UI::infoLine("[SCHEDULER] Waiting briefly for ready queue notification.");
@@ -370,13 +428,35 @@ void Scheduler::runScheduler(
     processManager.resetWaitingTime(selectedItem.pid);
 
     runProcess(
-    selectedItem,
-    processManager,
-    resourceManager,
-    readyQueueManager,
-    logger,
-    syncManager
-);
+        selectedItem,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger,
+        syncManager
+    );
+
+    PCB scheduledProcess;
+    if (processManager.getPCB(selectedItem.pid, scheduledProcess) &&
+        scheduledProcess.processState == MINIMIZED_STATE) {
+        UI::warnLine("[SCHEDULER] Scheduling paused because active task was minimized.");
+        UI::infoLine("[SCHEDULER] Waiting for terminal restore to continue scheduling.");
+        logger.logSystemEvent(
+            "Scheduler paused because PID " + to_string(selectedItem.pid) + " was minimized"
+        );
+
+        while (true) {
+            syncManager.waitForReadyQueueSignal(1);
+            restoreVisibleMinimizedTasks(processManager, readyQueueManager, logger, syncManager);
+
+            if (readyQueueManager.hasReadyProcess()) {
+                UI::successLine("[SCHEDULER] Scheduling resumed after terminal restore.");
+                break;
+            }
+        }
+
+        continue;
+    }
 
     UI::sectionBanner("Scheduler Resource Snapshot", UI::BRIGHT_GREEN);
     resourceManager.displayResources();
