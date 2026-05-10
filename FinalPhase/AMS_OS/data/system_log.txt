@@ -5855,3 +5855,16 @@
 [Mon May  4 18:22:58 2026
 ] SYSTEM | Scheduler finished
 [Mon May  4 18:22:59 2026
+[Mon May  4 18:26:29 2026
+] SYSTEM | AMS OS Booted
+[Mon May  4 18:26:29 2026
+] SYSTEM | Resource monitor thread started
+[Mon May  4 18:26:29 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Mon May  4 18:26:29 2026
+] RESOURCE | RAM block assigned to auto-start PID 20264 | Digital Clock | Start: 0MB | End: 50MB
+[Mon May  4 18:26:29 2026
+] PROCESS | PID: 20264 | Digital Clock | Auto-start PCB created
+[Mon May  4 18:26:29 2026
+] PROCESS | PID: 20264 | Digital Clock | Auto-start task added to ready queue
+[Mon May  4 18:26:34 2026

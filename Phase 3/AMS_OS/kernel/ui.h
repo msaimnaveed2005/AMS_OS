@@ -9,377 +9,255 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#ifdef _WIN32
-#include <process.h>
-#else
 #include <unistd.h>
-#endif
+
+using namespace std;
 
 namespace UI {
-    const std::string RESET = "\033[0m";
-    const std::string BOLD = "\033[1m";
-    const std::string DIM = "\033[2m";
-    const std::string CYAN = "\033[36m";
-    const std::string GREEN = "\033[32m";
-    const std::string YELLOW = "\033[33m";
-    const std::string RED = "\033[31m";
-    const std::string BLUE = "\033[34m";
-    const std::string MAGENTA = "\033[35m";
-    const std::string WHITE = "\033[37m";
-    const std::string BRIGHT_CYAN = "\033[96m";
-    const std::string BRIGHT_BLUE = "\033[94m";
-    const std::string BRIGHT_MAGENTA = "\033[95m";
-    const std::string BRIGHT_GREEN = "\033[92m";
-    const std::string BRIGHT_YELLOW = "\033[93m";
+    const string RESET = "\033[0m";
+    const string BOLD = "\033[1m";
+    const string DIM = "\033[2m";
 
-    /*
-    Function: paint
-    Purpose: Wraps text in ANSI terminal styling codes.
-    Parameters: Text and ANSI style code.
-    Returns: Styled terminal string.
-    */
-    inline std::string paint(const std::string &text, const std::string &style) {
+    const string UBUNTU_ORANGE = "\033[38;5;208m";
+    const string UBUNTU_PURPLE = "\033[38;5;91m";
+    const string UBUNTU_LIGHT = "\033[38;5;253m";
+    const string UBUNTU_GREEN = "\033[38;5;40m";
+    const string UBUNTU_RED = "\033[38;5;196m";
+    const string UBUNTU_YELLOW = "\033[38;5;220m";
+    const string UBUNTU_BLUE = "\033[38;5;39m";
+
+    const string CYAN = UBUNTU_BLUE;
+    const string GREEN = UBUNTU_GREEN;
+    const string YELLOW = UBUNTU_YELLOW;
+    const string RED = UBUNTU_RED;
+    const string BLUE = UBUNTU_BLUE;
+    const string MAGENTA = UBUNTU_PURPLE;
+    const string WHITE = UBUNTU_LIGHT;
+    const string BRIGHT_CYAN = UBUNTU_ORANGE;
+    const string BRIGHT_BLUE = UBUNTU_BLUE;
+    const string BRIGHT_MAGENTA = UBUNTU_PURPLE;
+    const string BRIGHT_GREEN = UBUNTU_GREEN;
+    const string BRIGHT_YELLOW = UBUNTU_YELLOW;
+
+    inline string paint(const string &text, const string &style) {
         return style + text + RESET;
     }
 
-    /*
-    Function: repeat
-    Purpose: Builds a repeated character string for console borders.
-    Parameters: Character and repeat count.
-    Returns: Repeated character string.
-    */
-    inline std::string repeat(char value, int count) {
-        return std::string(std::max(0, count), value);
+    inline string repeat(char value, int count) {
+        return string(max(0, count), value);
     }
 
-    /*
-    Function: fit
-    Purpose: Truncates long text so it fits inside a fixed-width terminal column.
-    Parameters: Text and maximum width.
-    Returns: Original or truncated text.
-    */
-    inline std::string fit(const std::string &text, int width) {
-        if (width <= 0) {
-            return "";
-        }
-
-        if (static_cast<int>(text.length()) <= width) {
-            return text;
-        }
-
-        if (width <= 3) {
-            return text.substr(0, width);
-        }
-
+    inline string fit(const string &text, int width) {
+        if (width <= 0) return "";
+        if ((int)text.length() <= width) return text;
+        if (width <= 3) return text.substr(0, width);
         return text.substr(0, width - 3) + "...";
     }
 
-    /*
-    Function: panelHeader
-    Purpose: Prints a styled panel header for major console screens.
-    Parameters: Title, optional subtitle, and panel width.
-    Returns: Nothing.
-    */
-    inline void panelHeader(const std::string &title, const std::string &subtitle = "", int width = 78) {
-        std::cout << "\n" << paint("╔" + repeat('=', width - 2) + "╗\n", BRIGHT_CYAN);
-        std::string content = " " + title;
+    inline void panelHeader(const string &title, const string &subtitle = "", int width = 78) {
+        cout << "\n" << paint("+" + repeat('-', width - 2) + "+\n", UBUNTU_ORANGE + BOLD);
+
+        string content = " " + title;
 
         if (!subtitle.empty()) {
-            int gap = width - 2 - static_cast<int>(content.length()) - static_cast<int>(subtitle.length()) - 1;
-            content += repeat(' ', std::max(1, gap)) + subtitle;
+            int gap = width - 2 - (int)content.length() - (int)subtitle.length() - 1;
+            content += repeat(' ', max(1, gap)) + subtitle;
         }
 
-        std::cout << paint("║", BRIGHT_CYAN) << std::left << std::setw(width - 2)
-                  << fit(content, width - 2) << paint("║\n", BRIGHT_CYAN);
-        std::cout << paint("╠" + repeat('=', width - 2) + "╣\n", BRIGHT_CYAN);
+        cout << paint("|", UBUNTU_ORANGE + BOLD)
+             << left << setw(width - 2)
+             << fit(content, width - 2)
+             << paint("|\n", UBUNTU_ORANGE + BOLD);
+
+        cout << paint("+" + repeat('-', width - 2) + "+\n", UBUNTU_PURPLE);
     }
 
-    /*
-    Function: panelFooter
-    Purpose: Prints a styled panel footer line.
-    Parameters: Panel width.
-    Returns: Nothing.
-    */
     inline void panelFooter(int width = 78) {
-        std::cout << paint("╚" + repeat('=', width - 2) + "╝\n", BRIGHT_CYAN);
+        cout << paint("+" + repeat('-', width - 2) + "+\n", UBUNTU_ORANGE + BOLD);
     }
 
-    /*
-    Function: sectionTitle
-    Purpose: Prints a compact section title with divider.
-    Parameters: Title and divider width.
-    Returns: Nothing.
-    */
-    inline void sectionTitle(const std::string &title, int width = 78) {
-        std::cout << "\n" << paint("[" + title + "]", BOLD) << "\n";
-        std::cout << paint(repeat('-', std::min(width, 78)) + "\n", DIM);
+    inline void sectionTitle(const string &title, int width = 78) {
+        cout << "\n" << paint("* " + title, UBUNTU_ORANGE + BOLD) << "\n";
+        cout << paint(repeat('-', min(width, 78)) + "\n", DIM);
     }
 
-    /*
-    Function: sectionBanner
-    Purpose: Prints a colorful section banner line for dashboard groups.
-    Parameters: Title text and accent color.
-    Returns: Nothing.
-    */
-    inline void sectionBanner(const std::string &title, const std::string &accent = BRIGHT_MAGENTA) {
-        std::cout << "\n  "
-                  << paint("◆", accent + BOLD) << " "
-                  << paint(title, accent + BOLD)
-                  << paint(" " + repeat('·', std::max(0, 46 - static_cast<int>(title.length()))), DIM)
-                  << "\n";
+    inline void sectionBanner(const string &title, const string &accent = UBUNTU_ORANGE) {
+        cout << "\n  "
+             << paint("*", accent + BOLD) << " "
+             << paint(title, accent + BOLD)
+             << paint(" " + repeat('.', max(0, 46 - (int)title.length())), DIM)
+             << "\n";
     }
 
-    /*
-    Function: keyValue
-    Purpose: Prints a readable key-value row.
-    Parameters: Key, value, and key column width.
-    Returns: Nothing.
-    */
-    inline void keyValue(const std::string &key, const std::string &value, int keyWidth = 24) {
-        std::cout << "  " << std::left << std::setw(keyWidth) << key
-                  << paint(value, BOLD) << "\n";
+    inline void keyValue(const string &key, const string &value, int keyWidth = 24) {
+        cout << "  "
+             << left << setw(keyWidth)
+             << paint(key, UBUNTU_ORANGE)
+             << paint(value, UBUNTU_LIGHT + BOLD)
+             << "\n";
     }
 
-    /*
-    Function: statusPill
-    Purpose: Creates a compact colored status label.
-    Parameters: Label text and ANSI style.
-    Returns: Styled status label string.
-    */
-    inline std::string statusPill(const std::string &text, const std::string &style) {
+    inline string statusPill(const string &text, const string &style) {
         return paint("[ " + text + " ]", style + BOLD);
     }
 
-    /*
-    Function: clearScreen
-    Purpose: Clears the terminal screen using ANSI escape codes.
-    Parameters: None.
-    Returns: Nothing.
-    */
     inline void clearScreen() {
-        std::cout << "\033[2J\033[H";
+        cout << "\033[2J\033[H";
     }
 
-    /*
-    Function: parentProcessID
-    Purpose: Returns the parent process ID where supported by the target platform.
-    Parameters: None.
-    Returns: Parent process ID on Linux, or 0 on Windows syntax-check builds.
-    */
     inline int parentProcessID() {
-#ifdef _WIN32
-        return 0;
-#else
         return getppid();
-#endif
     }
 
-    /*
-    Function: metric
-    Purpose: Prints a dashboard metric row with optional hint text.
-    Parameters: Label, value, and hint.
-    Returns: Nothing.
-    */
-    inline void metric(const std::string &label, const std::string &value, const std::string &hint = "") {
-        std::cout << "  " << std::left << std::setw(18) << label
-                  << std::setw(16) << paint(value, BOLD);
+    inline void metric(const string &label, const string &value, const string &hint = "") {
+        cout << "  "
+             << left << setw(18)
+             << paint(label, UBUNTU_ORANGE)
+             << setw(16)
+             << paint(value, UBUNTU_LIGHT + BOLD);
 
         if (!hint.empty()) {
-            std::cout << paint(hint, DIM);
+            cout << paint(hint, DIM);
         }
 
-        std::cout << "\n";
+        cout << "\n";
     }
 
-    /*
-    Function: usageBar
-    Purpose: Creates a colored usage bar for resource dashboards.
-    Parameters: Used amount, total amount, and bar width.
-    Returns: Styled usage bar string.
-    */
-    inline std::string usageBar(int used, int total, int width = 28) {
+    inline string usageBar(int used, int total, int width = 28) {
         if (total <= 0) {
             return "[" + repeat('-', width) + "] 0%";
         }
 
-        used = std::max(0, std::min(used, total));
-        int filled = static_cast<int>((static_cast<double>(used) / total) * width + 0.5);
-        filled = std::max(0, std::min(filled, width));
+        used = max(0, min(used, total));
 
-        int percent = static_cast<int>((static_cast<double>(used) / total) * 100 + 0.5);
-        std::string barStyle = GREEN;
+        int filled = (int)((double)used / total * width + 0.5);
+        filled = max(0, min(filled, width));
+
+        int percent = (int)((double)used / total * 100 + 0.5);
+
+        string barStyle = UBUNTU_GREEN;
 
         if (percent >= 80) {
-            barStyle = RED;
+            barStyle = UBUNTU_RED;
         } else if (percent >= 55) {
-            barStyle = YELLOW;
+            barStyle = UBUNTU_YELLOW;
         }
 
-        std::ostringstream output;
+        ostringstream output;
+
         output << "["
                << paint(repeat('#', filled), barStyle + BOLD)
                << paint(repeat('-', width - filled), DIM)
                << "] "
-               << std::setw(3) << percent << "%";
+               << setw(3) << percent << "%";
+
         return output.str();
     }
 
-    /*
-    Function: menuItem
-    Purpose: Prints one formatted menu command row.
-    Parameters: Menu ID, label, and optional hint.
-    Returns: Nothing.
-    */
-    inline void menuItem(int id, const std::string &label, const std::string &hint = "") {
-        std::ostringstream idText;
-        idText << std::right << std::setw(2) << id;
+    inline void menuItem(int id, const string &label, const string &hint = "") {
+        ostringstream idText;
+        idText << right << setw(2) << id;
 
-        std::cout << "  " << paint("[" + idText.str() + "]", BRIGHT_MAGENTA + BOLD) << "  "
-                  << std::left << std::setw(30) << paint(label, WHITE);
+        cout << "  "
+             << paint("[" + idText.str() + "]", UBUNTU_ORANGE + BOLD)
+             << "  "
+             << left << setw(30)
+             << paint(label, UBUNTU_LIGHT);
 
         if (!hint.empty()) {
-            std::cout << paint(hint, DIM);
+            cout << paint(hint, DIM);
         }
 
-        std::cout << "\n";
+        cout << "\n";
     }
 
-    /*
-    Function: modeSplash
-    Purpose: Creates a compact colorful mode indicator row.
-    Parameters: Primary mode and secondary mode.
-    Returns: Nothing.
-    */
-    inline void modeSplash(const std::string &primary, const std::string &secondary) {
-        std::cout << "  "
-                  << statusPill(primary, BRIGHT_GREEN)
-                  << "  "
-                  << statusPill(secondary, BRIGHT_BLUE)
-                  << "\n";
+    inline void modeSplash(const string &primary, const string &secondary) {
+        cout << "  "
+             << statusPill(primary, UBUNTU_ORANGE)
+             << "  "
+             << statusPill(secondary, UBUNTU_PURPLE)
+             << "\n";
     }
 
-    /*
-    Function: infoLine
-    Purpose: Prints a standard informational message line.
-    Parameters: Message text.
-    Returns: Nothing.
-    */
-    inline void infoLine(const std::string &message) {
-        std::cout << "  " << paint("ℹ", BRIGHT_CYAN + BOLD) << " "
-                  << paint(message, WHITE) << "\n";
+    inline void infoLine(const string &message) {
+        cout << "  " << paint("i", UBUNTU_BLUE + BOLD) << " "
+             << paint(message, UBUNTU_LIGHT) << "\n";
     }
 
-    /*
-    Function: successLine
-    Purpose: Prints a standard success message line.
-    Parameters: Message text.
-    Returns: Nothing.
-    */
-    inline void successLine(const std::string &message) {
-        std::cout << "  " << paint("✓", BRIGHT_GREEN + BOLD) << " "
-                  << paint(message, BRIGHT_GREEN) << "\n";
+    inline void successLine(const string &message) {
+        cout << "  " << paint("OK", UBUNTU_GREEN + BOLD) << " "
+             << paint(message, UBUNTU_GREEN) << "\n";
     }
 
-    /*
-    Function: warnLine
-    Purpose: Prints a standard warning message line.
-    Parameters: Message text.
-    Returns: Nothing.
-    */
-    inline void warnLine(const std::string &message) {
-        std::cout << "  " << paint("!", BRIGHT_YELLOW + BOLD) << " "
-                  << paint(message, BRIGHT_YELLOW) << "\n";
+    inline void warnLine(const string &message) {
+        cout << "  " << paint("!", UBUNTU_YELLOW + BOLD) << " "
+             << paint(message, UBUNTU_YELLOW) << "\n";
     }
 
-    /*
-    Function: errorLine
-    Purpose: Prints a standard error message line.
-    Parameters: Message text.
-    Returns: Nothing.
-    */
-    inline void errorLine(const std::string &message) {
-        std::cout << "  " << paint("x", RED + BOLD) << " "
-                  << paint(message, RED + BOLD) << "\n";
+    inline void errorLine(const string &message) {
+        cout << "  " << paint("ERR", UBUNTU_RED + BOLD) << " "
+             << paint(message, UBUNTU_RED + BOLD) << "\n";
     }
 
-    /*
-    Function: asciiLogo
-    Purpose: Prints a colorful AMS OS startup logo for the terminal interface.
-    Parameters: None.
-    Returns: Nothing.
-    */
-    inline void asciiLogo() {
-        const std::vector<std::pair<std::string, std::string>> lines = {
-            {R"(        ___       __  ___   _____    ____  _____)", BRIGHT_CYAN},
-            {R"(       /   |     /  |/  /  / ___/   / __ \/ ___/)", BRIGHT_BLUE},
-            {R"(      / /| |    / /|_/ /   \__ \   / / / /\__ \ )", BRIGHT_MAGENTA},
-            {R"(     / ___ |   / /  / /   ___/ /  / /_/ /___/ /)", BRIGHT_BLUE},
-            {R"(    /_/  |_|  /_/  /_/   /____/   \____//____/ )", BRIGHT_CYAN}
-        };
+   inline void asciiLogo() {
+    const vector<pair<string, string> > lines = {
+        {"        _    __  __ ____       ___  ____  ", UBUNTU_ORANGE},
+        {"       / \\  |  \\/  / ___|     / _ \\/ ___| ", UBUNTU_ORANGE},
+        {"      / _ \\ | |\\/| \\___ \\    | | | \\___ \\ ", UBUNTU_PURPLE},
+        {"     / ___ \\| |  | |___) |   | |_| |___) |", UBUNTU_PURPLE},
+        {"    /_/   \\_\\_|  |_|____/     \\___/|____/ ", UBUNTU_ORANGE}
+    };
 
-        std::cout << "\n";
-        for (const auto &line : lines) {
-            std::cout << paint(line.first, line.second + BOLD) << "\n";
-        }
-        std::cout << paint("        Atomic Management System Simulator", YELLOW + BOLD) << "\n";
+    cout << "\n";
+
+    for (const auto &line : lines) {
+        cout << paint(line.first, line.second + BOLD) << "\n";
     }
 
-    /*
-    Function: bootStep
-    Purpose: Prints one colored boot-stage message.
-    Parameters: Boot stage label and message.
-    Returns: Nothing.
-    */
-    inline void bootStep(const std::string &label, const std::string &message) {
-        std::cout << "  " << statusPill(label, GREEN) << " "
-                  << paint(message, WHITE) << "\n";
+    cout << "\n";
+    cout << paint("    AMS OS Ubuntu Terminal Edition\n", UBUNTU_ORANGE + BOLD);
+    cout << paint("    Atomic Management System Simulator\n", UBUNTU_LIGHT);
+    cout << "\n";
+}
+    inline void bootStep(const string &label, const string &message) {
+        cout << "  "
+             << statusPill(label, UBUNTU_ORANGE)
+             << " "
+             << paint(message, UBUNTU_LIGHT)
+             << "\n";
     }
 
-    /*
-    Function: commandPrompt
-    Purpose: Prints a colorful command prompt marker before user input.
-    Parameters: Prompt text.
-    Returns: Nothing.
-    */
-    inline void commandPrompt(const std::string &text) {
-        std::cout << paint("\nams-os", BRIGHT_CYAN + BOLD)
-                  << paint(" :: ", DIM)
-                  << paint(text, YELLOW + BOLD);
+    inline void commandPrompt(const string &text) {
+        cout << paint("\nams", UBUNTU_GREEN + BOLD)
+             << paint("@", UBUNTU_LIGHT)
+             << paint("ubuntu", UBUNTU_ORANGE + BOLD)
+             << paint(":~/AMS_OS$ ", UBUNTU_BLUE + BOLD)
+             << paint(text, UBUNTU_LIGHT + BOLD);
     }
 
-    /*
-    Function: emptyState
-    Purpose: Prints a styled empty-state message inside a panel.
-    Parameters: Message and panel width.
-    Returns: Nothing.
-    */
-    inline void emptyState(const std::string &message, int width = 78) {
-        std::cout << "  " << paint(message, DIM) << "\n";
+    inline void emptyState(const string &message, int width = 78) {
+        cout << "  " << paint(message, DIM) << "\n";
         panelFooter(width);
     }
 
-    /*
-    Function: taskControlHint
-    Purpose: Prints AMS OS tracked PID and close/minimize instructions for task windows.
-    Parameters: Task PID and whether the task is auto-managed.
-    Returns: Nothing.
-    */
     inline void taskControlHint(int pid, bool autoManaged = false) {
-        const char* amsOSPID = std::getenv("AMS_OS_PID");
-        std::string displayedPID = std::to_string(pid);
+        const char* amsOSPID = getenv("AMS_OS_PID");
+        string displayedPID = to_string(pid);
 
-        if (amsOSPID != nullptr && std::string(amsOSPID).length() > 0) {
+        if (amsOSPID != nullptr && string(amsOSPID).length() > 0) {
             displayedPID = amsOSPID;
         }
 
         keyValue("AMS OS PID", displayedPID);
 
         if (autoManaged) {
-            std::cout << "  " << paint("Auto task: it finishes on its own, or can be closed from Kernel Mode.\n", DIM);
+            cout << "  "
+                 << paint("Auto task: finishes automatically or can be closed from Kernel Mode.\n", DIM);
         } else {
-            std::cout << "  " << paint("Task controls: Close (menu 21) or Minimize (menu 17) using this PID.\n", DIM);
-            std::cout << "  " << paint("Quick terminal controls: Ctrl+C closes task, Ctrl+Z minimizes task.\n", DIM);
+            cout << "  "
+                 << paint("Task controls: close from menu 21 or minimize from menu 17 using this PID.\n", DIM);
+            cout << "  "
+                 << paint("Ubuntu terminal controls: Ctrl+C closes task, Ctrl+Z pauses task.\n", DIM);
         }
     }
 }
