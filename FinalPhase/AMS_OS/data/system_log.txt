@@ -5868,3 +5868,477 @@
 [Mon May  4 18:26:29 2026
 ] PROCESS | PID: 20264 | Digital Clock | Auto-start task added to ready queue
 [Mon May  4 18:26:34 2026
+[Fri May  8 15:51:15 2026
+] SYSTEM | AMS OS Booted
+[Fri May  8 15:51:15 2026
+] SYSTEM | Resource monitor thread started
+[Fri May  8 15:51:15 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Fri May  8 15:51:15 2026
+] RESOURCE | RAM block assigned to auto-start PID 3808 | Digital Clock | Start: 0MB | End: 50MB
+[Fri May  8 15:51:15 2026
+] PROCESS | PID: 3808 | Digital Clock | Auto-start PCB created
+[Fri May  8 15:51:15 2026
+] PROCESS | PID: 3808 | Digital Clock | Auto-start task added to ready queue
+[Fri May  8 15:51:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Fri May  8 15:51:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Fri May  8 15:51:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 262134MB | Available CPU Cores: 7
+[Fri May  8 15:51:33 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Fri May  8 15:51:33 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Fri May  8 15:51:33 2026
+] RESOURCE | RAM block assigned to PID 3819 | Snake Game | Start: 50MB | End: 300MB
+[Fri May  8 15:51:33 2026
+] PROCESS | PID: 3819 | Snake Game | PCB Created
+[Fri May  8 15:51:33 2026
+] PROCESS | PID: 3819 | Snake Game | Added to Ready Queue
+[Fri May  8 15:51:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:51:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:51:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:51:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:51:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:52:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:53:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:54:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:55:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:56:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:57:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:58:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 15:59:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:00:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:01:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:02:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:03:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:04:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:05:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:06:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:07:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:08:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:09:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:09:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:09:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:09:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:09:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:09:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 262094MB | Available CPU Cores: 6
+[Fri May  8 16:09:29 2026
+] SYSTEM | AMS OS shutdown requested
+[Fri May  8 16:09:31 2026
+] SYSTEM | Resource monitor thread stopped
+[Fri May  8 16:09:31 2026
+] PROCESS | PID: 3808 | Digital Clock | Terminated during graceful shutdown
+[Fri May  8 16:09:31 2026
+] RESOURCE | Resources released during shutdown | PID: 3808 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Fri May  8 16:09:31 2026
+] PROCESS | PID: 3819 | Snake Game | Terminated during graceful shutdown
+[Fri May  8 16:09:31 2026
+] RESOURCE | Resources released during shutdown | PID: 3819 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Fri May  8 16:09:31 2026
+] SYSTEM | Graceful shutdown cleanup completed
+[Fri May  8 16:09:34 2026
+] SYSTEM | AMS OS shutdown completed
