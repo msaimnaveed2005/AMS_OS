@@ -346,6 +346,7 @@ void showMainMenu(
     UI::menuItem(20, "RAM Memory Layout", "Allocation blocks");
     UI::menuItem(7, "PCB Table", "Active process metadata");
     UI::menuItem(12, "Ready Queues", "Scheduling queues");
+    UI::menuItem(29, "Sound Cue Test", "Play boot/error/etc sound files");
 
     UI::sectionBanner("Process Control", UI::BRIGHT_YELLOW);
     UI::menuItem(11, "Run Scheduler", "Dispatch waiting tasks");
@@ -1077,6 +1078,50 @@ void showSoundPackStatus() {
          << UI::paint(to_string(loadedCount) + "/" + to_string(cueNames.size()), UI::WHITE + UI::BOLD)
          << "\n";
     UI::panelFooter(86);
+}
+
+/*
+Function: testSoundCues
+Purpose: Plays selected AMS OS sound cues so audio setup can be verified at runtime.
+Parameters: None.
+Returns: Nothing.
+*/
+void testSoundCues() {
+    while (true) {
+        UI::panelHeader("Sound Cue Test", "Play individual cue files", 86);
+        cout << "  1. boot.wav\n";
+        cout << "  2. shutdown.wav\n";
+        cout << "  3. error.wav\n";
+        cout << "  4. granted.wav\n";
+        cout << "  5. denied.wav\n";
+        cout << "  6. minimize.wav\n";
+        cout << "  7. resume.wav\n";
+        cout << "  8. close.wav\n";
+        cout << "  0. Back to main menu\n";
+        UI::panelFooter(86);
+
+        int soundChoice = getValidatedInteger("Select sound cue to play: ");
+        string cueName;
+
+        switch (soundChoice) {
+            case 1: cueName = "boot"; break;
+            case 2: cueName = "shutdown"; break;
+            case 3: cueName = "error"; break;
+            case 4: cueName = "granted"; break;
+            case 5: cueName = "denied"; break;
+            case 6: cueName = "minimize"; break;
+            case 7: cueName = "resume"; break;
+            case 8: cueName = "close"; break;
+            case 0:
+                return;
+            default:
+                UI::errorLine("Invalid sound option. Choose 0-8.");
+                continue;
+        }
+
+        UI::infoLine("Playing cue: " + cueName + ".wav");
+        UI::playCue(cueName, false);
+    }
 }
 
 /*
@@ -2432,6 +2477,10 @@ int main(int argc, char* argv[]) {
 
             case 27:
                 completeInterrupt(processManager, readyQueueManager, logger, syncManager);
+                break;
+
+            case 29:
+                testSoundCues();
                 break;
 
             case 0:
