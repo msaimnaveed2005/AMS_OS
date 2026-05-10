@@ -58,6 +58,10 @@ bool isTaskTerminalVisible(int pid) {
     return commandHasOutput(visibleCommand.str());
 }
 
+bool isTerminalMinimizedProcess(const PCB &pcb) {
+    return pcb.processState == MINIMIZED_STATE && pcb.queueType == "Terminal Minimized";
+}
+
 void restoreVisibleMinimizedTasks(
     ProcessManager &processManager,
     ReadyQueueManager &readyQueueManager,
@@ -77,18 +81,17 @@ void restoreVisibleMinimizedTasks(
             continue;
         }
 
+        if (pcb.queueType != "Terminal Minimized") {
+            continue;
+        }
+
         if (!isTaskTerminalVisible(pid)) {
             continue;
         }
 
         processManager.updateProcessState(pid, READY_STATE);
         processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
-        readyQueueManager.addProcessToReadyQueue(
-            pid,
-            pcb.processName,
-            pcb.processType,
-            pcb.priority
-        );
+        readyQueueManager.addProcessToReadyQueue(pid, pcb.processName, pcb.processType, pcb.priority);
         syncManager.notifyReadyQueue();
 
         logger.logProcessEvent(
@@ -314,6 +317,8 @@ bool Scheduler::runProcess(
                 "Terminal minimized from window controls, process moved to MINIMIZED"
             );
 
+            processManager.updateQueueType(item.pid, "Terminal Minimized");
+
             logger.logSystemEvent(
                 "CPU execution slot released after terminal minimize for PID " + to_string(item.pid)
             );
@@ -466,4 +471,137 @@ void Scheduler::runScheduler(
 }
     logger.logSystemEvent("Scheduler finished");
     UI::panelHeader("AMS OS Scheduler", "Finished");
+}
+
+void Scheduler::runMultitaskingDispatch(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager
+) {
+    if (!readyQueueManager.hasReadyProcess()) {
+        UI::warnLine("[MULTITASK] No ready process available to dispatch.");
+        return;
+    }
+
+    UI::panelHeader("Multitasking Dispatch", "Parallel execution enabled");
+    logger.logSystemEvent("Multitasking dispatch started");
+
+    while (readyQueueManager.hasReadyProcess()) {
+        ReadyQueueItem selectedItem;
+
+        if (!selectNextProcess(readyQueueManager, selectedItem)) {
+            break;
+        }
+
+        PCB pcb;
+        if (!processManager.getPCB(selectedItem.pid, pcb)) {
+            continue;
+        }
+
+        processManager.resetWaitingTime(selectedItem.pid);
+        processManager.updateProcessState(selectedItem.pid, RUNNING_STATE);
+        processManager.updateAssignedCore(selectedItem.pid, -1);
+        processManager.updateQueueType(selectedItem.pid, "Parallel Running");
+        sendSignalToScheduledProcess(selectedItem.pid, SIGCONT);
+
+        logger.logProcessEvent(
+            selectedItem.pid,
+            selectedItem.processName,
+            "Dispatched in multitasking mode (parallel)"
+        );
+        UI::successLine(
+            "[MULTITASK] PID " + to_string(selectedItem.pid) + " running in parallel."
+        );
+    }
+
+    syncManager.notifyReadyQueue();
+    logger.logSystemEvent("Multitasking dispatch completed");
+    UI::panelFooter();
+}
+
+void Scheduler::handleTerminalWindowState(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    bool autoResumeToRunning
+) {
+    vector<int> pids = processManager.getAllPIDs();
+
+    for (int pid : pids) {
+        PCB pcb;
+        if (!processManager.getPCB(pid, pcb)) {
+            continue;
+        }
+
+        if (pcb.processState == RUNNING_STATE && isTaskTerminalHidden(pid)) {
+            sendSignalToScheduledProcess(pid, SIGSTOP);
+            processManager.updateProcessState(pid, MINIMIZED_STATE);
+            processManager.updateQueueType(pid, "Terminal Minimized");
+            processManager.updateAssignedCore(pid, -1);
+
+            logger.logProcessEvent(
+                pid,
+                pcb.processName,
+                "Terminal minimized from window controls, process paused"
+            );
+            continue;
+        }
+
+        if (!isTerminalMinimizedProcess(pcb)) {
+            continue;
+        }
+
+        if (!isTaskTerminalVisible(pid)) {
+            continue;
+        }
+
+        if (autoResumeToRunning) {
+            processManager.updateProcessState(pid, RUNNING_STATE);
+            processManager.updateQueueType(pid, "Parallel Running");
+            sendSignalToScheduledProcess(pid, SIGCONT);
+            logger.logProcessEvent(
+                pid,
+                pcb.processName,
+                "Terminal restored from window controls, process resumed"
+            );
+        } else {
+            processManager.updateProcessState(pid, READY_STATE);
+            processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
+            readyQueueManager.addProcessToReadyQueue(pid, pcb.processName, pcb.processType, pcb.priority);
+            syncManager.notifyReadyQueue();
+            logger.logProcessEvent(
+                pid,
+                pcb.processName,
+                "Terminal restored from window controls, process returned to READY"
+            );
+        }
+    }
+}
+
+void Scheduler::reapFinishedParallelTasks(
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    Logger &logger
+) {
+    vector<int> pids = processManager.getAllPIDs();
+
+    for (int pid : pids) {
+        PCB pcb;
+        if (!processManager.getPCB(pid, pcb)) {
+            continue;
+        }
+
+        if (pcb.processState != RUNNING_STATE) {
+            continue;
+        }
+
+        int status;
+        pid_t result = waitpid(pid, &status, WNOHANG);
+
+        if (result == pid) {
+            releaseCompletedProcess(pid, processManager, resourceManager, logger);
+        }
+    }
 }

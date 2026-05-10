@@ -330,6 +330,7 @@ void showMainMenu(
     UI::menuItem(25, "Minimized Tasks List", "View MINIMIZED processes");
     UI::menuItem(26, "Input Interrupt", "Move process to BLOCKED");
     UI::menuItem(27, "Complete Interrupt", "Resume BLOCKED process");
+    UI::menuItem(28, "Start Multitasking", "Run ready tasks in parallel and keep menu active");
 
     if (currentMode == USER_MODE) {
         UI::sectionBanner("Access", UI::CYAN);
@@ -390,6 +391,7 @@ void showInstructionGuide(TaskCatalog &taskCatalog) {
     cout << "  Resume Process  : Menu 18 returns MINIMIZED or BLOCKED tasks to READY.\n";
     cout << "  Input Interrupt : Menu 26 moves a task to BLOCKED; menu 27 completes it.\n";
     cout << "  Switch Process  : Menu 22 focuses a process already loaded in RAM.\n\n";
+    cout << "  Start Multitasking : Menu 28 dispatches ready tasks in parallel.\n\n";
 
     cout << "  " << UI::paint("Kernel Tools", UI::BOLD) << "\n";
     cout << "  Kernel Mode password: admin\n";
@@ -2094,6 +2096,7 @@ int main(int argc, char* argv[]) {
     int cores;
     int choice;
     bool separateTerminalMode = true;
+    bool multitaskingModeEnabled = false;
     OSMode currentMode = USER_MODE;
 
     createRequiredDirectories();
@@ -2159,6 +2162,17 @@ int main(int argc, char* argv[]) {
     }
 
     do {
+        if (multitaskingModeEnabled) {
+            scheduler.handleTerminalWindowState(
+                processManager,
+                readyQueueManager,
+                logger,
+                syncManager,
+                true
+            );
+            scheduler.reapFinishedParallelTasks(processManager, resourceManager, logger);
+        }
+
         showMainMenu(
             currentMode,
             separateTerminalMode,
@@ -2204,9 +2218,20 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 11:
+                multitaskingModeEnabled = false;
                 scheduler.runScheduler(
                     processManager,
                     resourceManager,
+                    readyQueueManager,
+                    logger,
+                    syncManager
+                );
+                break;
+
+            case 28:
+                multitaskingModeEnabled = true;
+                scheduler.runMultitaskingDispatch(
+                    processManager,
                     readyQueueManager,
                     logger,
                     syncManager

@@ -80,6 +80,45 @@ public:
         ReadyQueueManager &readyQueueManager,
         ReadyQueueItem &selectedItem
     );
+
+    /*
+    Function: runMultitaskingDispatch
+    Purpose: Dispatches all ready processes in parallel without blocking the main menu.
+    Parameters: ProcessManager, ReadyQueueManager, Logger, and SyncManager references.
+    Returns: Nothing.
+    */
+    void runMultitaskingDispatch(
+        ProcessManager &processManager,
+        ReadyQueueManager &readyQueueManager,
+        Logger &logger,
+        SyncManager &syncManager
+    );
+
+    /*
+    Function: handleTerminalWindowState
+    Purpose: Stops tasks when their terminal is minimized and resumes them after restore.
+    Parameters: ProcessManager, ReadyQueueManager, Logger, SyncManager references and auto resume flag.
+    Returns: Nothing.
+    */
+    void handleTerminalWindowState(
+        ProcessManager &processManager,
+        ReadyQueueManager &readyQueueManager,
+        Logger &logger,
+        SyncManager &syncManager,
+        bool autoResumeToRunning
+    );
+
+    /*
+    Function: reapFinishedParallelTasks
+    Purpose: Collects finished running processes and releases their resources.
+    Parameters: ProcessManager, ResourceManager, and Logger references.
+    Returns: Nothing.
+    */
+    void reapFinishedParallelTasks(
+        ProcessManager &processManager,
+        ResourceManager &resourceManager,
+        Logger &logger
+    );
 };
 
 #endif
