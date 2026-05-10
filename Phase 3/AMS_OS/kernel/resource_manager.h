@@ -24,16 +24,15 @@ private:
 
     int totalCores;
     int availableCores;
-    vector<MemoryBlock> memoryBlocks;
+vector<MemoryBlock> memoryBlocks;
 
-    /*
-    Function: mergeFreeMemoryBlocks
-    Purpose: Merges adjacent free memory blocks to reduce fragmentation.
-    Parameters: None.
-    Returns: Nothing.
-    */
-    void mergeFreeMemoryBlocks();
-
+/*
+Function: mergeFreeMemoryBlocks
+Purpose: Merges adjacent free memory blocks to reduce fragmentation.
+Parameters: None.
+Returns: Nothing.
+*/
+void mergeFreeMemoryBlocks();
 public:
     /*
     Function: ResourceManager
@@ -115,59 +114,59 @@ public:
     */
     int getAvailableCores();
 
-    /*
-    Function: getTotalRAM
-    Purpose: Returns total configured RAM.
-    Parameters: None.
-    Returns: Total RAM.
-    */
-    int getTotalRAM();
+/*
+Function: allocateMemoryBlock
+Purpose: Allocates a simulated RAM block to a process using first-fit allocation.
+Parameters: PID, process name, RAM required, memory start reference, memory end reference.
+Returns: true if memory block is allocated, otherwise false.
+*/
+bool allocateMemoryBlock(
+    int pid,
+    string processName,
+    int ramRequired,
+    int &memoryStart,
+    int &memoryEnd
+);
 
-    /*
-    Function: getTotalHDD
-    Purpose: Returns total configured hard drive space.
-    Parameters: None.
-    Returns: Total HDD.
-    */
-    int getTotalHDD();
+/*
+Function: releaseMemoryBlock
+Purpose: Releases a simulated RAM block assigned to a process.
+Parameters: PID.
+Returns: true if memory block is released, otherwise false.
+*/
+bool releaseMemoryBlock(int pid);
 
-    /*
-    Function: getTotalCores
-    Purpose: Returns total configured CPU cores.
-    Parameters: None.
-    Returns: Total CPU cores.
-    */
-    int getTotalCores();
+/*
+Function: displayMemoryLayout
+Purpose: Displays current simulated RAM layout.
+Parameters: None.
+Returns: Nothing.
+*/
+void displayMemoryLayout();
 
-    /*
-    Function: allocateMemoryBlock
-    Purpose: Allocates a simulated RAM block to a process using first-fit allocation.
-    Parameters: PID, process name, RAM required, memory start reference, memory end reference.
-    Returns: true if memory block is allocated, otherwise false.
-    */
-    bool allocateMemoryBlock(
-        int pid,
-        string processName,
-        int ramRequired,
-        int &memoryStart,
-        int &memoryEnd
-    );
+/*
+Function: getTotalRAM
+Purpose: Returns total RAM.
+Parameters: None.
+Returns: Total RAM.
+*/
+int getTotalRAM();
 
-    /*
-    Function: releaseMemoryBlock
-    Purpose: Releases a simulated RAM block assigned to a process.
-    Parameters: PID.
-    Returns: true if memory block is released, otherwise false.
-    */
-    bool releaseMemoryBlock(int pid);
+/*
+Function: getTotalHDD
+Purpose: Returns total HDD.
+Parameters: None.
+Returns: Total HDD.
+*/
+int getTotalHDD();
 
-    /*
-    Function: displayMemoryLayout
-    Purpose: Displays current simulated RAM layout.
-    Parameters: None.
-    Returns: Nothing.
-    */
-    void displayMemoryLayout();
+/*
+Function: getTotalCores
+Purpose: Returns total CPU cores.
+Parameters: None.
+Returns: Total CPU cores.
+*/
+int getTotalCores();
 };
 
 #endif

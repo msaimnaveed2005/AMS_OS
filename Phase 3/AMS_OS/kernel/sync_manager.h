@@ -7,8 +7,6 @@
 #include <condition_variable>
 #include <atomic>
 #include <chrono>
-#include <vector>
-#include <queue>
 
 #include "resource_manager.h"
 #include "logger.h"
@@ -59,8 +57,6 @@ Purpose: Handles synchronization for CPU dispatch, ready queue notification,
 class SyncManager {
 private:
     SimpleSemaphore cpuCoreSemaphore;
-    mutex cpuCoreMutex;
-    queue<int> availableCoreIDs;
     mutex readyQueueMutex;
     condition_variable readyQueueCondition;
     atomic<bool> monitorRunning;
@@ -98,22 +94,6 @@ public:
     Returns: Nothing.
     */
     void releaseCPUCores(int coresReleased);
-
-    /*
-    Function: acquireCoreSet
-    Purpose: Acquires a set of CPU core IDs for process execution.
-    Parameters: Number of cores required.
-    Returns: Vector of assigned core IDs.
-    */
-    vector<int> acquireCoreSet(int coresRequired);
-
-    /*
-    Function: releaseCoreSet
-    Purpose: Releases assigned CPU core IDs back to scheduler pool.
-    Parameters: Vector of core IDs.
-    Returns: Nothing.
-    */
-    void releaseCoreSet(const vector<int> &coreIDs);
 
     /*
     Function: notifyReadyQueue

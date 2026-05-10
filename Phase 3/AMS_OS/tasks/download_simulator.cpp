@@ -1,6 +1,5 @@
 #include <iostream>
 #include <unistd.h>
-#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -11,17 +10,15 @@ Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    UI::panelHeader("Download Simulator", "Background task");
-    UI::taskControlHint(getpid());
-    cout << "  Download started.\n";
+    cout << "\n========== FILE DOWNLOAD SIMULATOR TASK ==========\n";
+    cout << "Download started.\n";
 
     for (int progress = 20; progress <= 100; progress += 20) {
-        cout << "  Downloading " << UI::usageBar(progress, 100) << "\n";
+        cout << "Downloading... " << progress << "% completed\n";
         sleep(1);
     }
 
-    cout << UI::paint("Download completed successfully.\n", UI::GREEN + UI::BOLD);
-    UI::panelFooter();
+    cout << "Download completed successfully.\n";
 
     return 0;
 }

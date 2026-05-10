@@ -1,8 +1,6 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
-#include <unistd.h>
-#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -15,21 +13,18 @@ Returns: Program exit status.
 int main() {
     string fileName;
 
-    UI::panelHeader("Delete File", "Virtual disk utility");
-    UI::taskControlHint(getpid());
+    cout << "\n========== DELETE FILE TASK ==========\n";
     cout << "Enter file name to delete: ";
     cin >> fileName;
 
     string filePath = "data/virtual_disk/" + fileName;
 
     if (remove(filePath.c_str()) == 0) {
-        cout << UI::paint("File deleted successfully.\n", UI::GREEN + UI::BOLD);
-        UI::keyValue("Path", filePath);
+        cout << "File deleted successfully: " << filePath << "\n";
     } else {
-        cout << UI::paint("Error: File could not be deleted or does not exist.\n", UI::RED + UI::BOLD);
+        cout << "Error: File could not be deleted or does not exist.\n";
         return 1;
     }
 
-    UI::panelFooter();
     return 0;
 }

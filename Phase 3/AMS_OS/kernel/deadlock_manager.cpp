@@ -1,8 +1,6 @@
 #include "deadlock_manager.h"
 #include <iomanip>
-#include <map>
-#include <set>
-#include <functional>
+#include "console_colors.h"
 
 /*
 Function: DeadlockManager
@@ -52,7 +50,7 @@ Parameters: None.
 Returns: Nothing.
 */
 void DeadlockManager::displayResourceGraph() {
-    cout << "\n==================== RESOURCE WAIT GRAPH ====================\n";
+    cout << Color::deadlock("\n==================== RESOURCE WAIT GRAPH ====================\n");
 
     if (records.empty()) {
         cout << "No resource wait records available.\n";
@@ -88,51 +86,21 @@ Parameters: Victim PID and victim name references.
 Returns: true if deadlock is detected, otherwise false.
 */
 bool DeadlockManager::detectDeadlock(int &victimPID, string &victimName) {
-    map<int, vector<int>> waitForGraph;
-    map<int, string> pidToName;
-
-    for (const DeadlockRecord &record : records) {
-        pidToName[record.pid] = record.processName;
-    }
-
-    for (const DeadlockRecord &waitingRecord : records) {
-        for (const DeadlockRecord &holdingRecord : records) {
-            if (waitingRecord.pid == holdingRecord.pid) {
+    for (size_t i = 0; i < records.size(); i++) {
+        for (size_t j = 0; j < records.size(); j++) {
+            if (i == j) {
                 continue;
             }
 
-            if (waitingRecord.waitingForResource == holdingRecord.holdingResource) {
-                waitForGraph[waitingRecord.pid].push_back(holdingRecord.pid);
-            }
-        }
-    }
+            bool firstWaitingForSecond =
+                records[i].waitingForResource == records[j].holdingResource;
 
-    set<int> globalVisited;
-    set<int> activeStack;
+            bool secondWaitingForFirst =
+                records[j].waitingForResource == records[i].holdingResource;
 
-    function<bool(int)> hasCycle = [&](int currentPID) {
-        globalVisited.insert(currentPID);
-        activeStack.insert(currentPID);
-
-        for (int nextPID : waitForGraph[currentPID]) {
-            if (activeStack.find(nextPID) != activeStack.end()) {
-                victimPID = max(currentPID, nextPID);
-                victimName = pidToName[victimPID];
-                return true;
-            }
-
-            if (globalVisited.find(nextPID) == globalVisited.end() && hasCycle(nextPID)) {
-                return true;
-            }
-        }
-
-        activeStack.erase(currentPID);
-        return false;
-    };
-
-    for (const auto &entry : pidToName) {
-        if (globalVisited.find(entry.first) == globalVisited.end()) {
-            if (hasCycle(entry.first)) {
+            if (firstWaitingForSecond && secondWaitingForFirst) {
+                victimPID = records[j].pid;
+                victimName = records[j].processName;
                 return true;
             }
         }

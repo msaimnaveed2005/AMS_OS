@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <unistd.h>
-#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -16,8 +14,7 @@ int main() {
     string fileName;
     string content;
 
-    UI::panelHeader("Create File", "Virtual disk utility");
-    UI::taskControlHint(getpid());
+    cout << "\n========== CREATE FILE TASK ==========\n";
     cout << "Enter file name to create: ";
     cin >> fileName;
 
@@ -26,7 +23,7 @@ int main() {
     ofstream file(filePath);
 
     if (!file) {
-        cout << UI::paint("Error: Could not create file.\n", UI::RED + UI::BOLD);
+        cout << "Error: Could not create file.\n";
         return 1;
     }
 
@@ -38,9 +35,7 @@ int main() {
     file << content << endl;
     file.close();
 
-    cout << UI::paint("File created successfully.\n", UI::GREEN + UI::BOLD);
-    UI::keyValue("Path", filePath);
-    UI::panelFooter();
+    cout << "File created successfully at: " << filePath << "\n";
 
     return 0;
 }

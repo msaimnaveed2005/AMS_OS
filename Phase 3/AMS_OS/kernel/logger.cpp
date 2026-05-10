@@ -35,7 +35,6 @@ void Logger::logEvent(string message) {
     logFile << "[" << dt;
     logFile.seekp(-1, ios_base::cur);
     logFile << "] " << message << "\n";
-    logFile.flush();
 }
 
 /*

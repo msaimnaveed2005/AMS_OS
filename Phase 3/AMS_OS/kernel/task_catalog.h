@@ -6,33 +6,23 @@
 #include <string>
 #include "process_manager.h"
 
+using namespace std;
+
 struct TaskInfo {
     int taskID;
-    std::string taskName;
+    string taskName;
     ProcessType processType;
     int priority;
     int ramRequired;
     int hddRequired;
     int coresRequired;
-    std::string executablePath;
-    std::string description;
+    string executablePath;
+    string description;
 };
 
 class TaskCatalog {
 private:
-    std::vector<TaskInfo> taskList;
-
-    void addTask(
-        int taskID,
-        const std::string &taskName,
-        ProcessType processType,
-        int priority,
-        int ramRequired,
-        int hddRequired,
-        int coresRequired,
-        const std::string &executablePath,
-        const std::string &description
-    );
+    vector<TaskInfo> taskList;
 
 public:
     /*
@@ -73,7 +63,7 @@ public:
     Parameters: Task ID and reference variable to store found task.
     Returns: true if task is found, otherwise false.
     */
-    bool getTaskByID(int taskID, TaskInfo &task) const;
+    bool getTaskByID(int taskID, TaskInfo &task);
 
     /*
     Function: getTaskCount
@@ -81,7 +71,7 @@ public:
     Parameters: None.
     Returns: Total task count.
     */
-    int getTaskCount() const;
+    int getTaskCount();
 
     /*
     Function: getProcessTypeName
@@ -89,7 +79,7 @@ public:
     Parameters: Process type.
     Returns: Process type as string.
     */
-    std::string getProcessTypeName(ProcessType type) const;
+    string getProcessTypeName(ProcessType type);
 };
 
 #endif

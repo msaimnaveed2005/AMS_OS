@@ -1,9 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <limits>
 #include <unistd.h>
-#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -18,64 +16,33 @@ int main() {
     string line;
     string fileName;
 
-    UI::panelHeader("Notepad", "Auto-save editor");
-    UI::taskControlHint(getpid());
-    cout << "  Every line you type is auto-saved immediately.\n";
-    cout << "  Commands: /help  /status  /exit\n\n";
+    cout << "\n========== NOTEPAD WITH AUTO-SAVE TASK ==========\n";
+    cout << "Notepad started as a separate executable.\n";
+    cout << "Every line you type will be auto-saved immediately.\n";
+    cout << "Type EXIT to close Notepad.\n\n";
 
-    cout << "  Enter file name for notes (e.g. notes.txt): ";
+    cout << "Enter file name for notes: ";
     cin >> fileName;
-
-    if (cin.fail() || fileName.empty()) {
-        UI::errorLine("Invalid file name.");
-        return 1;
-    }
-
-    if (fileName.find('/') != string::npos || fileName.find('\\') != string::npos) {
-        UI::errorLine("Use file name only, not a path.");
-        return 1;
-    }
 
     string filePath = "data/virtual_disk/" + fileName;
 
     ofstream file(filePath, ios::app);
 
     if (!file) {
-        cout << UI::paint("Error: Could not open or create notepad file.\n", UI::RED + UI::BOLD);
+        cout << "Error: Could not open or create notepad file.\n";
         return 1;
     }
 
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cin.ignore();
 
-    int lineCount = 0;
-    UI::sectionBanner("Editor", UI::BRIGHT_BLUE);
-    cout << "  Start writing below:\n";
-    cout << "  > ";
+    cout << "\nStart writing below:\n";
 
     while (true) {
+        cout << "> ";
         getline(cin, line);
 
-        if (line == "/exit" || line == "EXIT") {
+        if (line == "EXIT") {
             break;
-        }
-
-        if (line == "/help") {
-            UI::infoLine("Commands: /help shows commands, /status shows save info, /exit closes editor.");
-            cout << "  > ";
-            continue;
-        }
-
-        if (line == "/status") {
-            UI::keyValue("Current file", filePath);
-            UI::keyValue("Saved lines", to_string(lineCount));
-            cout << "  > ";
-            continue;
-        }
-
-        if (line.empty()) {
-            UI::warnLine("Empty line skipped.");
-            cout << "  > ";
-            continue;
         }
 
         file << line << endl;
@@ -86,20 +53,14 @@ int main() {
         for the file to close.
         */
         file.flush();
-        lineCount++;
 
-        UI::successLine("Auto-save complete.");
-        UI::playCue("tick");
-        cout << "  > ";
+        cout << "[AUTO-SAVE] Line saved successfully.\n";
     }
 
     file.close();
 
-    cout << "\n";
-    UI::successLine("Notepad closed.");
-    UI::keyValue("File saved at", filePath);
-    UI::keyValue("Total lines saved", to_string(lineCount));
-    UI::panelFooter();
+    cout << "\nNotepad closed.\n";
+    cout << "File saved at: " << filePath << "\n";
 
     return 0;
 }

@@ -1,2 +1,28 @@
-msaimnaveed@Xubuntu:~/repos/AMS_OS/FinalPhase/AMS_OS$ g++ -std=c++17 kernel/main.cpp kernel/resource_manager.cpp kernel/process_manager.cpp kernel/task_catalog.cpp kernel/ready_queue.cpp kernel/scheduler.cpp kernel/logger.cpp kernel/deadlock_manager.cpp kernel/sync_manager.cpp -pthread -o OS && g++ tasks/create_file.cpp -o build/create_file && g++ tasks/delete_file.cpp -o build/delete_file && g++ tasks/file_copy.cpp -o build/file_copy && g++ tasks/move_file.cpp -o build/move_file && g++ tasks/file_info.cpp -o build/file_info && g++ tasks/notepad.cpp -o build/notepad && g++ tasks/calculator.cpp -o build/calculator && g++ tasks/clock.cpp -o build/clock && g++ tasks/system_info.cpp -o build/system_info && g++ tasks/snake.cpp -o build/snake && g++ tasks/minesweeper.cpp -o build/minesweeper && g++ tasks/music_player.cpp -o build/music_player && g++ tasks/download_simulator.cpp -o build/download_simulator && g++ tasks/task_manager.cpp -o build/task_manager && g++ tasks/process_killer.cpp -o build/process_killer && g++ -std=c++17 tasks/gui_dashboard.cpp -o build/gui_dashboard -lsfml-graphics -lsfml-window -lsfml-system
-msaimnaveed@Xubuntu:~/repos/AMS_OS/FinalPhase/AMS_OS$ ./OS 2 256 8
+AMS OS - Atomic Management System
+=================================
+
+This repository is documented primarily in README.md and PROJECT_REPORT.md.
+
+Quick start on Ubuntu:
+
+1. Install dependencies:
+   sudo apt update
+   sudo apt install build-essential gnome-terminal
+
+2. Build:
+   make check
+   make
+
+3. Run with the recommended project resources:
+   ./OS 2 256 8
+
+4. Open the in-app Instruction Guide with menu option 24.
+
+Default Kernel Mode password:
+admin
+
+Important files:
+
+- README.md: setup, usage, task catalog, and Makefile targets
+- PROJECT_REPORT.md: architecture, design, compliance matrix, and testing plan
+- Makefile: Linux build, install, clean, and run targets

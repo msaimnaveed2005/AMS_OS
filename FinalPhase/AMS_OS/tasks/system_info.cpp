@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unistd.h>
+#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -10,13 +11,14 @@ Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    cout << "\n========== SYSTEM INFORMATION VIEWER TASK ==========\n";
-    cout << "Task running as separate executable.\n";
-    cout << "Current Process PID: " << getpid() << "\n";
-    cout << "Parent Kernel PID: " << getppid() << "\n";
-    cout << "Operating System Simulation: AMS OS\n";
-    cout << "Execution Mode: User Task Executable\n";
-    cout << "Resource details are managed by AMS OS kernel.\n";
+    UI::panelHeader("System Information", "AMS OS task executable");
+    UI::taskControlHint(getpid());
+    UI::keyValue("Current Process PID", to_string(getpid()));
+    UI::keyValue("Parent Kernel PID", to_string(UI::parentProcessID()));
+    UI::keyValue("Operating System", "AMS OS Simulation");
+    UI::keyValue("Execution Mode", "User Task Executable");
+    cout << "  " << UI::paint("Resource details are managed by AMS OS kernel.\n", UI::DIM);
+    UI::panelFooter();
 
     return 0;
 }

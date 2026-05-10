@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <string>
 
 #include "process_manager.h"
 #include "resource_manager.h"
@@ -34,13 +35,15 @@ public:
     Parameters: ProcessManager, ResourceManager, and ReadyQueueManager references.
     Returns: Nothing.
     */
-    void runScheduler(
-        ProcessManager &processManager,
-        ResourceManager &resourceManager,
-        ReadyQueueManager &readyQueueManager,
-        Logger &logger,
-        SyncManager &syncManager
-    );
+   void runScheduler(
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    string osModeName,
+    string taskModeName
+);
 
     /*
     Function: runProcess
@@ -48,14 +51,16 @@ public:
     Parameters: ReadyQueueItem, ProcessManager, ResourceManager, ReadyQueueManager references.
     Returns: true if process finished, otherwise false.
     */
-    bool runProcess(
-        ReadyQueueItem item,
-        ProcessManager &processManager,
-        ResourceManager &resourceManager,
-        ReadyQueueManager &readyQueueManager,
-        Logger &logger,
-        SyncManager &syncManager
-    );
+   bool runProcess(
+    ReadyQueueItem item,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    string osModeName,
+    string taskModeName
+);
 
     /*
     Function: releaseCompletedProcess
@@ -67,7 +72,7 @@ public:
         int pid,
         ProcessManager &processManager,
         ResourceManager &resourceManager,
-        Logger &logger
+	Logger &logger
     );
 
     /*
@@ -81,44 +86,35 @@ public:
         ReadyQueueItem &selectedItem
     );
 
-    /*
-    Function: runMultitaskingDispatch
-    Purpose: Dispatches all ready processes in parallel without blocking the main menu.
-    Parameters: ProcessManager, ReadyQueueManager, Logger, and SyncManager references.
-    Returns: Nothing.
-    */
-    void runMultitaskingDispatch(
-        ProcessManager &processManager,
-        ReadyQueueManager &readyQueueManager,
-        Logger &logger,
-        SyncManager &syncManager
-    );
+/*
+Function: writeSchedulerGUIStatus
+Purpose: Writes scheduler-side live process status to GUI status file.
+Parameters: ResourceManager, ProcessManager, OS mode name, and task mode name.
+Returns: Nothing.
+*/
+void writeSchedulerGUIStatus(
+    ResourceManager &resourceManager,
+    ProcessManager &processManager,
+    string osModeName,
+    string taskModeName
+);
 
-    /*
-    Function: handleTerminalWindowState
-    Purpose: Stops tasks when their terminal is minimized and resumes them after restore.
-    Parameters: ProcessManager, ReadyQueueManager, Logger, SyncManager references and auto resume flag.
-    Returns: Nothing.
-    */
-    void handleTerminalWindowState(
-        ProcessManager &processManager,
-        ReadyQueueManager &readyQueueManager,
-        Logger &logger,
-        SyncManager &syncManager,
-        bool autoResumeToRunning
-    );
-
-    /*
-    Function: reapFinishedParallelTasks
-    Purpose: Collects finished running processes and releases their resources.
-    Parameters: ProcessManager, ResourceManager, and Logger references.
-    Returns: Nothing.
-    */
-    void reapFinishedParallelTasks(
-        ProcessManager &processManager,
-        ResourceManager &resourceManager,
-        Logger &logger
-    );
+/*
+Function: runSingleProcessByPID
+Purpose: Dispatches one selected READY process by PID, mainly for GUI click execution.
+Parameters: PID and core AMS OS managers.
+Returns: true if process dispatch is attempted, otherwise false.
+*/
+bool runSingleProcessByPID(
+    int pid,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    string osModeName,
+    string taskModeName
+);
 };
 
 #endif

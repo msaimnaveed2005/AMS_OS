@@ -1,53 +1,125 @@
-CXX = g++
-CXXFLAGS = -std=c++17 -Wall
+# AMS OS - Atomic Management System Simulator
+# Linux / Ubuntu build configuration
 
-KERNEL_SRC = kernel/main.cpp \
-             kernel/resource_manager.cpp \
-             kernel/process_manager.cpp \
-             kernel/task_catalog.cpp \
-             kernel/ready_queue.cpp \
-             kernel/scheduler.cpp
+CXX ?= g++
+CPPFLAGS ?= -I.
+CXXFLAGS ?= -std=c++17 -Wall -Wextra -pedantic -pthread
+LDFLAGS ?= -pthread
+.DEFAULT_GOAL := all
 
-OS_OUTPUT = OS
+PREFIX ?= /usr/local
+BINDIR ?= $(PREFIX)/bin
+LIBDIR ?= $(PREFIX)/lib/ams-os
 
-TASKS = build/calculator \
-        build/notepad \
-        build/clock \
-        build/music_player \
-        build/file_copy
+BUILD_DIR := build
+DATA_DIR := data
+TASK_DIR := tasks
+KERNEL_DIR := kernel
 
-all: folders $(OS_OUTPUT) $(TASKS)
+OS_BIN := OS
 
-folders:
-	mkdir -p build
-	mkdir -p data
-	mkdir -p data/virtual_disk
+KERNEL_SRC := \
+	$(KERNEL_DIR)/main.cpp \
+	$(KERNEL_DIR)/resource_manager.cpp \
+	$(KERNEL_DIR)/process_manager.cpp \
+	$(KERNEL_DIR)/task_catalog.cpp \
+	$(KERNEL_DIR)/ready_queue.cpp \
+	$(KERNEL_DIR)/scheduler.cpp \
+	$(KERNEL_DIR)/logger.cpp \
+	$(KERNEL_DIR)/deadlock_manager.cpp \
+	$(KERNEL_DIR)/sync_manager.cpp
 
-$(OS_OUTPUT): $(KERNEL_SRC)
-	$(CXX) $(CXXFLAGS) $(KERNEL_SRC) -o $(OS_OUTPUT)
+KERNEL_HEADERS := \
+	$(KERNEL_DIR)/resource_manager.h \
+	$(KERNEL_DIR)/process_manager.h \
+	$(KERNEL_DIR)/task_catalog.h \
+	$(KERNEL_DIR)/ready_queue.h \
+	$(KERNEL_DIR)/scheduler.h \
+	$(KERNEL_DIR)/logger.h \
+	$(KERNEL_DIR)/deadlock_manager.h \
+	$(KERNEL_DIR)/sync_manager.h \
+	$(KERNEL_DIR)/ui.h
 
-build/calculator: tasks/calculator.cpp
-	$(CXX) $(CXXFLAGS) tasks/calculator.cpp -o build/calculator
+TASK_NAMES := \
+	calculator \
+	calendar \
+	clock \
+	create_file \
+	delete_file \
+	download_simulator \
+	file_copy \
+	file_info \
+	minesweeper \
+	move_file \
+	music_player \
+	notepad \
+	process_killer \
+	snake \
+	system_info \
+	task_manager
 
-build/notepad: tasks/notepad.cpp
-	$(CXX) $(CXXFLAGS) tasks/notepad.cpp -o build/notepad
+TASK_BINS := $(addprefix $(BUILD_DIR)/,$(TASK_NAMES))
 
-build/clock: tasks/clock.cpp
-	$(CXX) $(CXXFLAGS) tasks/clock.cpp -o build/clock
+.PHONY: all dirs run check install uninstall clean distclean help
 
-build/music_player: tasks/music_player.cpp
-	$(CXX) $(CXXFLAGS) tasks/music_player.cpp -o build/music_player
+all: dirs $(OS_BIN) $(TASK_BINS)
+	@echo "Build complete. Run './OS' or 'make run' to start AMS OS."
 
-build/file_copy: tasks/file_copy.cpp
-	$(CXX) $(CXXFLAGS) tasks/file_copy.cpp -o build/file_copy
+dirs:
+	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(DATA_DIR)/virtual_disk
 
-run:
-	./OS 2 256 8
+$(OS_BIN): $(KERNEL_SRC) $(KERNEL_HEADERS) | dirs
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(KERNEL_SRC) $(LDFLAGS) -o $@
+
+$(BUILD_DIR)/%: $(TASK_DIR)/%.cpp $(KERNEL_DIR)/ui.h | dirs
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< $(LDFLAGS) -o $@
+
+run: all
+	./$(OS_BIN) 2 256 8
+
+check:
+	@command -v $(CXX) >/dev/null || { echo "Missing compiler: $(CXX)"; exit 1; }
+	@command -v gnome-terminal >/dev/null || \
+	 command -v x-terminal-emulator >/dev/null || \
+	 command -v xfce4-terminal >/dev/null || \
+	 { echo "Missing terminal emulator: install gnome-terminal or x-terminal-emulator"; exit 1; }
+	@echo "Ubuntu build prerequisites look available."
+
+install: check all
+	install -d "$(DESTDIR)$(BINDIR)"
+	install -d "$(DESTDIR)$(LIBDIR)/build"
+	install -d "$(DESTDIR)$(LIBDIR)/data/virtual_disk"
+	install -m 755 "$(OS_BIN)" "$(DESTDIR)$(LIBDIR)/OS"
+	install -m 755 $(TASK_BINS) "$(DESTDIR)$(LIBDIR)/build/"
+	printf '%s\n' '#!/bin/sh' 'cd "$(LIBDIR)" || exit 1' 'exec ./OS "$$@"' > "$(DESTDIR)$(BINDIR)/ams-os"
+	chmod 755 "$(DESTDIR)$(BINDIR)/ams-os"
+	@echo "Installed AMS OS to $(DESTDIR)$(LIBDIR)"
+	@echo "Run with: $(DESTDIR)$(BINDIR)/ams-os 2 256 8"
+
+uninstall:
+	rm -f "$(DESTDIR)$(BINDIR)/ams-os"
+	rm -rf "$(DESTDIR)$(LIBDIR)"
+	@echo "Uninstalled AMS OS from $(DESTDIR)$(PREFIX)"
 
 clean:
-	rm -f OS
-	rm -f build/calculator
-	rm -f build/notepad
-	rm -f build/clock
-	rm -f build/music_player
-	rm -f build/file_copy
+	rm -f "$(OS_BIN)"
+	rm -f $(TASK_BINS)
+	rm -f "$(DATA_DIR)/system_log.txt"
+	@echo "Clean complete."
+
+distclean: clean
+	rm -rf "$(BUILD_DIR)"
+	rm -rf "$(DATA_DIR)/virtual_disk"
+	@echo "Distribution clean complete."
+
+help:
+	@echo "AMS OS Makefile targets"
+	@echo "  make          Build kernel and all task executables"
+	@echo "  make run      Build and start with 2 GB RAM, 256 GB HDD, 8 cores"
+	@echo "  make check    Verify compiler and terminal emulator availability"
+	@echo "  make install  Install under PREFIX=$(PREFIX)"
+	@echo "  make clean    Remove binaries and runtime log"
+	@echo "  make distclean Remove generated build and virtual disk directories"
+	@echo "  make uninstall Remove installed files"
+	@echo "  make help     Show this message"

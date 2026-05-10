@@ -1,5 +1,6 @@
 #include <iostream>
 #include <unistd.h>
+#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -10,12 +11,13 @@ Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    cout << "\n========== PROCESS KILLER TASK ==========\n";
-    cout << "Process Killer is a privileged Kernel Mode operation.\n";
-    cout << "Use AMS OS Kernel Mode menu option 16 to kill real processes.\n";
-    cout << "This executable exists to satisfy separate task file requirement.\n";
-    cout << "Current Task PID: " << getpid() << "\n";
-    cout << "Parent Kernel PID: " << getppid() << "\n";
+    UI::panelHeader("Process Killer", "Kernel tool information");
+    UI::taskControlHint(getpid());
+    cout << "  Process Killer is a privileged Kernel Mode operation.\n";
+    cout << "  Use AMS OS Kernel Mode menu option 16 to kill real processes.\n";
+    UI::keyValue("Current Task PID", to_string(getpid()));
+    UI::keyValue("Parent Kernel PID", to_string(UI::parentProcessID()));
+    UI::panelFooter();
 
     return 0;
 }

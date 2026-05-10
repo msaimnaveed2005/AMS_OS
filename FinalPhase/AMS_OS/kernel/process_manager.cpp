@@ -1,80 +1,7 @@
 #include "process_manager.h"
+#include "ui.h"
 #include <iomanip>
-#include "console_colors.h"
 
-/*
-Function: getPCBStateColor
-Purpose: Returns color based on process state.
-Parameters: Process state.
-Returns: ANSI color code.
-*/
-string getPCBStateColor(ProcessState state) {
-    if (state == NEW_STATE) {
-        return Color::BRIGHT_BLUE + Color::BOLD;
-    }
-
-    if (state == READY_STATE) {
-        return Color::BRIGHT_CYAN + Color::BOLD;
-    }
-
-    if (state == RUNNING_STATE) {
-        return Color::BRIGHT_GREEN + Color::BOLD;
-    }
-
-    if (state == BLOCKED_STATE) {
-        return Color::BRIGHT_YELLOW + Color::BOLD;
-    }
-
-    if (state == TERMINATED_STATE) {
-        return Color::BRIGHT_RED + Color::BOLD;
-    }
-
-    return Color::WHITE;
-}
-
-/*
-Function: getPCBTypeColor
-Purpose: Returns color based on process type.
-Parameters: Process type.
-Returns: ANSI color code.
-*/
-string getPCBTypeColor(ProcessType type) {
-    if (type == SYSTEM_PROCESS || type == KERNEL_PROCESS) {
-        return Color::BRIGHT_MAGENTA + Color::BOLD;
-    }
-
-    if (type == INTERACTIVE_PROCESS) {
-        return Color::BRIGHT_GREEN + Color::BOLD;
-    }
-
-    if (type == BACKGROUND_PROCESS) {
-        return Color::BRIGHT_YELLOW + Color::BOLD;
-    }
-
-    if (type == AUTO_RUNNING_PROCESS) {
-        return Color::BRIGHT_CYAN + Color::BOLD;
-    }
-
-    return Color::WHITE;
-}
-
-/*
-Function: getPCBPriorityColor
-Purpose: Returns color based on priority.
-Parameters: Priority.
-Returns: ANSI color code.
-*/
-string getPCBPriorityColor(int priority) {
-    if (priority == 1) {
-        return Color::BRIGHT_RED + Color::BOLD;
-    }
-
-    if (priority == 2) {
-        return Color::BRIGHT_GREEN + Color::BOLD;
-    }
-
-    return Color::BRIGHT_YELLOW + Color::BOLD;
-}
 /*
 Function: ProcessManager
 Purpose: Initializes the process manager and dummy PID counter.
@@ -101,17 +28,17 @@ bool ProcessManager::createPCB(
     int coresRequired
 ) {
     if (pid <= 0) {
-        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Invalid PID. PCB creation failed.\n";
+        cout << "\n[PROCESS MANAGER] Invalid PID. PCB creation failed.\n";
         return false;
     }
 
     if (processName.empty()) {
-        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Invalid process name. PCB creation failed.\n";
+        cout << "\n[PROCESS MANAGER] Invalid process name. PCB creation failed.\n";
         return false;
     }
 
     if (processTable.find(pid) != processTable.end()) {
-        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process with this PID already exists.\n";
+        cout << "\n[PROCESS MANAGER] Process with this PID already exists.\n";
         return false;
     }
 
@@ -126,11 +53,14 @@ bool ProcessManager::createPCB(
     newProcess.hddRequired = hddRequired;
     newProcess.coresRequired = coresRequired;
     newProcess.waitingTime = 0;
-	newProcess.memoryStart = -1;
-	newProcess.memoryEnd = -1;
+    newProcess.turnaroundTime = 0;
+    newProcess.assignedCore = -1;
+    newProcess.queueType = "Unassigned";
+    newProcess.memoryStart = -1;
+    newProcess.memoryEnd = -1;
     processTable[pid] = newProcess;
 
-    cout << "\n" << Color::process("[PROCESS MANAGER]") << " PCB created successfully.\n";
+    cout << "\n[PROCESS MANAGER] PCB created successfully.\n";
     cout << "PID: " << pid << "\n";
     cout << "Process Name: " << processName << "\n";
     cout << "Process Type: " << getProcessTypeName(processType) << "\n";
@@ -180,13 +110,13 @@ Returns: true if state is updated, otherwise false.
 */
 bool ProcessManager::updateProcessState(int pid, ProcessState newState) {
     if (processTable.find(pid) == processTable.end()) {
-        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process not found. State update failed.\n";
+        cout << "\n[PROCESS MANAGER] Process not found. State update failed.\n";
         return false;
     }
 
     processTable[pid].processState = newState;
 
-    cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process state updated.\n";
+    cout << "\n[PROCESS MANAGER] Process state updated.\n";
     cout << "PID: " << pid << "\n";
     cout << "New State: " << getProcessStateName(newState) << "\n";
 
@@ -201,17 +131,17 @@ Returns: true if process is removed, otherwise false.
 */
 bool ProcessManager::removeProcess(int pid) {
     if (processTable.find(pid) == processTable.end()) {
-        cout << "\n" << Color::process("[PROCESS MANAGER]") << " Process not found. Removal failed.\n";
+        cout << "\n[PROCESS MANAGER] Process not found. Removal failed.\n";
         return false;
     }
 
-    cout << "\n" << Color::process("[PROCESS MANAGER]") << " Removing process from PCB table.\n";
+    cout << "\n[PROCESS MANAGER] Removing process from PCB table.\n";
     cout << "PID: " << pid << "\n";
     cout << "Process Name: " << processTable[pid].processName << "\n";
 
     processTable.erase(pid);
 
-    cout << Color::process("[PROCESS MANAGER]") << " Process removed successfully.\n";
+    cout << "[PROCESS MANAGER] Process removed successfully.\n";
 
     return true;
 }
@@ -226,19 +156,19 @@ bool ProcessManager::processExists(int pid) {
     return processTable.find(pid) != processTable.end();
 }
 /*
-	Function: getPCB
-	Purpose: Finds a PCB by PID and copies it into the reference variable.
-	Parameters: PID and PCB reference variable.
-	Returns: true if PCB exists, otherwise false.
-	*/
-	bool ProcessManager::getPCB(int pid, PCB &pcb) {
-	    if (processTable.find(pid) == processTable.end()) {
-		return false;
-	    }
+Function: getPCB
+Purpose: Finds a PCB by PID and copies it into the reference variable.
+Parameters: PID and PCB reference variable.
+Returns: true if PCB exists, otherwise false.
+*/
+bool ProcessManager::getPCB(int pid, PCB &pcb) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
 
-	    pcb = processTable[pid];
-	    return true;
-	}
+    pcb = processTable[pid];
+    return true;
+}
 
 /*
 Function: incrementWaitingTime
@@ -330,6 +260,55 @@ bool ProcessManager::updateMemoryBlock(int pid, int memoryStart, int memoryEnd) 
     return true;
 }
 
+/*
+Function: updateAssignedCore
+Purpose: Updates assigned CPU core for a process.
+Parameters: PID and core index.
+Returns: true if updated, otherwise false.
+*/
+bool ProcessManager::updateAssignedCore(int pid, int assignedCore) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    processTable[pid].assignedCore = assignedCore;
+    return true;
+}
+
+/*
+Function: updateQueueType
+Purpose: Updates queue type label of a process.
+Parameters: PID and queue type.
+Returns: true if updated, otherwise false.
+*/
+bool ProcessManager::updateQueueType(int pid, string queueType) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    processTable[pid].queueType = queueType;
+    return true;
+}
+
+/*
+Function: incrementTurnaroundTime
+Purpose: Increments turnaround time for a process.
+Parameters: PID and increment value.
+Returns: true if updated, otherwise false.
+*/
+bool ProcessManager::incrementTurnaroundTime(int pid, int incrementValue) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
+
+    if (incrementValue < 0) {
+        incrementValue = 0;
+    }
+
+    processTable[pid].turnaroundTime += incrementValue;
+    return true;
+}
+
 
 /*
 Function: displayPCBTable
@@ -338,30 +317,32 @@ Parameters: None.
 Returns: Nothing.
 */
 void ProcessManager::displayPCBTable() {
-   cout << "\n";
-Color::line('=', 126, Color::BRIGHT_CYAN + Color::BOLD);
-cout << Color::paint("                                           PCB TABLE\n", Color::BRIGHT_CYAN + Color::BOLD);
-Color::line('=', 126, Color::BRIGHT_CYAN + Color::BOLD);
+    UI::panelHeader("PCB Table", to_string(processTable.size()) + " tracked process(es)", 136);
 
-// Headers with color
-Color::cell("PID", 8, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("NAME", 22, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("TYPE", 18, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("STATE", 15, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("PRI", 8, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("WAIT", 8, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("RAM BLOCK", 18, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("RAM", 10, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("HDD", 10, Color::BRIGHT_CYAN + Color::BOLD);
-Color::cell("CPU", 6, Color::BRIGHT_CYAN + Color::BOLD);
-cout << "\n";
+    if (processTable.empty()) {
+        UI::emptyState("No process exists in the PCB table.", 136);
+        return;
+    }
 
-// Line separator for table rows
-Color::line('-', 126, Color::GRAY);
+    cout << "  " << left
+         << setw(8)  << "PID"
+         << setw(20) << "Name"
+         << setw(15) << "State"
+         << setw(16) << "Type"
+         << setw(10) << "Priority"
+         << setw(11) << "Wait"
+         << setw(12) << "Turnaround"
+         << setw(10) << "Core"
+         << setw(18) << "Queue"
+         << setw(16) << "RAM Block"
+         << setw(10) << "RAM"
+         << setw(10) << "HDD"
+         << setw(6)  << "CPU" << "\n";
+
+    cout << "  " << UI::paint(UI::repeat('-', 128) + "\n", UI::DIM);
 
     for (auto process : processTable) {
         PCB pcb = process.second;
-
         string ramBlock;
 
         if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
@@ -370,30 +351,26 @@ Color::line('-', 126, Color::GRAY);
             ramBlock = to_string(pcb.memoryStart) + "-" + to_string(pcb.memoryEnd);
         }
 
-        Color::cell(to_string(pcb.pid), 8, Color::WHITE);
-        Color::cell(pcb.processName, 22, Color::BRIGHT_WHITE + Color::BOLD);
-        Color::cell(getProcessTypeName(pcb.processType), 18, getPCBTypeColor(pcb.processType));
-        Color::cell(getProcessStateName(pcb.processState), 15, getPCBStateColor(pcb.processState));
-        Color::cell(to_string(pcb.priority), 8, getPCBPriorityColor(pcb.priority));
-        Color::cell(to_string(pcb.waitingTime), 8, Color::BRIGHT_BLUE);
-        Color::cell(ramBlock, 18, Color::BRIGHT_MAGENTA);
-        Color::cell(to_string(pcb.ramRequired) + "MB", 10, Color::BRIGHT_BLUE);
-        Color::cell(to_string(pcb.hddRequired) + "MB", 10, Color::BRIGHT_MAGENTA);
-        Color::cell(to_string(pcb.coresRequired), 6, Color::BRIGHT_GREEN);
-        cout << "\n";
+        string stateText = getProcessStateName(pcb.processState);
+
+        cout << "  " << left
+             << setw(8)  << pcb.pid
+             << setw(20) << UI::fit(pcb.processName, 18)
+             << setw(15) << stateText
+             << setw(16) << getProcessTypeName(pcb.processType)
+             << setw(10) << pcb.priority
+             << setw(11) << pcb.waitingTime
+             << setw(12) << pcb.turnaroundTime
+             << setw(10) << (pcb.assignedCore == -1 ? "-" : to_string(pcb.assignedCore))
+             << setw(18) << UI::fit(pcb.queueType, 16)
+             << setw(16) << ramBlock
+             << setw(10) << (to_string(pcb.ramRequired) + "MB")
+             << setw(10) << (to_string(pcb.hddRequired) + "MB")
+             << setw(6)  << pcb.coresRequired
+             << "\n";
     }
 
-    Color::line('=', 126, Color::BRIGHT_CYAN + Color::BOLD);
-
-    cout << Color::paint("State Colors: ", Color::WHITE + Color::BOLD)
-         << Color::paint("READY", Color::BRIGHT_CYAN + Color::BOLD)
-         << " | "
-         << Color::paint("RUNNING", Color::BRIGHT_GREEN + Color::BOLD)
-         << " | "
-         << Color::paint("BLOCKED", Color::BRIGHT_YELLOW + Color::BOLD)
-         << " | "
-         << Color::paint("TERMINATED", Color::BRIGHT_RED + Color::BOLD)
-         << "\n";
+    UI::panelFooter(136);
 }
 
 /*
@@ -435,6 +412,8 @@ string ProcessManager::getProcessStateName(ProcessState state) {
             return "RUNNING";
         case BLOCKED_STATE:
             return "BLOCKED";
+        case MINIMIZED_STATE:
+            return "MINIMIZED";
         case TERMINATED_STATE:
             return "TERMINATED";
         default:
@@ -459,17 +438,64 @@ vector<int> ProcessManager::getAllPIDs() {
 }
 
 /*
-Function: getAllPCBs
-Purpose: Returns all process control blocks currently stored in the PCB table.
+Function: getProcessCount
+Purpose: Returns total number of processes in the PCB table.
 Parameters: None.
-Returns: Vector of PCB records.
+Returns: Process count.
 */
-vector<PCB> ProcessManager::getAllPCBs() {
-    vector<PCB> pcbList;
+int ProcessManager::getProcessCount() {
+    return static_cast<int>(processTable.size());
+}
+
+/*
+Function: getProcessStateCount
+Purpose: Counts processes currently in a selected state.
+Parameters: Process state.
+Returns: Process count for that state.
+*/
+int ProcessManager::getProcessStateCount(ProcessState state) {
+    int count = 0;
 
     for (auto process : processTable) {
-        pcbList.push_back(process.second);
+        if (process.second.processState == state) {
+            count++;
+        }
     }
 
-    return pcbList;
+    return count;
+}
+
+/*
+Function: displayProcessesByState
+Purpose: Displays processes filtered by a lifecycle state.
+Parameters: Target process state and list title.
+Returns: Nothing.
+*/
+void ProcessManager::displayProcessesByState(ProcessState state, string title) {
+    UI::panelHeader(title, getProcessStateName(state));
+
+    bool found = false;
+
+    for (const auto &entry : processTable) {
+        const PCB &pcb = entry.second;
+
+        if (pcb.processState != state) {
+            continue;
+        }
+
+        found = true;
+        cout << "PID: " << pcb.pid
+             << " | Name: " << pcb.processName
+             << " | State: " << getProcessStateName(pcb.processState)
+             << " | Priority: " << pcb.priority
+             << " | Queue: " << pcb.queueType
+             << " | Core: " << (pcb.assignedCore == -1 ? "-" : to_string(pcb.assignedCore))
+             << "\n";
+    }
+
+    if (!found) {
+        cout << "No processes found in this state.\n";
+    }
+
+    UI::panelFooter();
 }

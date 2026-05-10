@@ -1,6 +1,95 @@
 #include "scheduler.h"
-#include <fstream>
-#include "console_colors.h"
+#include "ui.h"
+#include <cstdio>
+#include <sstream>
+
+namespace {
+bool sendSignalToScheduledProcess(int pid, int signalNumber) {
+    if (pid <= 0) {
+        return false;
+    }
+
+    if (kill(-pid, signalNumber) == 0) {
+        return true;
+    }
+
+    return kill(pid, signalNumber) == 0;
+}
+
+bool commandHasOutput(const string &command) {
+    FILE *pipe = popen(command.c_str(), "r");
+
+    if (pipe == nullptr) {
+        return false;
+    }
+
+    char buffer[128];
+    bool hasOutput = fgets(buffer, sizeof(buffer), pipe) != nullptr;
+    pclose(pipe);
+
+    return hasOutput;
+}
+
+bool isTaskTerminalHidden(int pid) {
+    if (pid <= 0) {
+        return false;
+    }
+
+    ostringstream visibleCommand;
+    visibleCommand << "xdotool search --onlyvisible --pid " << pid << " 2>/dev/null";
+
+    ostringstream anyWindowCommand;
+    anyWindowCommand << "xdotool search --pid " << pid << " 2>/dev/null";
+
+    const bool hasVisibleWindow = commandHasOutput(visibleCommand.str());
+    const bool hasAnyWindow = commandHasOutput(anyWindowCommand.str());
+
+    return hasAnyWindow && !hasVisibleWindow;
+}
+
+void restoreVisibleMinimizedTasks(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager
+) {
+    vector<int> pids = processManager.getAllPIDs();
+
+    for (int pid : pids) {
+        PCB pcb;
+
+        if (!processManager.getPCB(pid, pcb)) {
+            continue;
+        }
+
+        if (pcb.processState != MINIMIZED_STATE) {
+            continue;
+        }
+
+        if (pcb.queueType != "Terminal Minimized") {
+            continue;
+        }
+
+        if (isTaskTerminalHidden(pid)) {
+            continue;
+        }
+
+        processManager.updateProcessState(pid, READY_STATE);
+        processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
+        readyQueueManager.addProcessToReadyQueue(pid, pcb.processName, pcb.processType, pcb.priority);
+        syncManager.notifyReadyQueue();
+
+        logger.logProcessEvent(
+            pid,
+            pcb.processName,
+            "Terminal restored from window controls, process moved back to READY"
+        );
+        UI::successLine(
+            "[SCHEDULER] Terminal restored for PID " + to_string(pid) + ". Process returned to READY."
+        );
+    }
+}
+}
 
 /*
 Function: Scheduler
@@ -25,19 +114,19 @@ bool Scheduler::selectNextProcess(
 ) {
     if (!readyQueueManager.isSystemQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromSystemQueue();
-        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from System Queue using FCFS.\n";
+        UI::infoLine("[SCHEDULER] Selected process from System Queue using FCFS.");
         return true;
     }
 
     if (!readyQueueManager.isInteractiveQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromInteractiveQueue();
-        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from Interactive Queue using Round Robin.\n";
+        UI::infoLine("[SCHEDULER] Selected process from Interactive Queue using Round Robin.");
         return true;
     }
 
     if (!readyQueueManager.isBackgroundQueueEmpty()) {
         selectedItem = readyQueueManager.removeFromBackgroundQueue();
-        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Selected process from Background Queue using low priority scheduling.\n";
+        UI::infoLine("[SCHEDULER] Selected process from Background Queue using FCFS.");
         return true;
     }
 
@@ -59,13 +148,13 @@ void Scheduler::releaseCompletedProcess(
     PCB pcb;
 
     if (!processManager.getPCB(pid, pcb)) {
-        cout << "\n" << Color::scheduler("[SCHEDULER]") << " PCB not found. Cannot release resources.\n";
+        UI::warnLine("[SCHEDULER] PCB not found. Cannot release resources.");
         return;
     }
 
     processManager.updateProcessState(pid, TERMINATED_STATE);
     logger.logProcessEvent(pid, pcb.processName, "Process terminated");
-    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Releasing resources for completed process.\n";
+    UI::successLine("[SCHEDULER] Releasing resources for completed process.");
     cout << "PID: " << pid << "\n";
     cout << "Process: " << pcb.processName << "\n";
     resourceManager.releaseMemoryBlock(pid);
@@ -84,59 +173,6 @@ void Scheduler::releaseCompletedProcess(
 }
 
 /*
-Function: writeSchedulerGUIStatus
-Purpose: Writes scheduler-side live process status to GUI status file.
-Parameters: ResourceManager, ProcessManager, OS mode name, and task mode name.
-Returns: Nothing.
-*/
-void Scheduler::writeSchedulerGUIStatus(
-    ResourceManager &resourceManager,
-    ProcessManager &processManager,
-    string osModeName,
-    string taskModeName
-) {
-    ofstream file("data/gui_status.txt");
-
-    if (!file) {
-        return;
-    }
-
-    file << "OS_MODE=" << osModeName << "\n";
-    file << "TASK_MODE=" << taskModeName << "\n";
-
-    file << "RAM_AVAILABLE=" << resourceManager.getAvailableRAM() << "\n";
-    file << "RAM_TOTAL=" << resourceManager.getTotalRAM() << "\n";
-
-    file << "HDD_AVAILABLE=" << resourceManager.getAvailableHDD() << "\n";
-    file << "HDD_TOTAL=" << resourceManager.getTotalHDD() << "\n";
-
-    file << "CORES_AVAILABLE=" << resourceManager.getAvailableCores() << "\n";
-    file << "CORES_TOTAL=" << resourceManager.getTotalCores() << "\n";
-
-    vector<PCB> pcbList = processManager.getAllPCBs();
-
-    for (PCB pcb : pcbList) {
-        string ramBlock;
-
-        if (pcb.memoryStart == -1 || pcb.memoryEnd == -1) {
-            ramBlock = "N/A";
-        } else {
-            ramBlock = to_string(pcb.memoryStart) + "-" + to_string(pcb.memoryEnd) + " MB";
-        }
-
-        file << "PROCESS="
-             << pcb.pid << "|"
-             << pcb.processName << "|"
-             << processManager.getProcessStateName(pcb.processState) << "|"
-             << pcb.priority << "|"
-             << ramBlock
-             << "\n";
-    }
-
-    file.close();
-}
-
-/*
 Function: runProcess
 Purpose: Resumes a selected process and applies scheduling rules based on process type.
 Parameters: ReadyQueueItem, ProcessManager, ResourceManager, ReadyQueueManager references.
@@ -148,121 +184,177 @@ bool Scheduler::runProcess(
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager,
-    string osModeName,
-    string taskModeName
+    SyncManager &syncManager
 ){
     int status;
     int quantum;
+    vector<int> assignedCores;
 
     PCB pcb;
 
     if (!processManager.getPCB(item.pid, pcb)) {
-        cout << "\n" << Color::scheduler("[SCHEDULER]") << " Process not found in PCB table. Skipping PID: " << item.pid << "\n";
+        UI::warnLine("[SCHEDULER] Process not found in PCB table. Skipping dispatch.");
         return true;
     }
-	syncManager.acquireCPUCores(pcb.coresRequired);
+    assignedCores = syncManager.acquireCoreSet(pcb.coresRequired);
+    int primaryCore = -1;
+
+    if (!assignedCores.empty()) {
+        primaryCore = assignedCores.front();
+    }
+
+    processManager.updateAssignedCore(item.pid, primaryCore);
+    processManager.updateQueueType(item.pid, readyQueueManager.getQueueName(item.priority));
 
 	logger.logSystemEvent(
 	    "CPU execution slot assigned to PID " + to_string(item.pid) +
-	    " | Process: " + item.processName
+	    " | Process: " + item.processName +
+        " | Core: " + (primaryCore == -1 ? string("N/A") : to_string(primaryCore))
 	);
-    cout << Color::scheduler("\n==================== CONTEXT SWITCH ====================\n");
-    cout  << Color::scheduler("[SCHEDULER]") << " Dispatching Process\n";
-    cout << "PID: " << item.pid << "\n";
-    cout << "Process Name: " << item.processName << "\n";
-    cout << "========================================================\n";
+    UI::panelHeader("Context Switch", "Scheduler dispatch");
+    UI::keyValue("PID", to_string(item.pid));
+    UI::keyValue("Process Name", item.processName);
+    UI::keyValue("Queue", readyQueueManager.getQueueName(item.priority));
+    UI::panelFooter();
 
     processManager.updateProcessState(item.pid, RUNNING_STATE);
-    writeSchedulerGUIStatus(
-	    resourceManager,
-	    processManager,
-	    osModeName,
-	    taskModeName
-	);
     logger.logProcessEvent(item.pid, item.processName, "Dispatched by scheduler");
-    kill(item.pid, SIGCONT);
+    sendSignalToScheduledProcess(item.pid, SIGCONT);
 
     if (pcb.processType == SYSTEM_PROCESS || pcb.processType == KERNEL_PROCESS) {
-        cout << Color::scheduler("[SCHEDULER]") << " System process running with FCFS until completion.\n";
+        UI::infoLine("[SCHEDULER] System process running with FCFS until completion.");
 
        waitpid(item.pid, &status, 0);
+        processManager.incrementTurnaroundTime(item.pid, 1);
 
-	cout << "\n" << Color::success("[SCHEDULER]") << " System process completed.\n";
+    UI::successLine("[SCHEDULER] System process completed.");
 
-	syncManager.releaseCPUCores(pcb.coresRequired);
+    processManager.updateAssignedCore(item.pid, -1);
+	syncManager.releaseCoreSet(assignedCores);
 
 	logger.logSystemEvent(
 	    "CPU execution slot released from PID " + to_string(item.pid)
 	);
 
 	releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
-	writeSchedulerGUIStatus(
-	    resourceManager,
-	    processManager,
-	    osModeName,
-	    taskModeName
-	);
 	return true;
+    }
+
+    if (pcb.processType == BACKGROUND_PROCESS) {
+        UI::infoLine("[SCHEDULER] Background process running with FCFS until completion.");
+
+        waitpid(item.pid, &status, 0);
+        processManager.incrementTurnaroundTime(item.pid, 1);
+
+        UI::successLine("[SCHEDULER] Background process completed.");
+
+        processManager.updateAssignedCore(item.pid, -1);
+        syncManager.releaseCoreSet(assignedCores);
+
+        logger.logSystemEvent(
+            "CPU execution slot released from PID " + to_string(item.pid)
+        );
+
+        releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+        return true;
     }
 
     if (pcb.processType == INTERACTIVE_PROCESS || pcb.processType == AUTO_RUNNING_PROCESS) {
         quantum = interactiveQuantum;
-        cout << Color::scheduler("[SCHEDULER]") << " Interactive process running with quantum: "
-             << quantum << " seconds.\n";
+        UI::infoLine("[SCHEDULER] Interactive process running with quantum: " + to_string(quantum) + " seconds.");
     } else {
-        quantum = backgroundQuantum;
-        cout <<  Color::scheduler("[SCHEDULER]") << " Background process running with quantum: "
-             << quantum << " seconds.\n";
+        quantum = interactiveQuantum;
+        UI::infoLine("[SCHEDULER] Process running with quantum: " + to_string(quantum) + " seconds.");
     }
 
     for (int i = 1; i <= quantum; i++) {
         sleep(1);
+        processManager.incrementTurnaroundTime(item.pid, 1);
 
         pid_t result = waitpid(item.pid, &status, WNOHANG);
 
        if (result == item.pid) {
-	    cout << "\n" << Color::success("[SCHEDULER]") << " Process completed within time quantum.\n";
+        UI::successLine("[SCHEDULER] Process completed within time quantum.");
 
-	    syncManager.releaseCPUCores(pcb.coresRequired);
+        processManager.updateAssignedCore(item.pid, -1);
+	    syncManager.releaseCoreSet(assignedCores);
 
 	    logger.logSystemEvent(
 		"CPU execution slot released from PID " + to_string(item.pid)
 	    );
 
 	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
-            writeSchedulerGUIStatus(
-		    resourceManager,
-		    processManager,
-		    osModeName,
-		    taskModeName
-		);
 	    return true;
 	}
 
-        cout << Color::scheduler("[SCHEDULER]") << " Time slice " << i << "/" << quantum
+        if (isTaskTerminalHidden(item.pid)) {
+            UI::warnLine("[SCHEDULER] Task terminal minimized/hidden. Pausing current task.");
+            sendSignalToScheduledProcess(item.pid, SIGSTOP);
+
+            processManager.updateProcessState(item.pid, MINIMIZED_STATE);
+            processManager.updateQueueType(item.pid, "Terminal Minimized");
+            processManager.updateAssignedCore(item.pid, -1);
+            syncManager.releaseCoreSet(assignedCores);
+
+            logger.logProcessEvent(
+                item.pid,
+                item.processName,
+                "Terminal minimized from window controls, process moved to MINIMIZED"
+            );
+
+            logger.logSystemEvent(
+                "CPU execution slot released after terminal minimize for PID " + to_string(item.pid)
+            );
+
+            return false;
+        }
+
+        cout << "[SCHEDULER] Time slice " << i << "/" << quantum
              << " completed for PID " << item.pid << "\n";
     }
 
-    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Time quantum expired for PID: " << item.pid << "\n";
-    cout <<  Color::scheduler("[SCHEDULER]") << " Pausing process and moving it back to ready queue.\n";
+    UI::warnLine("[SCHEDULER] Time quantum expired for PID " + to_string(item.pid) + ".");
+    UI::infoLine("[SCHEDULER] Pausing process and moving it back to ready queue.");
 
-    kill(item.pid, SIGSTOP);
-	waitpid(item.pid, &status, WUNTRACED);
+    sendSignalToScheduledProcess(item.pid, SIGSTOP);
+	pid_t stopWaitResult = waitpid(item.pid, &status, WUNTRACED);
 
-	syncManager.releaseCPUCores(pcb.coresRequired);
+	if (stopWaitResult == item.pid && (WIFEXITED(status) || WIFSIGNALED(status))) {
+        UI::successLine("[SCHEDULER] Process finished while its quantum was expiring.");
+
+        processManager.updateAssignedCore(item.pid, -1);
+	    syncManager.releaseCoreSet(assignedCores);
+
+	    logger.logSystemEvent(
+		"CPU execution slot released after PID " + to_string(item.pid) + " finished"
+	    );
+
+	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+	    return true;
+	}
+
+	if (stopWaitResult == -1) {
+        UI::warnLine("[SCHEDULER] Process is no longer waitable. Cleaning PCB and resources.");
+        processManager.updateAssignedCore(item.pid, -1);
+        syncManager.releaseCoreSet(assignedCores);
+
+	    logger.logSystemEvent(
+		"CPU execution slot released after PID " + to_string(item.pid) + " became non-waitable"
+	    );
+
+	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
+	    return true;
+	}
+
+    processManager.updateAssignedCore(item.pid, -1);
+	syncManager.releaseCoreSet(assignedCores);
 
 	logger.logSystemEvent(
 	    "CPU execution slot released after quantum expiry for PID " + to_string(item.pid)
 	);
 
 	processManager.updateProcessState(item.pid, READY_STATE);
-        writeSchedulerGUIStatus(
-		    resourceManager,
-		    processManager,
-		    osModeName,
-		    taskModeName
-		);
+
 	readyQueueManager.addProcessToReadyQueue(
 	    item.pid,
 	    item.processName,
@@ -273,80 +365,6 @@ bool Scheduler::runProcess(
 	syncManager.notifyReadyQueue();
 
 	return false;
-}
-/*
-Function: runSingleProcessByPID
-Purpose: Dispatches one selected READY process by PID, mainly for GUI click execution.
-Parameters: PID and core AMS OS managers.
-Returns: true if process dispatch is attempted, otherwise false.
-*/
-bool Scheduler::runSingleProcessByPID(
-    int pid,
-    ProcessManager &processManager,
-    ResourceManager &resourceManager,
-    ReadyQueueManager &readyQueueManager,
-    Logger &logger,
-    SyncManager &syncManager,
-    string osModeName,
-    string taskModeName
-) {
-    PCB pcb;
-
-    if (!processManager.getPCB(pid, pcb)) {
-        cout << "\n[GUI COMMAND] PID not found in PCB table.\n";
-        logger.logProcessEvent(pid, "Unknown", "GUI dispatch failed, PID not found");
-        return false;
-    }
-
-    if (pcb.processState != READY_STATE) {
-        cout << "\n[GUI COMMAND] Only READY processes can be dispatched from GUI.\n";
-        cout << "PID: " << pid << "\n";
-        cout << "Current State: " << processManager.getProcessStateName(pcb.processState) << "\n";
-
-        logger.logProcessEvent(pid, pcb.processName, "GUI dispatch rejected, process not READY");
-        return false;
-    }
-
-    readyQueueManager.removeProcessByPID(pid);
-
-    ReadyQueueItem item;
-    item.pid = pcb.pid;
-    item.processName = pcb.processName;
-    item.processType = pcb.processType;
-    item.priority = pcb.priority;
-
-    cout << "\n[GUI COMMAND] Dispatching selected process from GUI.\n";
-    cout << "PID: " << pid << "\n";
-    cout << "Process: " << pcb.processName << "\n";
-
-    logger.logProcessEvent(pid, pcb.processName, "GUI requested process dispatch");
-
-    writeSchedulerGUIStatus(
-        resourceManager,
-        processManager,
-        osModeName,
-        taskModeName
-    );
-
-    runProcess(
-        item,
-        processManager,
-        resourceManager,
-        readyQueueManager,
-        logger,
-        syncManager,
-        osModeName,
-        taskModeName
-    );
-
-    writeSchedulerGUIStatus(
-        resourceManager,
-        processManager,
-        osModeName,
-        taskModeName
-    );
-
-    return true;
 }
 
 /*
@@ -360,21 +378,23 @@ void Scheduler::runScheduler(
     ResourceManager &resourceManager,
     ReadyQueueManager &readyQueueManager,
     Logger &logger,
-    SyncManager &syncManager,
-    string osModeName,
-    string taskModeName
+    SyncManager &syncManager
 ) {
-    cout << Color::scheduler("\n==================== AMS OS SCHEDULER STARTED ====================\n");
+    UI::panelHeader("AMS OS Scheduler", "Started");
     logger.logSystemEvent("Scheduler started");
+    UI::infoLine("[SCHEDULER] Multilevel queue scheduler started.");
+
+    restoreVisibleMinimizedTasks(processManager, readyQueueManager, logger, syncManager);
+
     if (!readyQueueManager.hasReadyProcess()) {
-    cout <<  Color::scheduler("[SCHEDULER]") << " No process available in ready queue.\n";
-    cout <<Color::scheduler("[SCHEDULER]") << " Waiting briefly for ready queue notification.\n";
+    UI::warnLine("[SCHEDULER] No process available in ready queue.");
+    UI::infoLine("[SCHEDULER] Waiting briefly for ready queue notification.");
 
     syncManager.waitForReadyQueueSignal(2);
 
     if (!readyQueueManager.hasReadyProcess()) {
-        cout <<  Color::scheduler("[SCHEDULER]") << " Still no process available.\n";
-        cout << "==================================================================\n";
+        UI::warnLine("[SCHEDULER] Still no process available.");
+        UI::panelFooter();
         return;
     }
 }
@@ -396,22 +416,168 @@ void Scheduler::runScheduler(
     processManager.resetWaitingTime(selectedItem.pid);
 
     runProcess(
-    selectedItem,
-    processManager,
-    resourceManager,
-    readyQueueManager,
-    logger,
-    syncManager,
-    osModeName,
-    taskModeName
-       );
+        selectedItem,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger,
+        syncManager
+    );
 
-    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Current Resource Status:\n";
+    PCB scheduledProcess;
+    if (processManager.getPCB(selectedItem.pid, scheduledProcess) &&
+        scheduledProcess.processState == MINIMIZED_STATE) {
+        UI::warnLine("[SCHEDULER] Scheduling paused because active task was minimized.");
+        UI::infoLine("[SCHEDULER] Restore terminal and run scheduler again to continue.");
+        logger.logSystemEvent(
+            "Scheduler paused because PID " + to_string(selectedItem.pid) + " was minimized"
+        );
+        break;
+    }
+
+    UI::sectionBanner("Scheduler Resource Snapshot", UI::BRIGHT_GREEN);
     resourceManager.displayResources();
 
-    cout << "\n" << Color::scheduler("[SCHEDULER]") << " Current Ready Queue Status:\n";
+    UI::sectionBanner("Scheduler Queue Snapshot", UI::BRIGHT_BLUE);
     readyQueueManager.displayReadyQueues();
 }
     logger.logSystemEvent("Scheduler finished");
-    cout << "\n==================== AMS OS SCHEDULER FINISHED ====================\n";
+    UI::panelHeader("AMS OS Scheduler", "Finished");
+}
+
+void Scheduler::runMultitaskingDispatch(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager
+) {
+    if (!readyQueueManager.hasReadyProcess()) {
+        UI::warnLine("[MULTITASK] No ready process available to dispatch.");
+        return;
+    }
+
+    UI::panelHeader("Multitasking Dispatch", "Parallel execution enabled");
+    logger.logSystemEvent("Multitasking dispatch started");
+
+    while (readyQueueManager.hasReadyProcess()) {
+        ReadyQueueItem selectedItem;
+
+        if (!selectNextProcess(readyQueueManager, selectedItem)) {
+            break;
+        }
+
+        PCB pcb;
+        if (!processManager.getPCB(selectedItem.pid, pcb)) {
+            continue;
+        }
+
+        processManager.resetWaitingTime(selectedItem.pid);
+        processManager.updateProcessState(selectedItem.pid, RUNNING_STATE);
+        processManager.updateAssignedCore(selectedItem.pid, -1);
+        processManager.updateQueueType(selectedItem.pid, "Parallel Running");
+        sendSignalToScheduledProcess(selectedItem.pid, SIGCONT);
+
+        logger.logProcessEvent(
+            selectedItem.pid,
+            selectedItem.processName,
+            "Dispatched in multitasking mode (parallel)"
+        );
+        UI::successLine(
+            "[MULTITASK] PID " + to_string(selectedItem.pid) + " running in parallel."
+        );
+    }
+
+    syncManager.notifyReadyQueue();
+    logger.logSystemEvent("Multitasking dispatch completed");
+    UI::panelFooter();
+}
+
+void Scheduler::handleTerminalWindowState(
+    ProcessManager &processManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger,
+    SyncManager &syncManager,
+    bool autoResumeToRunning
+) {
+    vector<int> pids = processManager.getAllPIDs();
+
+    for (int pid : pids) {
+        PCB pcb;
+        if (!processManager.getPCB(pid, pcb)) {
+            continue;
+        }
+
+        if (pcb.processState == RUNNING_STATE && isTaskTerminalHidden(pid)) {
+            sendSignalToScheduledProcess(pid, SIGSTOP);
+            processManager.updateProcessState(pid, MINIMIZED_STATE);
+            processManager.updateQueueType(pid, "Terminal Minimized");
+            processManager.updateAssignedCore(pid, -1);
+
+            logger.logProcessEvent(
+                pid,
+                pcb.processName,
+                "Terminal minimized from window controls, process paused"
+            );
+            continue;
+        }
+
+        if (pcb.processState != MINIMIZED_STATE) {
+            continue;
+        }
+
+        if (pcb.queueType != "Terminal Minimized") {
+            continue;
+        }
+
+        if (isTaskTerminalHidden(pid)) {
+            continue;
+        }
+
+        if (autoResumeToRunning) {
+            processManager.updateProcessState(pid, RUNNING_STATE);
+            processManager.updateQueueType(pid, "Parallel Running");
+            sendSignalToScheduledProcess(pid, SIGCONT);
+            logger.logProcessEvent(
+                pid,
+                pcb.processName,
+                "Terminal restored from window controls, process resumed"
+            );
+        } else {
+            processManager.updateProcessState(pid, READY_STATE);
+            processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
+            readyQueueManager.addProcessToReadyQueue(pid, pcb.processName, pcb.processType, pcb.priority);
+            syncManager.notifyReadyQueue();
+            logger.logProcessEvent(
+                pid,
+                pcb.processName,
+                "Terminal restored from window controls, process returned to READY"
+            );
+        }
+    }
+}
+
+void Scheduler::reapFinishedParallelTasks(
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    Logger &logger
+) {
+    vector<int> pids = processManager.getAllPIDs();
+
+    for (int pid : pids) {
+        PCB pcb;
+        if (!processManager.getPCB(pid, pcb)) {
+            continue;
+        }
+
+        if (pcb.processState != RUNNING_STATE) {
+            continue;
+        }
+
+        int status;
+        pid_t result = waitpid(pid, &status, WNOHANG);
+
+        if (result == pid) {
+            releaseCompletedProcess(pid, processManager, resourceManager, logger);
+        }
+    }
 }

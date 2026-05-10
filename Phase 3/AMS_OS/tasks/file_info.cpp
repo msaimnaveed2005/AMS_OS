@@ -2,8 +2,6 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <string>
-#include <unistd.h>
-#include "../kernel/ui.h"
 
 using namespace std;
 
@@ -17,22 +15,20 @@ int main() {
     string fileName;
     struct stat fileStatus;
 
-    UI::panelHeader("File Information", "Virtual disk utility");
-    UI::taskControlHint(getpid());
+    cout << "\n========== FILE INFORMATION VIEWER TASK ==========\n";
     cout << "Enter file name: ";
     cin >> fileName;
 
     string filePath = "data/virtual_disk/" + fileName;
 
     if (stat(filePath.c_str(), &fileStatus) != 0) {
-        cout << UI::paint("Error: File does not exist.\n", UI::RED + UI::BOLD);
+        cout << "Error: File does not exist.\n";
         return 1;
     }
 
-    UI::sectionTitle("File Summary");
-    UI::keyValue("File Path", filePath);
-    UI::keyValue("File Size", to_string(fileStatus.st_size) + " bytes");
-    UI::keyValue("Permissions", to_string(fileStatus.st_mode & 0777));
+    cout << "\nFile Path: " << filePath << "\n";
+    cout << "File Size: " << fileStatus.st_size << " bytes\n";
+    cout << "Permissions: " << (fileStatus.st_mode & 0777) << "\n";
 
     ifstream file(filePath);
 
@@ -44,10 +40,9 @@ int main() {
             lineCount++;
         }
 
-        UI::keyValue("Total Lines", to_string(lineCount));
+        cout << "Total Lines: " << lineCount << "\n";
         file.close();
     }
 
-    UI::panelFooter();
     return 0;
 }

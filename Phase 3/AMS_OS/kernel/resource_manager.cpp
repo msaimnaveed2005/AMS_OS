@@ -1,6 +1,5 @@
 #include "resource_manager.h"
-#include "ui.h"
-
+#include "console_colors.h"
 /*
 Function: ResourceManager
 Purpose: Default constructor that initializes all system resources to zero.
@@ -44,16 +43,16 @@ void ResourceManager::initializeResources(int ram, int hdd, int cores) {
     totalCores = cores;
     availableCores = cores;
 
-    memoryBlocks.clear();
+memoryBlocks.clear();
 
-    MemoryBlock initialBlock;
-    initialBlock.startAddress = 0;
-    initialBlock.endAddress = totalRAM;
-    initialBlock.pid = -1;
-    initialBlock.processName = "FREE";
-    initialBlock.isFree = true;
+MemoryBlock initialBlock;
+initialBlock.startAddress = 0;
+initialBlock.endAddress = totalRAM;
+initialBlock.pid = -1;
+initialBlock.processName = "FREE";
+initialBlock.isFree = true;
 
-    memoryBlocks.push_back(initialBlock);
+memoryBlocks.push_back(initialBlock);
 }
 
 /*
@@ -90,7 +89,7 @@ Returns: true if allocation is successful, otherwise false.
 */
 bool ResourceManager::allocateResources(int ramRequired, int hddRequired, int coresRequired) {
     if (!checkResources(ramRequired, hddRequired, coresRequired)) {
-        cout << "\n[RESOURCE MANAGER] Resource allocation failed.\n";
+        cout << "\n" << Color::resource("[RESOURCE MANAGER]") << " Resource allocation failed.\n";
         cout << "Reason: Not enough resources available or invalid request.\n";
         return false;
     }
@@ -99,7 +98,7 @@ bool ResourceManager::allocateResources(int ramRequired, int hddRequired, int co
     availableHDD = availableHDD - hddRequired;
     availableCores = availableCores - coresRequired;
 
-    cout << "\n[RESOURCE MANAGER] Resources allocated successfully.\n";
+    cout << "\n" << Color::resource("[RESOURCE MANAGER]") << " Resources allocated successfully.\n";
     cout << "Allocated RAM: " << ramRequired << " MB\n";
     cout << "Allocated HDD: " << hddRequired << " MB\n";
     cout << "Allocated CPU Cores: " << coresRequired << "\n";
@@ -115,7 +114,7 @@ Returns: Nothing.
 */
 void ResourceManager::releaseResources(int ramReleased, int hddReleased, int coresReleased) {
     if (ramReleased < 0 || hddReleased < 0 || coresReleased < 0) {
-        cout << "\n[RESOURCE MANAGER] Invalid resource release request.\n";
+        cout << "\n" << Color::resource("[RESOURCE MANAGER]") << " Invalid resource release request.\n";
         return;
     }
 
@@ -135,7 +134,7 @@ void ResourceManager::releaseResources(int ramReleased, int hddReleased, int cor
         availableCores = totalCores;
     }
 
-    cout << "\n[RESOURCE MANAGER] Resources released successfully.\n";
+    cout << "\n" << Color::resource("[RESOURCE MANAGER]") << " Resources released successfully.\n";
     cout << "Released RAM: " << ramReleased << " MB\n";
     cout << "Released HDD: " << hddReleased << " MB\n";
     cout << "Released CPU Cores: " << coresReleased << "\n";
@@ -148,42 +147,19 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::displayResources() {
-    UI::panelHeader("Resource Status", "Live capacity overview", 88);
+    cout << "\n";
+Color::line('=', 58, Color::BRIGHT_YELLOW + Color::BOLD);
+cout << Color::paint("              AMS OS RESOURCE STATUS\n", Color::BRIGHT_YELLOW + Color::BOLD);
+Color::line('=', 58, Color::BRIGHT_YELLOW + Color::BOLD);
+    cout << Color::paint("RAM Available: ", Color::BRIGHT_BLUE + Color::BOLD)
+     << availableRAM << " MB / " << totalRAM << " MB\n";
 
-    cout << "  " << left
-         << setw(10) << "Resource"
-         << setw(16) << "Used"
-         << setw(18) << "Available"
-         << setw(12) << "Capacity"
-         << "Load\n";
-    cout << "  " << UI::paint(UI::repeat('-', 80) + "\n", UI::DIM);
+cout << Color::paint("HDD Available: ", Color::BRIGHT_MAGENTA + Color::BOLD)
+     << availableHDD << " MB / " << totalHDD << " MB\n";
 
-    int usedRAM = totalRAM - availableRAM;
-    int usedHDD = totalHDD - availableHDD;
-    int usedCores = totalCores - availableCores;
-
-    cout << "  " << left
-         << setw(10) << "RAM"
-         << setw(16) << (to_string(usedRAM) + " MB")
-         << setw(18) << (to_string(availableRAM) + " MB")
-         << setw(12) << (to_string(totalRAM) + " MB")
-         << UI::usageBar(usedRAM, totalRAM) << "\n";
-
-    cout << "  " << left
-         << setw(10) << "HDD"
-         << setw(16) << (to_string(usedHDD) + " MB")
-         << setw(18) << (to_string(availableHDD) + " MB")
-         << setw(12) << (to_string(totalHDD) + " MB")
-         << UI::usageBar(usedHDD, totalHDD) << "\n";
-
-    cout << "  " << left
-         << setw(10) << "CPU"
-         << setw(16) << (to_string(usedCores) + " cores")
-         << setw(18) << (to_string(availableCores) + " cores")
-         << setw(12) << (to_string(totalCores) + " cores")
-         << UI::usageBar(usedCores, totalCores) << "\n";
-
-    UI::panelFooter(88);
+cout << Color::paint("CPU Cores Available: ", Color::BRIGHT_GREEN + Color::BOLD)
+     << availableCores << " / " << totalCores << "\n";
+    cout << "===========================================\n";
 }
 
 /*
@@ -216,36 +192,6 @@ int ResourceManager::getAvailableCores() {
     return availableCores;
 }
 
-/*
-Function: getTotalRAM
-Purpose: Returns total configured RAM.
-Parameters: None.
-Returns: Total RAM.
-*/
-int ResourceManager::getTotalRAM() {
-    return totalRAM;
-}
-
-/*
-Function: getTotalHDD
-Purpose: Returns total configured hard drive space.
-Parameters: None.
-Returns: Total HDD.
-*/
-int ResourceManager::getTotalHDD() {
-    return totalHDD;
-}
-
-/*
-Function: getTotalCores
-Purpose: Returns total configured CPU cores.
-Parameters: None.
-Returns: Total CPU cores.
-*/
-int ResourceManager::getTotalCores() {
-    return totalCores;
-}
-
 
 /*
 Function: allocateMemoryBlock
@@ -261,7 +207,7 @@ bool ResourceManager::allocateMemoryBlock(
     int &memoryEnd
 ) {
     if (pid <= 0 || ramRequired <= 0) {
-        cout << "\n[MEMORY MANAGER] Invalid memory allocation request.\n";
+        cout << "\n" << Color::memory("[MEMORY MANAGER]") << " Invalid memory allocation request.\n";
         return false;
     }
 
@@ -293,7 +239,7 @@ bool ResourceManager::allocateMemoryBlock(
                 memoryBlocks.insert(memoryBlocks.begin() + i + 1, remainingBlock);
             }
 
-            cout << "\n[MEMORY MANAGER] RAM block allocated successfully.\n";
+            cout << "\n" << Color::memory("[MEMORY MANAGER]") << " RAM block allocated successfully.\n";
             cout << "PID: " << pid << "\n";
             cout << "Process: " << processName << "\n";
             cout << "RAM Block: " << memoryStart << " MB to " << memoryEnd << " MB\n";
@@ -302,7 +248,7 @@ bool ResourceManager::allocateMemoryBlock(
         }
     }
 
-    cout << "\n[MEMORY MANAGER] No suitable RAM block found.\n";
+    cout << "\n" << Color::memory("[MEMORY MANAGER]") << " No suitable RAM block found.\n";
     return false;
 }
 
@@ -315,7 +261,7 @@ Returns: true if memory block is released, otherwise false.
 bool ResourceManager::releaseMemoryBlock(int pid) {
     for (size_t i = 0; i < memoryBlocks.size(); i++) {
         if (!memoryBlocks[i].isFree && memoryBlocks[i].pid == pid) {
-            cout << "\n[MEMORY MANAGER] Releasing RAM block.\n";
+            cout << "\n" << Color::memory("[MEMORY MANAGER]") << " Releasing RAM block.\n";
             cout << "PID: " << pid << "\n";
             cout << "RAM Block: " << memoryBlocks[i].startAddress
                  << " MB to " << memoryBlocks[i].endAddress << " MB\n";
@@ -340,14 +286,17 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::mergeFreeMemoryBlocks() {
-    size_t i = 0;
+    if (memoryBlocks.size() < 2) {
+        return;
+    }
 
-    while (i + 1 < memoryBlocks.size()) {
+    for (size_t i = 0; i + 1 < memoryBlocks.size(); i++) {
         if (memoryBlocks[i].isFree && memoryBlocks[i + 1].isFree) {
             memoryBlocks[i].endAddress = memoryBlocks[i + 1].endAddress;
             memoryBlocks.erase(memoryBlocks.begin() + i + 1);
-        } else {
-            i++;
+            if (i > 0) {
+                i--;
+            }
         }
     }
 }
@@ -359,34 +308,77 @@ Parameters: None.
 Returns: Nothing.
 */
 void ResourceManager::displayMemoryLayout() {
-    UI::panelHeader("RAM Memory Layout", to_string(memoryBlocks.size()) + " block(s)", 86);
+    cout << "\n";
+Color::line('=', 74, Color::BRIGHT_MAGENTA + Color::BOLD);
+cout << Color::paint("                         RAM MEMORY LAYOUT\n", Color::BRIGHT_MAGENTA + Color::BOLD);
+Color::line('=', 74, Color::BRIGHT_MAGENTA + Color::BOLD);
 
     if (memoryBlocks.empty()) {
-        UI::emptyState("No memory layout available.", 86);
+        cout << "No memory layout available.\n";
+        cout << "===========================================================\n";
         return;
     }
 
-    cout << "  " << left
-         << setw(12) << "Start MB"
-         << setw(12) << "End MB"
-         << setw(12) << "Size"
-         << setw(14) << "Status"
-         << setw(10) << "PID"
-         << "Process\n";
-    cout << "  " << UI::paint(UI::repeat('-', 78) + "\n", UI::DIM);
+    // Header row
+Color::cell("START", 12, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("END", 12, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("STATUS", 16, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("PID", 10, Color::BRIGHT_CYAN + Color::BOLD);
+Color::cell("PROCESS", 20, Color::BRIGHT_CYAN + Color::BOLD);
+cout << "\n";
 
-    for (MemoryBlock block : memoryBlocks) {
-        int blockSize = block.endAddress - block.startAddress;
+// Line separator for rows
+Color::line('-', 74, Color::GRAY);
+    cout << "-----------------------------------------------------------\n";
 
-        cout << "  " << left
-             << setw(12) << block.startAddress
-             << setw(12) << block.endAddress
-             << setw(12) << (to_string(blockSize) + " MB")
-             << setw(14) << (block.isFree ? "FREE" : "ALLOCATED")
-             << setw(10) << (block.isFree ? "-" : to_string(block.pid))
-             << (block.isFree ? "Available" : UI::fit(block.processName, 24))
-             << "\n";
+   for (auto block : memoryBlocks) {
+    Color::cell(to_string(block.startAddress), 12, Color::WHITE);
+    Color::cell(to_string(block.endAddress), 12, Color::WHITE);
+
+    if (block.isFree) {
+        Color::cell("FREE", 16, Color::BRIGHT_GREEN + Color::BOLD);
+        Color::cell("-", 10, Color::GRAY);
+        Color::cell("Available", 20, Color::BRIGHT_GREEN);
+    } else {
+        Color::cell("ALLOCATED", 16, Color::BRIGHT_RED + Color::BOLD);
+        Color::cell(to_string(block.pid), 10, Color::BRIGHT_YELLOW);
+        Color::cell(block.processName, 20, Color::BRIGHT_WHITE + Color::BOLD);
     }
 
-    UI::panelFooter(86);
+    cout << "\n";
+}
+
+    cout << "===========================================================\n";
+}
+
+
+
+/*
+Function: getTotalRAM
+Purpose: Returns total RAM.
+Parameters: None.
+Returns: Total RAM.
+*/
+int ResourceManager::getTotalRAM() {
+    return totalRAM;
+}
+
+/*
+Function: getTotalHDD
+Purpose: Returns total HDD.
+Parameters: None.
+Returns: Total HDD.
+*/
+int ResourceManager::getTotalHDD() {
+    return totalHDD;
+}
+
+/*
+Function: getTotalCores
+Purpose: Returns total CPU cores.
+Parameters: None.
+Returns: Total CPU cores.
+*/
+int ResourceManager::getTotalCores() {
+    return totalCores;
 }
