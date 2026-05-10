@@ -184,7 +184,7 @@ AMS_OS/
 | `make` | Build the kernel and task executables |
 | `make run` | Build and run with 2 GB RAM, 256 GB HDD, 8 cores |
 | `make check` | Verify Ubuntu build prerequisites |
-| `make install` | Install AMS OS under `PREFIX` |
+| `make install` | Verify prerequisites, then install AMS OS under `PREFIX` |
 | `make uninstall` | Remove installed files |
 | `make clean` | Remove binaries and runtime log |
 | `make distclean` | Remove generated build and virtual disk directories |
@@ -195,6 +195,8 @@ AMS_OS/
 - The simulator is designed for Ubuntu/Linux process APIs.
 - Task windows are launched with `gnome-terminal` first, then common Ubuntu
   fallbacks.
+- Task metadata is centralized in `kernel/task_catalog.*` through one registration
+  helper to keep the 16-task inventory consistent and easy to maintain.
 - Runtime files are generated under `data/`; they can be removed with
   `make clean` or `make distclean`.
 - See `PROJECT_REPORT.md` for the full architecture, scheduling design, and

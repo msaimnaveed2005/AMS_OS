@@ -92,10 +92,11 @@ namespace UI {
 
     inline void sectionBanner(const string &title, const string &accent = ROYAL_BLUE) {
         cout << "\n  "
-             << paint("*", accent + BOLD) << " "
+             << paint("[", DIM) << paint("SECTION", accent + BOLD) << paint("]", DIM)
+             << " "
              << paint(title, accent + BOLD)
-             << paint(" " + repeat('.', max(0, 46 - (int)title.length())), DIM)
              << "\n";
+        cout << "  " << paint(repeat('-', 58), DIM) << "\n";
     }
 
     /* Key-value output */
@@ -177,12 +178,14 @@ namespace UI {
 
         cout << "  "
              << paint("[" + idText.str() + "]", ROYAL_BLUE + BOLD)
+             << " "
+             << paint(">", DIM)
              << "  "
-             << left << setw(30)
-             << paint(label, LIGHT_GRAY);
+             << left << setw(32)
+             << paint(label, WHITE + BOLD);
 
         if (!hint.empty()) {
-            cout << paint(hint, DIM);
+            cout << paint("- " + hint, SLATE_GRAY);
         }
 
         cout << "\n";
@@ -192,24 +195,24 @@ namespace UI {
         cout << "  "
              << statusPill(primary, ROYAL_BLUE)
              << "  "
-             << statusPill(secondary, SLATE_GRAY)
+             << statusPill(secondary, LIGHT_BLUE)
              << "\n";
     }
 
     /* Status line helpers */
 
     inline void infoLine(const string &message) {
-        cout << "  " << paint("i", LIGHT_BLUE + BOLD) << " "
+        cout << "  " << paint("INFO", LIGHT_BLUE + BOLD) << " "
              << paint(message, LIGHT_GRAY) << "\n";
     }
 
     inline void successLine(const string &message) {
-        cout << "  " << paint("OK", GREEN + BOLD) << " "
+        cout << "  " << paint("DONE", GREEN + BOLD) << " "
              << paint(message, GREEN) << "\n";
     }
 
     inline void warnLine(const string &message) {
-        cout << "  " << paint("!", YELLOW + BOLD) << " "
+        cout << "  " << paint("WARN", YELLOW + BOLD) << " "
              << paint(message, YELLOW) << "\n";
     }
 
@@ -255,7 +258,8 @@ namespace UI {
         cout << paint("\nams", GREEN + BOLD)
              << paint("@", LIGHT_GRAY)
              << paint("ubuntu", ROYAL_BLUE + BOLD)
-             << paint(":~/AMS_OS$ ", LIGHT_BLUE + BOLD)
+             << paint(":~/AMS_OS", LIGHT_GRAY)
+             << paint(" $ ", LIGHT_BLUE + BOLD)
              << paint(text, WHITE + BOLD);
     }
 

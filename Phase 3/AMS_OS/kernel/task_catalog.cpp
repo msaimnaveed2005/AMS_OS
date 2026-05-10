@@ -1,6 +1,32 @@
 #include "task_catalog.h"
 #include "ui.h"
 #include <iomanip>
+#include <utility>
+
+void TaskCatalog::addTask(
+    int taskID,
+    const std::string &taskName,
+    ProcessType processType,
+    int priority,
+    int ramRequired,
+    int hddRequired,
+    int coresRequired,
+    const std::string &executablePath,
+    const std::string &description
+) {
+    TaskInfo task {
+        taskID,
+        taskName,
+        processType,
+        priority,
+        ramRequired,
+        hddRequired,
+        coresRequired,
+        executablePath,
+        description
+    };
+    taskList.push_back(std::move(task));
+}
 
 /*
 Function: TaskCatalog
@@ -20,198 +46,38 @@ Returns: Nothing.
 */
 void TaskCatalog::initializePhase3Tasks() {
     taskList.clear();
-
-    TaskInfo createFile;
-    createFile.taskID = 1;
-    createFile.taskName = "Create File";
-    createFile.processType = INTERACTIVE_PROCESS;
-    createFile.priority = 2;
-    createFile.ramRequired = 80;
-    createFile.hddRequired = 20;
-    createFile.coresRequired = 1;
-    createFile.executablePath = "./build/create_file";
-    createFile.description = "Creates a file inside AMS OS virtual disk.";
-    taskList.push_back(createFile);
-
-    TaskInfo deleteFile;
-    deleteFile.taskID = 2;
-    deleteFile.taskName = "Delete File";
-    deleteFile.processType = INTERACTIVE_PROCESS;
-    deleteFile.priority = 2;
-    deleteFile.ramRequired = 70;
-    deleteFile.hddRequired = 10;
-    deleteFile.coresRequired = 1;
-    deleteFile.executablePath = "./build/delete_file";
-    deleteFile.description = "Deletes a file from AMS OS virtual disk.";
-    taskList.push_back(deleteFile);
-
-    TaskInfo copyFile;
-    copyFile.taskID = 3;
-    copyFile.taskName = "Copy File";
-    copyFile.processType = BACKGROUND_PROCESS;
-    copyFile.priority = 3;
-    copyFile.ramRequired = 200;
-    copyFile.hddRequired = 100;
-    copyFile.coresRequired = 1;
-    copyFile.executablePath = "./build/file_copy";
-    copyFile.description = "Copies a file from one path to another.";
-    taskList.push_back(copyFile);
-
-    TaskInfo moveFile;
-    moveFile.taskID = 4;
-    moveFile.taskName = "Move File";
-    moveFile.processType = BACKGROUND_PROCESS;
-    moveFile.priority = 3;
-    moveFile.ramRequired = 150;
-    moveFile.hddRequired = 60;
-    moveFile.coresRequired = 1;
-    moveFile.executablePath = "./build/move_file";
-    moveFile.description = "Moves or renames a file in virtual disk.";
-    taskList.push_back(moveFile);
-
-    TaskInfo fileInfo;
-    fileInfo.taskID = 5;
-    fileInfo.taskName = "File Info";
-    fileInfo.processType = INTERACTIVE_PROCESS;
-    fileInfo.priority = 2;
-    fileInfo.ramRequired = 90;
-    fileInfo.hddRequired = 20;
-    fileInfo.coresRequired = 1;
-    fileInfo.executablePath = "./build/file_info";
-    fileInfo.description = "Displays basic information about a file.";
-    taskList.push_back(fileInfo);
-
-    TaskInfo notepad;
-    notepad.taskID = 6;
-    notepad.taskName = "Notepad";
-    notepad.processType = INTERACTIVE_PROCESS;
-    notepad.priority = 2;
-    notepad.ramRequired = 150;
-    notepad.hddRequired = 50;
-    notepad.coresRequired = 1;
-    notepad.executablePath = "./build/notepad";
-    notepad.description = "Interactive notepad task with file writing support.";
-    taskList.push_back(notepad);
-
-    TaskInfo calculator;
-    calculator.taskID = 7;
-    calculator.taskName = "Calculator";
-    calculator.processType = INTERACTIVE_PROCESS;
-    calculator.priority = 2;
-    calculator.ramRequired = 100;
-    calculator.hddRequired = 20;
-    calculator.coresRequired = 1;
-    calculator.executablePath = "./build/calculator";
-    calculator.description = "Interactive calculator task for basic arithmetic operations.";
-    taskList.push_back(calculator);
-
-    TaskInfo clock;
-    clock.taskID = 8;
-    clock.taskName = "Digital Clock";
-    clock.processType = AUTO_RUNNING_PROCESS;
-    clock.priority = 2;
-    clock.ramRequired = 50;
-    clock.hddRequired = 10;
-    clock.coresRequired = 1;
-    clock.executablePath = "./build/clock";
-    clock.description = "Auto-running digital clock task.";
-    taskList.push_back(clock);
-
-    TaskInfo systemInfo;
-    systemInfo.taskID = 9;
-    systemInfo.taskName = "System Info";
-    systemInfo.processType = INTERACTIVE_PROCESS;
-    systemInfo.priority = 2;
-    systemInfo.ramRequired = 80;
-    systemInfo.hddRequired = 10;
-    systemInfo.coresRequired = 1;
-    systemInfo.executablePath = "./build/system_info";
-    systemInfo.description = "Displays system information.";
-    taskList.push_back(systemInfo);
-
-    TaskInfo snake;
-    snake.taskID = 10;
-    snake.taskName = "Snake Game";
-    snake.processType = INTERACTIVE_PROCESS;
-    snake.priority = 2;
-    snake.ramRequired = 250;
-    snake.hddRequired = 40;
-    snake.coresRequired = 1;
-    snake.executablePath = "./build/snake";
-    snake.description = "Simple text-based snake game.";
-    taskList.push_back(snake);
-
-    TaskInfo minesweeper;
-    minesweeper.taskID = 11;
-    minesweeper.taskName = "Minesweeper";
-    minesweeper.processType = INTERACTIVE_PROCESS;
-    minesweeper.priority = 2;
-    minesweeper.ramRequired = 220;
-    minesweeper.hddRequired = 40;
-    minesweeper.coresRequired = 1;
-    minesweeper.executablePath = "./build/minesweeper";
-    minesweeper.description = "Simple text-based minesweeper game.";
-    taskList.push_back(minesweeper);
-
-    TaskInfo musicPlayer;
-    musicPlayer.taskID = 12;
-    musicPlayer.taskName = "Music Player";
-    musicPlayer.processType = BACKGROUND_PROCESS;
-    musicPlayer.priority = 3;
-    musicPlayer.ramRequired = 120;
-    musicPlayer.hddRequired = 30;
-    musicPlayer.coresRequired = 1;
-    musicPlayer.executablePath = "./build/music_player";
-    musicPlayer.description = "Background music player simulation using beep output.";
-    taskList.push_back(musicPlayer);
-
-    TaskInfo downloadSimulator;
-    downloadSimulator.taskID = 13;
-    downloadSimulator.taskName = "Download Simulator";
-    downloadSimulator.processType = BACKGROUND_PROCESS;
-    downloadSimulator.priority = 3;
-    downloadSimulator.ramRequired = 180;
-    downloadSimulator.hddRequired = 200;
-    downloadSimulator.coresRequired = 1;
-    downloadSimulator.executablePath = "./build/download_simulator";
-    downloadSimulator.description = "Simulates a background file download.";
-    taskList.push_back(downloadSimulator);
-
-    TaskInfo taskManager;
-    taskManager.taskID = 14;
-    taskManager.taskName = "Task Manager";
-    taskManager.processType = SYSTEM_PROCESS;
-    taskManager.priority = 1;
-    taskManager.ramRequired = 100;
-    taskManager.hddRequired = 20;
-    taskManager.coresRequired = 1;
-    taskManager.executablePath = "./build/task_manager";
-    taskManager.description = "Task manager executable. Full process table is handled by kernel menu.";
-    taskList.push_back(taskManager);
-
-    TaskInfo processKiller;
-    processKiller.taskID = 15;
-    processKiller.taskName = "Process Killer";
-    processKiller.processType = KERNEL_PROCESS;
-    processKiller.priority = 1;
-    processKiller.ramRequired = 100;
-    processKiller.hddRequired = 20;
-    processKiller.coresRequired = 1;
-    processKiller.executablePath = "./build/process_killer";
-    processKiller.description = "Kernel mode process killer information task.";
-    taskList.push_back(processKiller);
-
-    TaskInfo calendar;
-    calendar.taskID = 16;
-    calendar.taskName = "Calendar";
-    calendar.processType = AUTO_RUNNING_PROCESS;
-    calendar.priority = 2;
-    calendar.ramRequired = 50;
-    calendar.hddRequired = 10;
-    calendar.coresRequired = 1;
-    calendar.executablePath = "./build/calendar";
-    calendar.description = "Auto-running monthly calendar task.";
-    taskList.push_back(calendar);
+    addTask(1, "Create File", INTERACTIVE_PROCESS, 2, 80, 20, 1, "./build/create_file",
+            "Creates a file inside AMS OS virtual disk.");
+    addTask(2, "Delete File", INTERACTIVE_PROCESS, 2, 70, 10, 1, "./build/delete_file",
+            "Deletes a file from AMS OS virtual disk.");
+    addTask(3, "Copy File", BACKGROUND_PROCESS, 3, 200, 100, 1, "./build/file_copy",
+            "Copies a file from one path to another.");
+    addTask(4, "Move File", BACKGROUND_PROCESS, 3, 150, 60, 1, "./build/move_file",
+            "Moves or renames a file in virtual disk.");
+    addTask(5, "File Info", INTERACTIVE_PROCESS, 2, 90, 20, 1, "./build/file_info",
+            "Displays basic information about a file.");
+    addTask(6, "Notepad", INTERACTIVE_PROCESS, 2, 150, 50, 1, "./build/notepad",
+            "Interactive notepad task with file writing support.");
+    addTask(7, "Calculator", INTERACTIVE_PROCESS, 2, 100, 20, 1, "./build/calculator",
+            "Interactive calculator task for basic arithmetic operations.");
+    addTask(8, "Digital Clock", AUTO_RUNNING_PROCESS, 2, 50, 10, 1, "./build/clock",
+            "Auto-running digital clock task.");
+    addTask(9, "System Info", INTERACTIVE_PROCESS, 2, 80, 10, 1, "./build/system_info",
+            "Displays system information.");
+    addTask(10, "Snake Game", INTERACTIVE_PROCESS, 2, 250, 40, 1, "./build/snake",
+            "Simple text-based snake game.");
+    addTask(11, "Minesweeper", INTERACTIVE_PROCESS, 2, 220, 40, 1, "./build/minesweeper",
+            "Simple text-based minesweeper game.");
+    addTask(12, "Music Player", BACKGROUND_PROCESS, 3, 120, 30, 1, "./build/music_player",
+            "Background music player simulation using beep output.");
+    addTask(13, "Download Simulator", BACKGROUND_PROCESS, 3, 180, 200, 1, "./build/download_simulator",
+            "Simulates a background file download.");
+    addTask(14, "Task Manager", SYSTEM_PROCESS, 1, 100, 20, 1, "./build/task_manager",
+            "Task manager executable. Full process table is handled by kernel menu.");
+    addTask(15, "Process Killer", KERNEL_PROCESS, 1, 100, 20, 1, "./build/process_killer",
+            "Kernel mode process killer information task.");
+    addTask(16, "Calendar", AUTO_RUNNING_PROCESS, 2, 50, 10, 1, "./build/calendar",
+            "Auto-running monthly calendar task.");
 }
 
 /*
@@ -221,7 +87,7 @@ Parameters: None.
 Returns: Nothing.
 */
 void TaskCatalog::displayAvailableTasks() {
-    UI::panelHeader("Task Catalog", to_string(taskList.size()) + " available tasks", 92);
+    UI::panelHeader("Task Catalog", std::to_string(taskList.size()) + " available tasks", 92);
 
     if (taskList.empty()) {
         UI::emptyState("No tasks are available in the task catalog.", 92);
@@ -241,15 +107,15 @@ void TaskCatalog::displayAvailableTasks() {
 
     cout << "  " << UI::paint(UI::repeat('-', 86) + "\n", UI::DIM);
 
-    for (TaskInfo task : taskList) {
+    for (const TaskInfo &task : taskList) {
         cout << "  ";
         cout << left
              << setw(6)  << task.taskID
              << setw(22) << UI::fit(task.taskName, 20)
              << setw(16) << getProcessTypeName(task.processType)
              << setw(10) << task.priority
-             << setw(11) << (to_string(task.ramRequired) + " MB")
-             << setw(11) << (to_string(task.hddRequired) + " MB")
+             << setw(11) << (std::to_string(task.ramRequired) + " MB")
+             << setw(11) << (std::to_string(task.hddRequired) + " MB")
              << setw(6)  << task.coresRequired
              << UI::fit(task.description, 26)
              << "\n";
@@ -273,12 +139,12 @@ bool TaskCatalog::displayTaskDetails(int taskID) {
     }
 
     UI::panelHeader("Task Details", selectedTask.taskName);
-    UI::keyValue("Task ID", to_string(selectedTask.taskID));
+    UI::keyValue("Task ID", std::to_string(selectedTask.taskID));
     UI::keyValue("Task Type", getProcessTypeName(selectedTask.processType));
-    UI::keyValue("Priority", to_string(selectedTask.priority));
-    UI::keyValue("RAM Required", to_string(selectedTask.ramRequired) + " MB");
-    UI::keyValue("HDD Required", to_string(selectedTask.hddRequired) + " MB");
-    UI::keyValue("CPU Cores Required", to_string(selectedTask.coresRequired));
+    UI::keyValue("Priority", std::to_string(selectedTask.priority));
+    UI::keyValue("RAM Required", std::to_string(selectedTask.ramRequired) + " MB");
+    UI::keyValue("HDD Required", std::to_string(selectedTask.hddRequired) + " MB");
+    UI::keyValue("CPU Cores Required", std::to_string(selectedTask.coresRequired));
     UI::keyValue("Executable Path", selectedTask.executablePath);
     UI::keyValue("Description", selectedTask.description);
     UI::panelFooter();
@@ -292,8 +158,8 @@ Purpose: Finds and returns a task using its task ID.
 Parameters: Task ID and reference variable to store found task.
 Returns: true if task is found, otherwise false.
 */
-bool TaskCatalog::getTaskByID(int taskID, TaskInfo &task) {
-    for (TaskInfo currentTask : taskList) {
+bool TaskCatalog::getTaskByID(int taskID, TaskInfo &task) const {
+    for (const TaskInfo &currentTask : taskList) {
         if (currentTask.taskID == taskID) {
             task = currentTask;
             return true;
@@ -309,8 +175,8 @@ Purpose: Returns the total number of tasks in the task catalog.
 Parameters: None.
 Returns: Total task count.
 */
-int TaskCatalog::getTaskCount() {
-    return taskList.size();
+int TaskCatalog::getTaskCount() const {
+    return static_cast<int>(taskList.size());
 }
 
 /*
@@ -319,7 +185,7 @@ Purpose: Converts process type enum into readable text.
 Parameters: Process type.
 Returns: Process type as string.
 */
-string TaskCatalog::getProcessTypeName(ProcessType type) {
+std::string TaskCatalog::getProcessTypeName(ProcessType type) const {
     switch (type) {
         case SYSTEM_PROCESS:
             return "System";

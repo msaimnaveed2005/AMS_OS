@@ -215,7 +215,9 @@ NEW -> READY -> RUNNING -> TERMINATED
 
 The Task Catalog stores static metadata for each task, including ID, name,
 type, priority, RAM requirement, HDD requirement, CPU requirement, executable
-path, and description.
+path, and description. Registration is centralized through a single helper
+method to enforce consistent metadata layout and reduce duplication when
+maintaining the 16-task catalog.
 
 ### 6.5 Ready Queue Manager
 
@@ -427,7 +429,7 @@ The Makefile supports standard Linux build practices:
 | `make` | Build kernel and all task executables |
 | `make run` | Build and run with recommended resources |
 | `make check` | Verify compiler and terminal emulator |
-| `make install` | Install under `/usr/local` by default |
+| `make install` | Run prerequisite checks, then install under `/usr/local` |
 | `make uninstall` | Remove installed files |
 | `make clean` | Remove generated binaries and runtime log |
 | `make distclean` | Remove generated build and virtual disk directories |

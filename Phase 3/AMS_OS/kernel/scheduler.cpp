@@ -237,8 +237,8 @@ bool Scheduler::runProcess(
 
 	if (stopWaitResult == -1) {
         UI::warnLine("[SCHEDULER] Process is no longer waitable. Cleaning PCB and resources.");
-
-	    syncManager.releaseCPUCores(pcb.coresRequired);
+        processManager.updateAssignedCore(item.pid, -1);
+        syncManager.releaseCoreSet(assignedCores);
 
 	    logger.logSystemEvent(
 		"CPU execution slot released after PID " + to_string(item.pid) + " became non-waitable"

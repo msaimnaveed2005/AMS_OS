@@ -5,6 +5,7 @@ CXX ?= g++
 CPPFLAGS ?= -I.
 CXXFLAGS ?= -std=c++17 -Wall -Wextra -pedantic -pthread
 LDFLAGS ?= -pthread
+.DEFAULT_GOAL := all
 
 PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
@@ -85,7 +86,7 @@ check:
 	 { echo "Missing terminal emulator: install gnome-terminal or x-terminal-emulator"; exit 1; }
 	@echo "Ubuntu build prerequisites look available."
 
-install: all
+install: check all
 	install -d "$(DESTDIR)$(BINDIR)"
 	install -d "$(DESTDIR)$(LIBDIR)/build"
 	install -d "$(DESTDIR)$(LIBDIR)/data/virtual_disk"

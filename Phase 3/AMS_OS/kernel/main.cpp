@@ -1160,7 +1160,8 @@ Returns: Nothing.
 void minimizeProcess(
     ProcessManager &processManager,
     ReadyQueueManager &readyQueueManager,
-    Logger &logger
+    Logger &logger,
+    SyncManager &syncManager
 ) {
     int pid;
     PCB pcb;
@@ -1182,28 +1183,44 @@ void minimizeProcess(
         return;
     }
 
+    if (pcb.processState == BLOCKED_STATE) {
+        cout << "\n[INTERRUPT HANDLER] Process is BLOCKED. Complete interrupt first.\n";
+        return;
+    }
+
     cout << "\n[INTERRUPT HANDLER] Minimizing process.\n";
     cout << "PID: " << pcb.pid << "\n";
     cout << "Process Name: " << pcb.processName << "\n";
 
     /*
-    If process is currently waiting in ready queue, remove it.
-    This prevents scheduler from selecting a minimized process.
+    Remove stale queue entries first to avoid duplicates.
     */
     readyQueueManager.removeProcessByPID(pid);
 
     /*
-    Try to pause real child process.
-    If it is already stopped, this does not break the program.
+    Pause process execution immediately. This simulates task minimize
+    interrupting the running process.
     */
     sendSignalToProcessGroup(pid, SIGSTOP);
 
-    processManager.updateProcessState(pid, MINIMIZED_STATE);
+    /*
+    Manual requirement target:
+    minimized running task should go back to READY and wait for scheduling.
+    */
+    processManager.updateProcessState(pid, READY_STATE);
+    readyQueueManager.addProcessToReadyQueue(
+        pid,
+        pcb.processName,
+        pcb.processType,
+        pcb.priority
+    );
+    processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
+    syncManager.notifyReadyQueue();
 
-    logger.logProcessEvent(pid, pcb.processName, "Process minimized and moved to MINIMIZED state");
+    logger.logProcessEvent(pid, pcb.processName, "Process minimized: execution paused and moved to READY state");
 
     cout << "\n[INTERRUPT HANDLER] Process minimized successfully.\n";
-    cout << "RAM is still allocated, but CPU execution is paused.\n";
+    cout << "RAM is still allocated, CPU execution paused, process moved to READY queue.\n";
 
     cout << "\nUpdated PCB Table:\n";
     processManager.displayPCBTable();
@@ -2015,7 +2032,13 @@ void handleInputInterrupt(
         return;
     }
 
+    if (pcb.processState == BLOCKED_STATE) {
+        cout << "\n[INTERRUPT] Process is already BLOCKED.\n";
+        return;
+    }
+
     readyQueueManager.removeProcessByPID(pid);
+    sendSignalToProcessGroup(pid, SIGSTOP);
     processManager.updateProcessState(pid, BLOCKED_STATE);
     logger.logProcessEvent(pid, pcb.processName, "Input/External interrupt: moved to BLOCKED");
     cout << "\n[INTERRUPT] Process moved to BLOCKED state.\n";
@@ -2264,7 +2287,7 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 17:
-                minimizeProcess(processManager, readyQueueManager, logger);
+                minimizeProcess(processManager, readyQueueManager, logger, syncManager);
                 break;
 
             case 18:
