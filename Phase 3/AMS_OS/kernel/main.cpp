@@ -1034,11 +1034,49 @@ void createRequiredDirectories() {
     try {
         filesystem::create_directories("build");
         filesystem::create_directories("data");
+        filesystem::create_directories("data/sounds");
         filesystem::create_directories("data/virtual_disk");
     } catch (const filesystem::filesystem_error &error) {
         cout << "[AMS OS] Failed to create required directories: "
              << error.what() << "\n";
     }
+}
+
+/*
+Function: showSoundPackStatus
+Purpose: Displays which optional sound cue files are available in data/sounds.
+Parameters: None.
+Returns: Nothing.
+*/
+void showSoundPackStatus() {
+    const vector<string> cueNames = {
+        "boot", "shutdown", "error", "granted", "denied", "minimize", "resume", "close"
+    };
+
+    UI::panelHeader("Sound Pack Status", "data/sounds", 86);
+
+    int loadedCount = 0;
+
+    for (const string &cueName : cueNames) {
+        string cuePath = "data/sounds/" + cueName + ".wav";
+        bool exists = filesystem::exists(cuePath);
+
+        if (exists) {
+            loadedCount++;
+            cout << "  " << UI::statusPill("LOADED", UI::GREEN)
+                 << " " << cueName << ".wav\n";
+        } else {
+            cout << "  " << UI::statusPill("MISSING", UI::YELLOW)
+                 << " " << cueName << ".wav "
+                 << UI::paint("(terminal bell fallback)", UI::DIM)
+                 << "\n";
+        }
+    }
+
+    cout << "\n  " << UI::paint("Loaded: ", UI::LIGHT_BLUE)
+         << UI::paint(to_string(loadedCount) + "/" + to_string(cueNames.size()), UI::WHITE + UI::BOLD)
+         << "\n";
+    UI::panelFooter(86);
 }
 
 /*
@@ -2150,6 +2188,7 @@ int main(int argc, char* argv[]) {
     }
 
     bootScreen();
+    showSoundPackStatus();
 
     ResourceManager resourceManager(ram, hdd, cores);
     ProcessManager processManager;
