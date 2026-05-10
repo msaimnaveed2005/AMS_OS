@@ -47,17 +47,6 @@ bool isTaskTerminalHidden(int pid) {
     return hasAnyWindow && !hasVisibleWindow;
 }
 
-bool isTaskTerminalVisible(int pid) {
-    if (pid <= 0) {
-        return false;
-    }
-
-    ostringstream visibleCommand;
-    visibleCommand << "xdotool search --onlyvisible --pid " << pid << " 2>/dev/null";
-
-    return commandHasOutput(visibleCommand.str());
-}
-
 void restoreVisibleMinimizedTasks(
     ProcessManager &processManager,
     ReadyQueueManager &readyQueueManager,
@@ -74,6 +63,10 @@ void restoreVisibleMinimizedTasks(
         }
 
         if (pcb.processState != MINIMIZED_STATE) {
+            continue;
+        }
+
+        if (pcb.queueType != "Terminal Minimized") {
             continue;
         }
 
@@ -299,7 +292,7 @@ bool Scheduler::runProcess(
             sendSignalToScheduledProcess(item.pid, SIGSTOP);
 
             processManager.updateProcessState(item.pid, MINIMIZED_STATE);
-            processManager.updateQueueType(item.pid, "Minimized");
+            processManager.updateQueueType(item.pid, "Terminal Minimized");
             processManager.updateAssignedCore(item.pid, -1);
             syncManager.releaseCoreSet(assignedCores);
 
@@ -308,8 +301,6 @@ bool Scheduler::runProcess(
                 item.processName,
                 "Terminal minimized from window controls, process moved to MINIMIZED"
             );
-
-            processManager.updateQueueType(item.pid, "Terminal Minimized");
 
             logger.logSystemEvent(
                 "CPU execution slot released after terminal minimize for PID " + to_string(item.pid)
@@ -542,6 +533,10 @@ void Scheduler::handleTerminalWindowState(
         }
 
         if (pcb.processState != MINIMIZED_STATE) {
+            continue;
+        }
+
+        if (pcb.queueType != "Terminal Minimized") {
             continue;
         }
 
