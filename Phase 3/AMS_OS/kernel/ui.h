@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <cstdlib>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
@@ -301,24 +302,28 @@ namespace UI {
     }
 
     inline bool playSoundFile(const string &path) {
-        string pulseCommand = "paplay \"" + path + "\" >/dev/null 2>&1";
+        if (!std::filesystem::exists(path)) {
+            return false;
+        }
+
+        string pulseCommand = "timeout 2s paplay \"" + path + "\" >/dev/null 2>&1";
         int pulseResult = system(pulseCommand.c_str());
 
         if (pulseResult == 0) {
             return true;
         }
 
-        string alsaCommand = "aplay -q \"" + path + "\" >/dev/null 2>&1";
+        string alsaCommand = "timeout 2s aplay -q \"" + path + "\" >/dev/null 2>&1";
         int alsaResult = system(alsaCommand.c_str());
 
         return alsaResult == 0;
     }
 
-    inline void playCue(const string &cueName) {
+    inline void playCue(const string &cueName, bool allowBellFallback = true) {
         string base = "data/sounds/";
         string path = base + cueName + ".wav";
 
-        if (!playSoundFile(path)) {
+        if (!playSoundFile(path) && allowBellFallback) {
             terminalBell();
         }
     }

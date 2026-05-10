@@ -87,7 +87,7 @@ void bootScreen() {
 
     cout << "\n  " << UI::statusPill("READY", UI::GREEN)
          << " " << UI::paint("System loaded successfully.", UI::WHITE + UI::BOLD) << "\n";
-    UI::playCue("boot");
+    UI::playCue("boot", false);
 }
 
 /*
@@ -1020,7 +1020,7 @@ void shutdownScreen() {
     cout << "  " << UI::paint("IT IS NOW SAFE TO CLOSE AMS OS TERMINAL.", UI::LIGHT_BLUE + UI::BOLD) << "\n";
     cout << "  " << UI::paint("AMS OS shutdown completed successfully.", UI::GREEN + UI::BOLD) << "\n";
     UI::terminalBell();
-    UI::playCue("shutdown");
+    UI::playCue("shutdown", false);
     UI::panelFooter();
 }
 
