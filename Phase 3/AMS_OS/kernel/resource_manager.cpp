@@ -44,16 +44,16 @@ void ResourceManager::initializeResources(int ram, int hdd, int cores) {
     totalCores = cores;
     availableCores = cores;
 
-memoryBlocks.clear();
+    memoryBlocks.clear();
 
-MemoryBlock initialBlock;
-initialBlock.startAddress = 0;
-initialBlock.endAddress = totalRAM;
-initialBlock.pid = -1;
-initialBlock.processName = "FREE";
-initialBlock.isFree = true;
+    MemoryBlock initialBlock;
+    initialBlock.startAddress = 0;
+    initialBlock.endAddress = totalRAM;
+    initialBlock.pid = -1;
+    initialBlock.processName = "FREE";
+    initialBlock.isFree = true;
 
-memoryBlocks.push_back(initialBlock);
+    memoryBlocks.push_back(initialBlock);
 }
 
 /*

@@ -6,9 +6,9 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <fstream>
+#include <filesystem>
 #include <signal.h>
 #include <cerrno>
-#include <cstring>
 #include <vector>
 
 #include "resource_manager.h"
@@ -93,7 +93,7 @@ int readPositiveStartupValue(const string &prompt) {
 /*
 Function: getHardwareResourcesFromStartup
 Purpose: Reads RAM, HDD, and CPU cores before OS boot from command-line arguments
-         or from interactive Xubuntu terminal prompts.
+         or from interactive Ubuntu terminal prompts.
 Parameters: argc, argv, and references to RAM, HDD, and CPU core variables.
 Returns: true if valid resources are provided, otherwise false.
 */
@@ -256,7 +256,7 @@ void showMainMenu(
 
     string terminalBadge;
     if (separateTerminalMode) {
-        terminalBadge = UI::statusPill("XUBUNTU TERMINALS", UI::BLUE);
+        terminalBadge = UI::statusPill("UBUNTU TERMINALS", UI::BLUE);
     } else {
         terminalBadge = UI::statusPill("SCHEDULER CONTROLLED", UI::CYAN);
     }
@@ -376,12 +376,14 @@ void showInstructionGuide(TaskCatalog &taskCatalog) {
     cout << "  2. Child process sends RAM/HDD/CPU request to kernel through IPC pipe.\n";
     cout << "  3. Kernel grants resources, assigns a RAM block, creates PCB, and queues task.\n";
     cout << "  4. Run Scheduler to dispatch ready tasks using multilevel queue scheduling.\n";
-    cout << "  5. Task executes through exec in an Xubuntu terminal by default.\n\n";
+    cout << "  5. Task executes through exec in a GNOME Terminal window by default.\n";
+    cout << "     If GNOME Terminal is unavailable, AMS OS tries other Ubuntu terminal emulators.\n\n";
 
     cout << "  " << UI::paint("Task Controls", UI::BOLD) << "\n";
     cout << "  Close Process   : Menu 21 releases RAM/HDD/CPU and removes PCB.\n";
-    cout << "  Minimize Process: Menu 17 sends interrupt simulation and moves task to BLOCKED.\n";
-    cout << "  Resume Process  : Menu 18 returns BLOCKED task to READY queue.\n";
+    cout << "  Minimize Process: Menu 17 pauses task execution and moves it to MINIMIZED.\n";
+    cout << "  Resume Process  : Menu 18 returns MINIMIZED or BLOCKED tasks to READY.\n";
+    cout << "  Input Interrupt : Menu 27 moves a task to BLOCKED; menu 28 completes it.\n";
     cout << "  Switch Process  : Menu 22 focuses a process already loaded in RAM.\n\n";
 
     cout << "  " << UI::paint("Kernel Tools", UI::BOLD) << "\n";
@@ -628,7 +630,7 @@ IPCResourceResponse childSendResourceRequest(
 /*
 Function: executeTaskExecutable
 Purpose: Executes the selected task either directly under AMS OS scheduler control
-         or inside a separate Xubuntu terminal window based on selected mode.
+         or inside a separate Ubuntu terminal window based on selected mode.
 Parameters: Selected task metadata and separate terminal mode flag.
 Returns: Nothing. If exec succeeds, this function does not return.
 */
@@ -639,8 +641,23 @@ void executeTaskExecutable(TaskInfo selectedTask, bool separateTerminalMode) {
     if (separateTerminalMode) {
         cout << "[CHILD PROCESS] Opening task in separate terminal window.\n";
         cout << "[CHILD PROCESS] Terminal Mode: Separate Terminal\n";
-        cout << "[CHILD PROCESS] Terminal: xfce4-terminal --disable-server\n";
+        cout << "[CHILD PROCESS] Terminal preference: gnome-terminal, xfce4-terminal, x-terminal-emulator\n";
         cout << "[CHILD PROCESS] Executable Path: " << selectedTask.executablePath << "\n";
+
+        execlp(
+            "gnome-terminal",
+            "gnome-terminal",
+            "--title",
+            selectedTask.taskName.c_str(),
+            "--",
+            selectedTask.executablePath.c_str(),
+            selectedTask.taskName.c_str(),
+            NULL
+        );
+
+        if (errno != ENOENT) {
+            perror("[CHILD PROCESS] gnome-terminal failed");
+        }
 
         execlp(
             "xfce4-terminal",
@@ -654,8 +671,23 @@ void executeTaskExecutable(TaskInfo selectedTask, bool separateTerminalMode) {
             NULL
         );
 
-        perror("[CHILD PROCESS] xfce4-terminal failed");
-        cout << "[CHILD PROCESS] Separate terminal launch failed. Terminating this task launch.\n";
+        if (errno != ENOENT) {
+            perror("[CHILD PROCESS] xfce4-terminal failed");
+        }
+
+        execlp(
+            "x-terminal-emulator",
+            "x-terminal-emulator",
+            "-T",
+            selectedTask.taskName.c_str(),
+            "-e",
+            selectedTask.executablePath.c_str(),
+            selectedTask.taskName.c_str(),
+            NULL
+        );
+
+        perror("[CHILD PROCESS] x-terminal-emulator failed");
+        cout << "[CHILD PROCESS] Separate terminal launch failed. Install gnome-terminal or x-terminal-emulator.\n";
         exit(1);
     }
 
@@ -762,22 +794,22 @@ void launchTaskUsingIPCForkTest(
             exit(2);
         }
 
-       cout << "[CHILD PROCESS] Resource request granted by kernel.\n";
-	cout << "[CHILD PROCESS] Process is now waiting for scheduler dispatch.\n";
+        cout << "[CHILD PROCESS] Resource request granted by kernel.\n";
+        cout << "[CHILD PROCESS] Process is now waiting for scheduler dispatch.\n";
 
-	raise(SIGSTOP);
+        raise(SIGSTOP);
 
-	cout << "[CHILD PROCESS] Scheduler resumed this process.\n";
-	cout << "[CHILD PROCESS] Loading task executable in separate terminal using exec.\n";
+        cout << "[CHILD PROCESS] Scheduler resumed this process.\n";
+        cout << "[CHILD PROCESS] Loading task executable in separate terminal using exec.\n";
 
-	executeTaskExecutable(selectedTask, separateTerminalMode);
-}
+        executeTaskExecutable(selectedTask, separateTerminalMode);
+    }
 
-   	close(requestPipe[1]);
-   	close(responsePipe[0]);
+    close(requestPipe[1]);
+    close(responsePipe[0]);
 
     IPCResourceRequest request;
-   IPCResourceResponse response;
+    IPCResourceResponse response;
 
     memset(&request, 0, sizeof(request));
     memset(&response, 0, sizeof(response));
@@ -799,86 +831,93 @@ void launchTaskUsingIPCForkTest(
         response.granted = 1;
 
         cout << "\n[KERNEL/PARENT] Resources available. Granting request.\n";
-	int memoryStart = -1;
-int memoryEnd = -1;
 
-bool memoryAllocated = resourceManager.allocateMemoryBlock(
-    pid,
-    request.processName,
-    request.ramRequired,
-    memoryStart,
-    memoryEnd
-);
+        int memoryStart = -1;
+        int memoryEnd = -1;
 
-if (!memoryAllocated) {
-    response.granted = 0;
+        bool memoryAllocated = resourceManager.allocateMemoryBlock(
+            pid,
+            request.processName,
+            request.ramRequired,
+            memoryStart,
+            memoryEnd
+        );
 
-    cout << "\n[KERNEL/PARENT] RAM block allocation failed. Denying request.\n";
+        if (!memoryAllocated) {
+            response.granted = 0;
 
-    logger.logResourceEvent(
-        "RAM block allocation failed for " + string(request.processName)
-    );
+            cout << "\n[KERNEL/PARENT] RAM block allocation failed. Denying request.\n";
 
-    write(responsePipe[1], &response, sizeof(response));
+            logger.logResourceEvent(
+                "RAM block allocation failed for " + string(request.processName)
+            );
 
-    close(requestPipe[0]);
-    close(responsePipe[1]);
+            write(responsePipe[1], &response, sizeof(response));
 
-    int status;
-    waitpid(pid, &status, 0);
+            close(requestPipe[0]);
+            close(responsePipe[1]);
 
-    return;
-}
+            int status;
+            waitpid(pid, &status, 0);
+
+            return;
+        }
+
         resourceManager.allocateResources(
             request.ramRequired,
             request.hddRequired,
             request.coresRequired
         );
-	logger.logResourceEvent(
-	    "Resources granted to " + string(request.processName) +
-	    " | RAM: " + to_string(request.ramRequired) +
-	    "MB | HDD: " + to_string(request.hddRequired) +
-	    "MB | CPU: " + to_string(request.coresRequired)
-	);
-       processManager.createPCB(
-	    pid,
-	    request.processName,
-	    static_cast<ProcessType>(request.processType),
-	    request.priority,
-	    request.ramRequired,
-	    request.hddRequired,
-	    request.coresRequired);
-processManager.updateMemoryBlock(pid, memoryStart, memoryEnd);
 
-logger.logResourceEvent(
-    "RAM block assigned to PID " + to_string(pid) +
-    " | " + string(request.processName) +
-    " | Start: " + to_string(memoryStart) +
-    "MB | End: " + to_string(memoryEnd) + "MB"
-);
+        logger.logResourceEvent(
+            "Resources granted to " + string(request.processName) +
+            " | RAM: " + to_string(request.ramRequired) +
+            "MB | HDD: " + to_string(request.hddRequired) +
+            "MB | CPU: " + to_string(request.coresRequired)
+        );
 
-logger.logProcessEvent(pid, request.processName, "PCB Created");
+        processManager.createPCB(
+            pid,
+            request.processName,
+            static_cast<ProcessType>(request.processType),
+            request.priority,
+            request.ramRequired,
+            request.hddRequired,
+            request.coresRequired
+        );
 
-processManager.updateProcessState(pid, READY_STATE);
-processManager.updateQueueType(pid, readyQueueManager.getQueueName(request.priority));
+        processManager.updateMemoryBlock(pid, memoryStart, memoryEnd);
 
-readyQueueManager.addProcessToReadyQueue(
-    pid,
-    request.processName,
-    static_cast<ProcessType>(request.processType),
-    request.priority
-);
-syncManager.notifyReadyQueue();
+        logger.logResourceEvent(
+            "RAM block assigned to PID " + to_string(pid) +
+            " | " + string(request.processName) +
+            " | Start: " + to_string(memoryStart) +
+            "MB | End: " + to_string(memoryEnd) + "MB"
+        );
 
-logger.logProcessEvent(pid, request.processName, "Added to Ready Queue");
-cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
-readyQueueManager.displayReadyQueues();
+        logger.logProcessEvent(pid, request.processName, "PCB Created");
+
+        processManager.updateProcessState(pid, READY_STATE);
+        processManager.updateQueueType(pid, readyQueueManager.getQueueName(request.priority));
+
+        readyQueueManager.addProcessToReadyQueue(
+            pid,
+            request.processName,
+            static_cast<ProcessType>(request.processType),
+            request.priority
+        );
+
+        syncManager.notifyReadyQueue();
+
+        logger.logProcessEvent(pid, request.processName, "Added to Ready Queue");
+        cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
+        readyQueueManager.displayReadyQueues();
 
     } else {
         response.granted = 0;
 
         cout << "\n[KERNEL/PARENT] Resources unavailable. Denying request.\n";
-	logger.logResourceEvent("Resources denied for process " + string(request.processName));
+        logger.logResourceEvent("Resources denied for process " + string(request.processName));
     }
 
     write(responsePipe[1], &response, sizeof(response));
@@ -888,25 +927,25 @@ readyQueueManager.displayReadyQueues();
 
     int status;
 
-	if (response.granted == 1) {
-	    waitpid(pid, &status, WUNTRACED);
+    if (response.granted == 1) {
+        waitpid(pid, &status, WUNTRACED);
 
-	    if (WIFSTOPPED(status)) {
-		cout << "\n[KERNEL/PARENT] Child process is paused and waiting in ready queue.\n";
-		cout << "[KERNEL/PARENT] Run scheduler from menu to execute this process.\n";
-	    }
+        if (WIFSTOPPED(status)) {
+            cout << "\n[KERNEL/PARENT] Child process is paused and waiting in ready queue.\n";
+            cout << "[KERNEL/PARENT] Run scheduler from menu to execute this process.\n";
+        }
 
-	    cout << "\n[KERNEL/PARENT] Current PCB Table:\n";
-	    processManager.displayPCBTable();
+        cout << "\n[KERNEL/PARENT] Current PCB Table:\n";
+        processManager.displayPCBTable();
 
-	    cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
-	    readyQueueManager.displayReadyQueues();
-	} else {
-	    waitpid(pid, &status, 0);
+        cout << "\n[KERNEL/PARENT] Current Ready Queue Status:\n";
+        readyQueueManager.displayReadyQueues();
+    } else {
+        waitpid(pid, &status, 0);
 
-	    cout << "\n[KERNEL/PARENT] Denied child process has terminated.\n";
-	    resourceManager.displayResources();
-	}
+        cout << "\n[KERNEL/PARENT] Denied child process has terminated.\n";
+        resourceManager.displayResources();
+    }
 }
 
 /*
@@ -936,9 +975,14 @@ Parameters: None.
 Returns: Nothing.
 */
 void createRequiredDirectories() {
-    system("mkdir -p build");
-    system("mkdir -p data");
-    system("mkdir -p data/virtual_disk");
+    try {
+        filesystem::create_directories("build");
+        filesystem::create_directories("data");
+        filesystem::create_directories("data/virtual_disk");
+    } catch (const filesystem::filesystem_error &error) {
+        cout << "[AMS OS] Failed to create required directories: "
+             << error.what() << "\n";
+    }
 }
 
 /*
@@ -1037,41 +1081,42 @@ void kernelKillProcess(
         return;
     }
 
-   cout << "\n[KERNEL] Sending force termination signal to PID: " << pid << "\n";
+    cout << "\n[KERNEL] Sending force termination signal to PID: " << pid << "\n";
 
-	/*
-	Reason:
-	The process may be paused with SIGSTOP while waiting in the ready queue.
-	SIGTERM may not terminate a stopped process immediately, so the program can get stuck at waitpid().
-	SIGKILL is used here because Kernel Mode Process Killer should forcefully terminate the process.
-	*/
-	int killResult = sendSignalToProcessGroup(pid, SIGKILL) ? 0 : -1;
+    /*
+    Reason:
+    The process may be paused with SIGSTOP while waiting in the ready queue.
+    SIGTERM may not terminate a stopped process immediately, so the program can get stuck at waitpid().
+    SIGKILL is used here because Kernel Mode Process Killer should forcefully terminate the process.
+    */
+    int killResult = sendSignalToProcessGroup(pid, SIGKILL) ? 0 : -1;
 
-	if (killResult == 0) {
-	    int status;
-	    int waitResult = waitpid(pid, &status, WNOHANG);
+    if (killResult == 0) {
+        int status;
+        int waitResult = waitpid(pid, &status, WNOHANG);
 
-	    if (waitResult == 0) {
-		cout << "[KERNEL] Process kill signal sent. Waiting briefly for cleanup.\n";
-		sleep(1);
-		waitResult = waitpid(pid, &status, WNOHANG);
-	    }
+        if (waitResult == 0) {
+            cout << "[KERNEL] Process kill signal sent. Waiting briefly for cleanup.\n";
+            sleep(1);
+            waitResult = waitpid(pid, &status, WNOHANG);
+        }
 
-	    if (waitResult == pid) {
-		cout << "[KERNEL] Process terminated successfully using SIGKILL.\n";
-		logger.logProcessEvent(pid, pcb.processName, "Terminated by Kernel Mode using SIGKILL");
-	    } else {
-		cout << "[KERNEL] Kill signal sent, but process was not collected immediately.\n";
-		cout << "[KERNEL] Continuing AMS OS cleanup to avoid blocking.\n";
-		logger.logProcessEvent(pid, pcb.processName, "SIGKILL sent, non-blocking cleanup continued");
-	    }
-	} else {
-	    cout << "[KERNEL] Could not send SIGKILL.\n";
-	    cout << "[KERNEL] Error: " << strerror(errno) << "\n";
-	    cout << "[KERNEL] Cleaning AMS OS PCB and resource records only.\n";
+        if (waitResult == pid) {
+            cout << "[KERNEL] Process terminated successfully using SIGKILL.\n";
+            logger.logProcessEvent(pid, pcb.processName, "Terminated by Kernel Mode using SIGKILL");
+        } else {
+            cout << "[KERNEL] Kill signal sent, but process was not collected immediately.\n";
+            cout << "[KERNEL] Continuing AMS OS cleanup to avoid blocking.\n";
+            logger.logProcessEvent(pid, pcb.processName, "SIGKILL sent, non-blocking cleanup continued");
+        }
+    } else {
+        cout << "[KERNEL] Could not send SIGKILL.\n";
+        cout << "[KERNEL] Error: " << strerror(errno) << "\n";
+        cout << "[KERNEL] Cleaning AMS OS PCB and resource records only.\n";
 
-	    logger.logProcessEvent(pid, pcb.processName, "SIGKILL failed, cleaning AMS OS records");
-	}
+        logger.logProcessEvent(pid, pcb.processName, "SIGKILL failed, cleaning AMS OS records");
+    }
+
     readyQueueManager.removeProcessByPID(pid);
 
     processManager.updateProcessState(pid, TERMINATED_STATE);
@@ -1444,7 +1489,7 @@ void gracefulShutdownCleanup(
 
         int status;
         waitpid(pid, &status, WNOHANG);
-	resourceManager.releaseMemoryBlock(pid);
+        resourceManager.releaseMemoryBlock(pid);
         resourceManager.releaseResources(
             pcb.ramRequired,
             pcb.hddRequired,
@@ -1557,9 +1602,9 @@ void autoStartTask(
         raise(SIGSTOP);
 
         cout << "[CHILD STARTUP] Scheduler resumed " << startupLabel << ".\n";
-	cout << "[CHILD STARTUP] Loading startup task using exec.\n";
+        cout << "[CHILD STARTUP] Loading startup task using exec.\n";
 
-	executeTaskExecutable(startupTask, separateTerminalMode);
+        executeTaskExecutable(startupTask, separateTerminalMode);
     }
 
     close(requestPipe[1]);
@@ -1588,37 +1633,39 @@ void autoStartTask(
         response.granted = 1;
 
         cout << "[KERNEL/PARENT] Resources available. Auto-start request granted.\n";
-int memoryStart = -1;
-int memoryEnd = -1;
 
-bool memoryAllocated = resourceManager.allocateMemoryBlock(
-    pid,
-    request.processName,
-    request.ramRequired,
-    memoryStart,
-    memoryEnd
-);
+        int memoryStart = -1;
+        int memoryEnd = -1;
 
-if (!memoryAllocated) {
-    response.granted = 0;
+        bool memoryAllocated = resourceManager.allocateMemoryBlock(
+            pid,
+            request.processName,
+            request.ramRequired,
+            memoryStart,
+            memoryEnd
+        );
 
-    cout << "\n[KERNEL/PARENT] RAM block allocation failed for auto-start "
-         << startupLabel << ".\n";
+        if (!memoryAllocated) {
+            response.granted = 0;
 
-    logger.logResourceEvent(
-        "Auto-start RAM block allocation failed for " + string(request.processName)
-    );
+            cout << "\n[KERNEL/PARENT] RAM block allocation failed for auto-start "
+                 << startupLabel << ".\n";
 
-    write(responsePipe[1], &response, sizeof(response));
+            logger.logResourceEvent(
+                "Auto-start RAM block allocation failed for " + string(request.processName)
+            );
 
-    close(requestPipe[0]);
-    close(responsePipe[1]);
+            write(responsePipe[1], &response, sizeof(response));
 
-    int status;
-    waitpid(pid, &status, 0);
+            close(requestPipe[0]);
+            close(responsePipe[1]);
 
-    return;
-}
+            int status;
+            waitpid(pid, &status, 0);
+
+            return;
+        }
+
         resourceManager.allocateResources(
             request.ramRequired,
             request.hddRequired,
@@ -1641,15 +1688,17 @@ if (!memoryAllocated) {
             request.hddRequired,
             request.coresRequired
         );
-	processManager.updateMemoryBlock(pid, memoryStart, memoryEnd);
 
-	logger.logResourceEvent(
-	    "RAM block assigned to auto-start PID " + to_string(pid) +
-	    " | " + string(request.processName) +
-	    " | Start: " + to_string(memoryStart) +
-	    "MB | End: " + to_string(memoryEnd) + "MB"
-	);
-		logger.logProcessEvent(pid, request.processName, "Auto-start PCB created");
+        processManager.updateMemoryBlock(pid, memoryStart, memoryEnd);
+
+        logger.logResourceEvent(
+            "RAM block assigned to auto-start PID " + to_string(pid) +
+            " | " + string(request.processName) +
+            " | Start: " + to_string(memoryStart) +
+            "MB | End: " + to_string(memoryEnd) + "MB"
+        );
+
+        logger.logProcessEvent(pid, request.processName, "Auto-start PCB created");
 
         processManager.updateProcessState(pid, READY_STATE);
         processManager.updateQueueType(pid, readyQueueManager.getQueueName(request.priority));
@@ -2026,58 +2075,59 @@ int main(int argc, char* argv[]) {
 
     bootScreen();
 
-        ResourceManager resourceManager(ram, hdd, cores);
-	ProcessManager processManager;
-	TaskCatalog taskCatalog;
-	ReadyQueueManager readyQueueManager;
-	Scheduler scheduler;
-	DeadlockManager deadlockManager;
-	Logger logger;
-	SyncManager syncManager(cores);
-	logger.logSystemEvent("AMS OS Booted");
+    ResourceManager resourceManager(ram, hdd, cores);
+    ProcessManager processManager;
+    TaskCatalog taskCatalog;
+    ReadyQueueManager readyQueueManager;
+    Scheduler scheduler;
+    DeadlockManager deadlockManager;
+    Logger logger;
+    SyncManager syncManager(cores);
+
+    logger.logSystemEvent("AMS OS Booted");
     UI::sectionTitle("Startup Summary");
     UI::keyValue("Resource Manager", "Initialized");
-	UI::keyValue("Loaded Tasks", to_string(taskCatalog.getTaskCount()));
-	resourceManager.displayResources();
+    UI::keyValue("Loaded Tasks", to_string(taskCatalog.getTaskCount()));
+    resourceManager.displayResources();
 
-	syncManager.startResourceMonitor(resourceManager, logger);
+    syncManager.startResourceMonitor(resourceManager, logger);
 
-	autoStartTask(
-	    8,
-	    "Digital Clock",
-	    taskCatalog,
-	    processManager,
-	    resourceManager,
-	    readyQueueManager,
-	    logger,
-	    syncManager,
-	    separateTerminalMode
-	);
+    autoStartTask(
+        8,
+        "Digital Clock",
+        taskCatalog,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger,
+        syncManager,
+        separateTerminalMode
+    );
 
-	autoStartTask(
-	    16,
-	    "Calendar",
-	    taskCatalog,
-	    processManager,
-	    resourceManager,
-	    readyQueueManager,
-	    logger,
-	    syncManager,
-	    separateTerminalMode
-	);
+    autoStartTask(
+        16,
+        "Calendar",
+        taskCatalog,
+        processManager,
+        resourceManager,
+        readyQueueManager,
+        logger,
+        syncManager,
+        separateTerminalMode
+    );
 
-	if (readyQueueManager.hasReadyProcess()) {
-	    UI::sectionTitle("Auto-start Dispatch");
-	    cout << "Dispatching startup tasks so clock and calendar run immediately after boot.\n";
+    if (readyQueueManager.hasReadyProcess()) {
+        UI::sectionTitle("Auto-start Dispatch");
+        cout << "Dispatching startup tasks so clock and calendar run immediately after boot.\n";
 
-	    scheduler.runScheduler(
-		    processManager,
-		    resourceManager,
-		    readyQueueManager,
-		    logger,
-		    syncManager
-		);
-	}
+        scheduler.runScheduler(
+            processManager,
+            resourceManager,
+            readyQueueManager,
+            logger,
+            syncManager
+        );
+    }
 
     do {
         showMainMenu(
@@ -2101,200 +2151,196 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 3:
-    		launchTaskUsingIPCForkTest(
-			    taskCatalog,
-			    processManager,
-			    resourceManager,
-			    readyQueueManager,
-			    logger,
-			    syncManager,
-			    separateTerminalMode
-			);
-    		break;
+                launchTaskUsingIPCForkTest(
+                    taskCatalog,
+                    processManager,
+                    resourceManager,
+                    readyQueueManager,
+                    logger,
+                    syncManager,
+                    separateTerminalMode
+                );
+                break;
 
             case 4:
                 resourceManager.displayResources();
                 break;
 
             case 5:
-		    if (currentMode == KERNEL_MODE) {
-			testResourceAllocation(resourceManager);
-		    } else {
-            UI::errorLine("Access denied. Resource allocation test requires Kernel Mode.");
-		    }
-		    break;
+                if (currentMode == KERNEL_MODE) {
+                    testResourceAllocation(resourceManager);
+                } else {
+                    UI::errorLine("Access denied. Resource allocation test requires Kernel Mode.");
+                }
+                break;
 
-           case 6:
-		    if (currentMode == KERNEL_MODE) {
-			testResourceRelease(resourceManager);
-		    } else {
-            UI::errorLine("Access denied. Resource release test requires Kernel Mode.");
-		    }
-		    break;
+            case 6:
+                if (currentMode == KERNEL_MODE) {
+                    testResourceRelease(resourceManager);
+                } else {
+                    UI::errorLine("Access denied. Resource release test requires Kernel Mode.");
+                }
+                break;
 
             case 7:
                 processManager.displayPCBTable();
                 break;
 
             case 8:
-		    if (currentMode == KERNEL_MODE) {
-			testDummyPCBCreation(processManager);
-		    } else {
-            UI::errorLine("Access denied. Dummy PCB creation requires Kernel Mode.");
-		    }
-		    break;
+                if (currentMode == KERNEL_MODE) {
+                    testDummyPCBCreation(processManager);
+                } else {
+                    UI::errorLine("Access denied. Dummy PCB creation requires Kernel Mode.");
+                }
+                break;
 
             case 9:
-		    if (currentMode == KERNEL_MODE) {
-			testProcessStateUpdate(processManager);
-		    } else {
-            UI::errorLine("Access denied. Process state update requires Kernel Mode.");
-		    }
-		    break;
+                if (currentMode == KERNEL_MODE) {
+                    testProcessStateUpdate(processManager);
+                } else {
+                    UI::errorLine("Access denied. Process state update requires Kernel Mode.");
+                }
+                break;
 
             case 10:
-		    if (currentMode == KERNEL_MODE) {
-			testPCBRemoval(processManager);
-		    } else {
-            UI::errorLine("Access denied. PCB removal requires Kernel Mode.");
-		    }
-		    break;
+                if (currentMode == KERNEL_MODE) {
+                    testPCBRemoval(processManager);
+                } else {
+                    UI::errorLine("Access denied. PCB removal requires Kernel Mode.");
+                }
+                break;
 
             case 11:
-		    scheduler.runScheduler(
-			    processManager,
-			    resourceManager,
-			    readyQueueManager,
-			    logger,
-			    syncManager
-			);
-		    break;
-		   
-	    case 12:
-	        readyQueueManager.displayReadyQueues();
-	        break;
-           case 13:
-		    if (authenticateKernelMode()) {
-			currentMode = KERNEL_MODE;
-			logger.logSystemEvent("Switched to Kernel Mode");
-		    } else {
-			logger.logSystemEvent("Failed Kernel Mode authentication attempt");
-		    }
-		    break;
-	   case 14:
-		    currentMode = USER_MODE;
-		    logger.logSystemEvent("Switched to User Mode");
-		    cout << "\nSwitched back to User Mode.\n";
-		    break;
-           case 15:
-		    if (currentMode == KERNEL_MODE) {
-			viewSystemLog();
-			logger.logSystemEvent("System log viewed in Kernel Mode");
-		    } else {
-            UI::errorLine("Access denied. System logs can only be viewed in Kernel Mode.");
-			logger.logSystemEvent("User Mode tried to access system log");
-		    }
-		    break;
-	   case 16:
-		    if (currentMode == KERNEL_MODE) {
-			kernelKillProcess(
-			    processManager,
-			    resourceManager,
-			    readyQueueManager,
-			    logger
-			);
-		    } else {
-            UI::errorLine("Access denied. Process Killer can only be used in Kernel Mode.");
-			logger.logSystemEvent("User Mode tried to access Process Killer");
-		    }
-		    break;
-          case 17:
-	    minimizeProcess(
-		processManager,
-		readyQueueManager,
-		logger
-	    );
-	    break;
+                scheduler.runScheduler(
+                    processManager,
+                    resourceManager,
+                    readyQueueManager,
+                    logger,
+                    syncManager
+                );
+                break;
 
-	  case 18:
-	    resumeProcess(
-		    processManager,
-		    readyQueueManager,
-		    logger,
-		    syncManager
-		);
-	    break;
-	  case 19:
-	    if (currentMode == KERNEL_MODE) {
-		runDeadlockDetectionSimulation(
-		    processManager,
-		    resourceManager,
-		    readyQueueManager,
-		    deadlockManager,
-		    logger
-		);
-	    } else {
-        UI::errorLine("Access denied. Deadlock detection can only be used in Kernel Mode.");
-		logger.logSystemEvent("User Mode tried to access Deadlock Detection");
-	    }
-	    break;
-	  case 20:
-	    resourceManager.displayMemoryLayout();
-	    break;
-          case 21:
-	    closeProcess(
-		processManager,
-		resourceManager,
-		readyQueueManager,
-		logger
-	    );
-	    break;
-	  case 22:
-	    switchToProcess(
-		processManager,
-		readyQueueManager,
-		logger,
-		syncManager
-	    );
-	    break;
-          case 23:
-        separateTerminalMode = true;
-	    UI::panelHeader("Task Execution Mode", "Locked");
-	    UI::keyValue("Current Mode", "Separate Terminal Mode");
-	    UI::infoLine("Each task will run in its own terminal window.");
-	    UI::panelFooter();
-	    logger.logSystemEvent("Task execution mode confirmed as Separate Terminal Mode (locked)");
-	    break;
-          case 24:
-            showInstructionGuide(taskCatalog);
-            break;
-          case 25:
-            processManager.displayProcessesByState(RUNNING_STATE, "Running Tasks List");
-            break;
-          case 26:
-            processManager.displayProcessesByState(MINIMIZED_STATE, "Minimized Tasks List");
-            break;
-          case 27:
-            handleInputInterrupt(processManager, readyQueueManager, logger);
-            break;
-          case 28:
-            completeInterrupt(processManager, readyQueueManager, logger, syncManager);
-            break;
-          case 0:
-	    logger.logSystemEvent("AMS OS shutdown requested");
-	    syncManager.stopResourceMonitor();
-            logger.logSystemEvent("Resource monitor thread stopped");
-	    gracefulShutdownCleanup(
-		processManager,
-		resourceManager,
-		readyQueueManager,
-		logger
-	    );
+            case 12:
+                readyQueueManager.displayReadyQueues();
+                break;
 
-	    shutdownScreen();
+            case 13:
+                if (authenticateKernelMode()) {
+                    currentMode = KERNEL_MODE;
+                    logger.logSystemEvent("Switched to Kernel Mode");
+                } else {
+                    logger.logSystemEvent("Failed Kernel Mode authentication attempt");
+                }
+                break;
 
-	    logger.logSystemEvent("AMS OS shutdown completed");
-	    break;
+            case 14:
+                currentMode = USER_MODE;
+                logger.logSystemEvent("Switched to User Mode");
+                cout << "\nSwitched back to User Mode.\n";
+                break;
+
+            case 15:
+                if (currentMode == KERNEL_MODE) {
+                    viewSystemLog();
+                    logger.logSystemEvent("System log viewed in Kernel Mode");
+                } else {
+                    UI::errorLine("Access denied. System logs can only be viewed in Kernel Mode.");
+                    logger.logSystemEvent("User Mode tried to access system log");
+                }
+                break;
+
+            case 16:
+                if (currentMode == KERNEL_MODE) {
+                    kernelKillProcess(
+                        processManager,
+                        resourceManager,
+                        readyQueueManager,
+                        logger
+                    );
+                } else {
+                    UI::errorLine("Access denied. Process Killer can only be used in Kernel Mode.");
+                    logger.logSystemEvent("User Mode tried to access Process Killer");
+                }
+                break;
+
+            case 17:
+                minimizeProcess(processManager, readyQueueManager, logger);
+                break;
+
+            case 18:
+                resumeProcess(processManager, readyQueueManager, logger, syncManager);
+                break;
+
+            case 19:
+                if (currentMode == KERNEL_MODE) {
+                    runDeadlockDetectionSimulation(
+                        processManager,
+                        resourceManager,
+                        readyQueueManager,
+                        deadlockManager,
+                        logger
+                    );
+                } else {
+                    UI::errorLine("Access denied. Deadlock detection can only be used in Kernel Mode.");
+                    logger.logSystemEvent("User Mode tried to access Deadlock Detection");
+                }
+                break;
+
+            case 20:
+                resourceManager.displayMemoryLayout();
+                break;
+
+            case 21:
+                closeProcess(processManager, resourceManager, readyQueueManager, logger);
+                break;
+
+            case 22:
+                switchToProcess(processManager, readyQueueManager, logger, syncManager);
+                break;
+
+            case 23:
+                separateTerminalMode = true;
+                UI::panelHeader("Task Execution Mode", "Locked");
+                UI::keyValue("Current Mode", "Separate Terminal Mode");
+                UI::infoLine("Each task will run in its own Ubuntu terminal window.");
+                UI::panelFooter();
+                logger.logSystemEvent("Task execution mode confirmed as Separate Terminal Mode (locked)");
+                break;
+
+            case 24:
+                showInstructionGuide(taskCatalog);
+                break;
+
+            case 25:
+                processManager.displayProcessesByState(RUNNING_STATE, "Running Tasks List");
+                break;
+
+            case 26:
+                processManager.displayProcessesByState(MINIMIZED_STATE, "Minimized Tasks List");
+                break;
+
+            case 27:
+                handleInputInterrupt(processManager, readyQueueManager, logger);
+                break;
+
+            case 28:
+                completeInterrupt(processManager, readyQueueManager, logger, syncManager);
+                break;
+
+            case 0:
+                logger.logSystemEvent("AMS OS shutdown requested");
+                syncManager.stopResourceMonitor();
+                logger.logSystemEvent("Resource monitor thread stopped");
+                gracefulShutdownCleanup(
+                    processManager,
+                    resourceManager,
+                    readyQueueManager,
+                    logger
+                );
+                shutdownScreen();
+                logger.logSystemEvent("AMS OS shutdown completed");
+                break;
+
             default:
                 UI::errorLine("Invalid choice. Please select a valid option from the menu.");
         }

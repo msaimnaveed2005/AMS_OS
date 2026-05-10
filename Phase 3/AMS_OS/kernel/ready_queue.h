@@ -21,21 +21,23 @@ private:
     queue<ReadyQueueItem> systemQueue;
     queue<ReadyQueueItem> interactiveQueue;
     queue<ReadyQueueItem> backgroundQueue;
-/*
-Function: insertAgedProcess
-Purpose: Inserts process into a queue based on improved priority.
-Parameters: ReadyQueueItem.
-Returns: Nothing.
-*/
-void insertAgedProcess(ReadyQueueItem item);
 
-/*
-Function: removeFromQueueByPID
-Purpose: Removes a process from a specific queue using PID.
-Parameters: Queue reference and PID.
-Returns: true if process is removed, otherwise false.
-*/
-bool removeFromQueueByPID(queue<ReadyQueueItem> &targetQueue, int pid);
+    /*
+    Function: insertAgedProcess
+    Purpose: Inserts process into a queue based on improved priority.
+    Parameters: ReadyQueueItem.
+    Returns: Nothing.
+    */
+    void insertAgedProcess(ReadyQueueItem item);
+
+    /*
+    Function: removeFromQueueByPID
+    Purpose: Removes a process from a specific queue using PID.
+    Parameters: Queue reference and PID.
+    Returns: true if process is removed, otherwise false.
+    */
+    bool removeFromQueueByPID(queue<ReadyQueueItem> &targetQueue, int pid);
+
 public:
     /*
     Function: ReadyQueueManager
@@ -162,31 +164,29 @@ public:
     */
     string getQueueName(int priority);
 
+    /*
+    Function: removeProcessByPID
+    Purpose: Removes a process from all ready queues using PID.
+    Parameters: PID.
+    Returns: true if process was found and removed, otherwise false.
+    */
+    bool removeProcessByPID(int pid);
 
-	/*
-	Function: removeProcessByPID
-	Purpose: Removes a process from all ready queues using PID.
-	Parameters: PID.
-	Returns: true if process was found and removed, otherwise false.
-	*/
-	bool removeProcessByPID(int pid);
+    /*
+    Function: applyAging
+    Purpose: Applies aging to all waiting processes in ready queues.
+    Parameters: ProcessManager reference, Logger reference, and aging threshold.
+    Returns: Nothing.
+    */
+    void applyAging(ProcessManager &processManager, Logger &logger, int agingThreshold);
 
-	/*
-	Function: applyAging
-	Purpose: Applies aging to all waiting processes in ready queues.
-	Parameters: ProcessManager reference, Logger reference, and aging threshold.
-	Returns: Nothing.
-	*/
-	void applyAging(ProcessManager &processManager, Logger &logger, int agingThreshold);
-
-
-/*
-Function: clearAllQueues
-Purpose: Removes all processes from all ready queues.
-Parameters: None.
-Returns: Nothing.
-*/
-void clearAllQueues();
+    /*
+    Function: clearAllQueues
+    Purpose: Removes all processes from all ready queues.
+    Parameters: None.
+    Returns: Nothing.
+    */
+    void clearAllQueues();
 };
 
 #endif

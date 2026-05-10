@@ -35,11 +35,12 @@ public:
     Returns: Nothing.
     */
     void runScheduler(
-    ProcessManager &processManager,
-    ResourceManager &resourceManager,
-    ReadyQueueManager &readyQueueManager,
-    Logger &logger,
-    SyncManager &syncManager);
+        ProcessManager &processManager,
+        ResourceManager &resourceManager,
+        ReadyQueueManager &readyQueueManager,
+        Logger &logger,
+        SyncManager &syncManager
+    );
 
     /*
     Function: runProcess
@@ -48,13 +49,13 @@ public:
     Returns: true if process finished, otherwise false.
     */
     bool runProcess(
-    ReadyQueueItem item,
-    ProcessManager &processManager,
-    ResourceManager &resourceManager,
-    ReadyQueueManager &readyQueueManager,
-    Logger &logger,
-    SyncManager &syncManager
-);
+        ReadyQueueItem item,
+        ProcessManager &processManager,
+        ResourceManager &resourceManager,
+        ReadyQueueManager &readyQueueManager,
+        Logger &logger,
+        SyncManager &syncManager
+    );
 
     /*
     Function: releaseCompletedProcess
@@ -66,7 +67,7 @@ public:
         int pid,
         ProcessManager &processManager,
         ResourceManager &resourceManager,
-	Logger &logger
+        Logger &logger
     );
 
     /*

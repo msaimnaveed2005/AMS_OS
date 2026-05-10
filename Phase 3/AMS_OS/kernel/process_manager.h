@@ -111,46 +111,46 @@ public:
     Returns: true if process exists, otherwise false.
     */
     bool processExists(int pid);
-	/*
-	Function: getPCB
-	Purpose: Finds a PCB by PID and copies it into the reference variable.
-	Parameters: PID and PCB reference variable.
-	Returns: true if PCB exists, otherwise false.
-	*/
-	bool getPCB(int pid, PCB &pcb);
 
-/*
-Function: incrementWaitingTime
-Purpose: Increases waiting time of a process by one unit.
-Parameters: PID.
-Returns: true if waiting time is updated, otherwise false.
-*/
-bool incrementWaitingTime(int pid);
+    /*
+    Function: getPCB
+    Purpose: Finds a PCB by PID and copies it into the reference variable.
+    Parameters: PID and PCB reference variable.
+    Returns: true if PCB exists, otherwise false.
+    */
+    bool getPCB(int pid, PCB &pcb);
 
-/*
-Function: resetWaitingTime
-Purpose: Resets waiting time of a process to zero.
-Parameters: PID.
-Returns: true if waiting time is reset, otherwise false.
-*/
-bool resetWaitingTime(int pid);
+    /*
+    Function: incrementWaitingTime
+    Purpose: Increases waiting time of a process by one unit.
+    Parameters: PID.
+    Returns: true if waiting time is updated, otherwise false.
+    */
+    bool incrementWaitingTime(int pid);
 
-/*
-Function: improvePriority
-Purpose: Improves process priority by reducing priority number.
-Parameters: PID.
-Returns: true if priority is improved, otherwise false.
-*/
-bool improvePriority(int pid);
+    /*
+    Function: resetWaitingTime
+    Purpose: Resets waiting time of a process to zero.
+    Parameters: PID.
+    Returns: true if waiting time is reset, otherwise false.
+    */
+    bool resetWaitingTime(int pid);
 
-/*
-Function: updateProcessPriority
-Purpose: Updates process priority manually.
-Parameters: PID and new priority.
-Returns: true if priority is updated, otherwise false.
-*/
-bool updateProcessPriority(int pid, int newPriority);
+    /*
+    Function: improvePriority
+    Purpose: Improves process priority by reducing priority number.
+    Parameters: PID.
+    Returns: true if priority is improved, otherwise false.
+    */
+    bool improvePriority(int pid);
 
+    /*
+    Function: updateProcessPriority
+    Purpose: Updates process priority manually.
+    Parameters: PID and new priority.
+    Returns: true if priority is updated, otherwise false.
+    */
+    bool updateProcessPriority(int pid, int newPriority);
 
     /*
     Function: displayPCBTable
@@ -177,12 +177,12 @@ bool updateProcessPriority(int pid, int newPriority);
     string getProcessStateName(ProcessState state);
 
     /*
-	Function: getAllPIDs
-	Purpose: Returns all process IDs currently stored in PCB table.
-	Parameters: None.
-	Returns: Vector of process IDs.
-	*/
-	vector<int> getAllPIDs();
+    Function: getAllPIDs
+    Purpose: Returns all process IDs currently stored in PCB table.
+    Parameters: None.
+    Returns: Vector of process IDs.
+    */
+    vector<int> getAllPIDs();
 
     /*
     Function: getProcessCount
@@ -199,45 +199,45 @@ bool updateProcessPriority(int pid, int newPriority);
     Returns: Process count for that state.
     */
     int getProcessStateCount(ProcessState state);
-/*
-Function: updateMemoryBlock
-Purpose: Updates the memory start and end address of a process.
-Parameters: PID, memory start, and memory end.
-Returns: true if memory block is updated, otherwise false.
-*/
-bool updateMemoryBlock(int pid, int memoryStart, int memoryEnd);
+    /*
+    Function: updateMemoryBlock
+    Purpose: Updates the memory start and end address of a process.
+    Parameters: PID, memory start, and memory end.
+    Returns: true if memory block is updated, otherwise false.
+    */
+    bool updateMemoryBlock(int pid, int memoryStart, int memoryEnd);
 
-/*
-Function: updateAssignedCore
-Purpose: Updates assigned CPU core for a process.
-Parameters: PID and core index.
-Returns: true if updated, otherwise false.
-*/
-bool updateAssignedCore(int pid, int assignedCore);
+    /*
+    Function: updateAssignedCore
+    Purpose: Updates assigned CPU core for a process.
+    Parameters: PID and core index.
+    Returns: true if updated, otherwise false.
+    */
+    bool updateAssignedCore(int pid, int assignedCore);
 
-/*
-Function: updateQueueType
-Purpose: Updates queue type label of a process.
-Parameters: PID and queue type.
-Returns: true if updated, otherwise false.
-*/
-bool updateQueueType(int pid, string queueType);
+    /*
+    Function: updateQueueType
+    Purpose: Updates queue type label of a process.
+    Parameters: PID and queue type.
+    Returns: true if updated, otherwise false.
+    */
+    bool updateQueueType(int pid, string queueType);
 
-/*
-Function: incrementTurnaroundTime
-Purpose: Increments turnaround time for a process.
-Parameters: PID and increment value.
-Returns: true if updated, otherwise false.
-*/
-bool incrementTurnaroundTime(int pid, int incrementValue);
+    /*
+    Function: incrementTurnaroundTime
+    Purpose: Increments turnaround time for a process.
+    Parameters: PID and increment value.
+    Returns: true if updated, otherwise false.
+    */
+    bool incrementTurnaroundTime(int pid, int incrementValue);
 
-/*
-Function: displayProcessesByState
-Purpose: Displays processes filtered by a lifecycle state.
-Parameters: Target process state and list title.
-Returns: Nothing.
-*/
-void displayProcessesByState(ProcessState state, string title);
+    /*
+    Function: displayProcessesByState
+    Purpose: Displays processes filtered by a lifecycle state.
+    Parameters: Target process state and list title.
+    Returns: Nothing.
+    */
+    void displayProcessesByState(ProcessState state, string title);
 };
 
 

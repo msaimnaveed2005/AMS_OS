@@ -1,64 +1,28 @@
-AMS OS - MiniOS X Final Project
-===============================
+AMS OS - Atomic Management System
+=================================
 
-Target Platform
----------------
-Linux Xubuntu with g++, make, and xfce4-terminal installed.
-Install if needed:
-sudo apt install build-essential xfce4-terminal
+This repository is documented primarily in README.md and PROJECT_REPORT.md.
 
-Build and Run
--------------
-Run these commands from an Xubuntu terminal inside the project folder.
-1. Open terminal in the project folder.
-2. Build everything:
+Quick start on Ubuntu:
+
+1. Install dependencies:
+   sudo apt update
+   sudo apt install build-essential gnome-terminal
+
+2. Build:
+   make check
    make
-3. Start AMS OS and enter hardware resources when prompted:
-   ./OS
-   Recommended values: 2 GB RAM, 256 GB HDD, 8 CPU cores
-4. Optional fast start with resources already supplied:
+
+3. Run with the recommended project resources:
    ./OS 2 256 8
 
+4. Open the in-app Instruction Guide with menu option 24.
 
-Default kernel password:
+Default Kernel Mode password:
 admin
 
-Final Project Feature Checklist
--------------------------------
-- Named OS with colorful ANSI boot banner, dashboard panels, and shutdown screens.
-- Hardware resources supplied at startup: RAM, HDD, CPU cores, shown in styled setup panels.
-- 16 separate task executables under tasks/.
-- Fork/exec process creation for tasks.
-- IPC pipe request from child to kernel for RAM/HDD/CPU approval.
-- RAM block assignment and memory layout table.
-- Resource allocation and release for RAM, HDD, and CPU cores.
-- Xubuntu separate-terminal task execution by default.
-- Xfce terminal process-group control for close, minimize, resume, and scheduler signals.
-- User mode and kernel mode.
-- Close, minimize, resume, and switch process controls.
-- PCB table with process state, type, priority, wait time, and RAM block.
-- Ready queues with multilevel queue scheduling.
-- FCFS for system queue, Round Robin for interactive queue, background queue for low priority tasks.
-- Priority aging to reduce starvation.
-- Synchronization through mutex, condition variable, semaphore, and monitor thread.
-- Auto-start Digital Clock and Calendar after boot, then dispatch them immediately.
-- System log file at data/system_log.txt.
-- Deadlock detection simulation with circular wait message.
-- Virtual disk file tasks under data/virtual_disk.
-- Submission report source included in PROJECT_REPORT.md.
+Important files:
 
-Recommended Demo Sequence
--------------------------
-1. Run make.
-2. Start `./OS` and enter `2`, `256`, and `8`, or use `./OS 2 256 8`.
-3. Open Instruction Guide from menu option 24.
-4. Show Task Catalog with option 1.
-5. Launch Calculator or Notepad with option 3.
-6. Run Scheduler with option 11 to dispatch queued tasks.
-7. Show PCB Table, Ready Queues, Resources, and RAM Layout.
-8. Minimize a process with option 17, then resume with option 18.
-9. Switch to Kernel Mode using option 13 and password admin.
-10. View System Log with option 15.
-11. Run Deadlock Detection with option 19.
-12. Close a process with option 21 or Kernel Kill with option 16.
-13. Shutdown with option 0.
+- README.md: setup, usage, task catalog, and Makefile targets
+- PROJECT_REPORT.md: architecture, design, compliance matrix, and testing plan
+- Makefile: Linux build, install, clean, and run targets

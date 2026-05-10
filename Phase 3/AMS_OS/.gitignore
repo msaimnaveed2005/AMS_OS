@@ -1,0 +1,13 @@
+# Build outputs
+/OS
+/build/*
+
+# Runtime data
+/data/system_log.txt
+/data/virtual_disk/*
+
+# Local editor and OS metadata
+*.swp
+*.swo
+*~
+.DS_Store

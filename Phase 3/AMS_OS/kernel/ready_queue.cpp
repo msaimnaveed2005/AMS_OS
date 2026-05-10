@@ -336,13 +336,12 @@ void ReadyQueueManager::displayReadyQueues() {
         while (!targetQueue.empty()) {
             ReadyQueueItem item = targetQueue.front();
             targetQueue.pop();
-            string readyState = UI::paint("READY", UI::BRIGHT_CYAN + UI::BOLD);
 
             cout << "  " << left
                  << setw(8) << item.pid
                  << setw(26) << UI::fit(item.processName, 24)
                  << setw(12) << item.priority
-                 << setw(15) << readyState
+                 << setw(15) << "READY"
                  << position
                  << "\n";
 

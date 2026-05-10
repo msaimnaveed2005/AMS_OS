@@ -2,31 +2,6 @@
 #include "ui.h"
 #include <iomanip>
 
-namespace {
-/*
-Function: getStateColor
-Purpose: Returns UI color style for each process state.
-Parameters: Process state enum.
-Returns: ANSI style string.
-*/
-string getStateColor(ProcessState state) {
-    switch (state) {
-        case RUNNING_STATE:
-            return UI::BRIGHT_GREEN + UI::BOLD;
-        case READY_STATE:
-            return UI::BRIGHT_CYAN + UI::BOLD;
-        case BLOCKED_STATE:
-            return UI::YELLOW + UI::BOLD;
-        case MINIMIZED_STATE:
-            return UI::BRIGHT_MAGENTA + UI::BOLD;
-        case TERMINATED_STATE:
-            return UI::RED + UI::BOLD;
-        default:
-            return UI::WHITE;
-    }
-}
-}
-
 /*
 Function: ProcessManager
 Purpose: Initializes the process manager and dummy PID counter.
@@ -181,19 +156,19 @@ bool ProcessManager::processExists(int pid) {
     return processTable.find(pid) != processTable.end();
 }
 /*
-	Function: getPCB
-	Purpose: Finds a PCB by PID and copies it into the reference variable.
-	Parameters: PID and PCB reference variable.
-	Returns: true if PCB exists, otherwise false.
-	*/
-	bool ProcessManager::getPCB(int pid, PCB &pcb) {
-	    if (processTable.find(pid) == processTable.end()) {
-		return false;
-	    }
+Function: getPCB
+Purpose: Finds a PCB by PID and copies it into the reference variable.
+Parameters: PID and PCB reference variable.
+Returns: true if PCB exists, otherwise false.
+*/
+bool ProcessManager::getPCB(int pid, PCB &pcb) {
+    if (processTable.find(pid) == processTable.end()) {
+        return false;
+    }
 
-	    pcb = processTable[pid];
-	    return true;
-	}
+    pcb = processTable[pid];
+    return true;
+}
 
 /*
 Function: incrementWaitingTime
@@ -377,12 +352,11 @@ void ProcessManager::displayPCBTable() {
         }
 
         string stateText = getProcessStateName(pcb.processState);
-        string coloredState = UI::paint(stateText, getStateColor(pcb.processState));
 
         cout << "  " << left
              << setw(8)  << pcb.pid
              << setw(20) << UI::fit(pcb.processName, 18)
-             << setw(15) << coloredState
+             << setw(15) << stateText
              << setw(16) << getProcessTypeName(pcb.processType)
              << setw(10) << pcb.priority
              << setw(11) << pcb.waitingTime
@@ -510,11 +484,9 @@ void ProcessManager::displayProcessesByState(ProcessState state, string title) {
         }
 
         found = true;
-        string coloredState = UI::paint(getProcessStateName(pcb.processState), getStateColor(pcb.processState));
-
         cout << "PID: " << pcb.pid
              << " | Name: " << pcb.processName
-             << " | State: " << coloredState
+             << " | State: " << getProcessStateName(pcb.processState)
              << " | Priority: " << pcb.priority
              << " | Queue: " << pcb.queueType
              << " | Core: " << (pcb.assignedCore == -1 ? "-" : to_string(pcb.assignedCore))
