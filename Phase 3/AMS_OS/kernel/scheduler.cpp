@@ -428,22 +428,11 @@ void Scheduler::runScheduler(
     if (processManager.getPCB(selectedItem.pid, scheduledProcess) &&
         scheduledProcess.processState == MINIMIZED_STATE) {
         UI::warnLine("[SCHEDULER] Scheduling paused because active task was minimized.");
-        UI::infoLine("[SCHEDULER] Waiting for terminal restore to continue scheduling.");
+        UI::infoLine("[SCHEDULER] Restore terminal and run scheduler again to continue.");
         logger.logSystemEvent(
             "Scheduler paused because PID " + to_string(selectedItem.pid) + " was minimized"
         );
-
-        while (true) {
-            syncManager.waitForReadyQueueSignal(1);
-            restoreVisibleMinimizedTasks(processManager, readyQueueManager, logger, syncManager);
-
-            if (readyQueueManager.hasReadyProcess()) {
-                UI::successLine("[SCHEDULER] Scheduling resumed after terminal restore.");
-                break;
-            }
-        }
-
-        continue;
+        break;
     }
 
     UI::sectionBanner("Scheduler Resource Snapshot", UI::BRIGHT_GREEN);

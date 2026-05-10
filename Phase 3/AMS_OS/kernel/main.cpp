@@ -52,7 +52,6 @@ void bootScreen() {
     UI::panelHeader("AMS OS BIOS", "Retro startup sequence", 86);
     cout << "  " << UI::paint("Initializing display adapter", UI::LIGHT_GRAY) << "\n";
     cout << "  " << UI::paint("Loading kernel image...", UI::LIGHT_GRAY) << "\n";
-    UI::terminalBell();
     sleep(1);
 
     const vector<string> bootFrames = {
@@ -65,10 +64,13 @@ void bootScreen() {
     };
 
     cout << "\n  " << UI::paint("SYSTEM BOOT SEQUENCE", UI::BRIGHT_CYAN + UI::BOLD) << "\n";
-    for (const string &frame : bootFrames) {
+    for (size_t i = 0; i < bootFrames.size(); i++) {
+        const string &frame = bootFrames[i];
         cout << "  " << UI::paint(frame, UI::ROYAL_BLUE + UI::BOLD) << "\r";
         cout.flush();
-        UI::terminalBell();
+        if (i == 0 || i == bootFrames.size() - 1) {
+            UI::terminalBell();
+        }
         usleep(220000);
     }
     cout << "\n";
@@ -81,10 +83,7 @@ void bootScreen() {
     UI::bootStep("IPC", "Fork/exec task bridge online");
     cout << "\n  " << UI::paint("Entering 90s terminal mode...", UI::LIGHT_BLUE + UI::BOLD) << "\n";
     UI::terminalBell();
-    usleep(180000);
-    UI::terminalBell();
-    usleep(180000);
-    UI::terminalBell();
+    usleep(220000);
 
     cout << "\n  " << UI::statusPill("READY", UI::GREEN)
          << " " << UI::paint("System loaded successfully.", UI::WHITE + UI::BOLD) << "\n";
@@ -1008,17 +1007,18 @@ void shutdownScreen() {
     };
 
     cout << "  " << UI::paint("POWER DOWN", UI::YELLOW + UI::BOLD) << "\n";
-    for (const string &frame : shutdownFrames) {
+    for (size_t i = 0; i < shutdownFrames.size(); i++) {
+        const string &frame = shutdownFrames[i];
         cout << "  " << UI::paint(frame, UI::RED + UI::BOLD) << "\r";
         cout.flush();
-        UI::terminalBell();
+        if (i == 0 || i == shutdownFrames.size() - 1) {
+            UI::terminalBell();
+        }
         usleep(180000);
     }
     cout << "\n\n";
     cout << "  " << UI::paint("IT IS NOW SAFE TO CLOSE AMS OS TERMINAL.", UI::LIGHT_BLUE + UI::BOLD) << "\n";
     cout << "  " << UI::paint("AMS OS shutdown completed successfully.", UI::GREEN + UI::BOLD) << "\n";
-    UI::terminalBell();
-    usleep(200000);
     UI::terminalBell();
     UI::playCue("shutdown");
     UI::panelFooter();
