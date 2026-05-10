@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <vector>
 #include <unistd.h>
 #include "../kernel/ui.h"
 
@@ -17,7 +18,8 @@ int main() {
     int mineCol;
     int row;
     int col;
-    int attempts = 3;
+    int attempts = 5;
+    vector<vector<char> > board(3, vector<char>(3, '?'));
 
     srand(time(0));
 
@@ -30,9 +32,11 @@ int main() {
 
     while (attempts > 0) {
         cout << "\n  0   1   2\n";
-        cout << "  ? | ? | ?\n";
-        cout << "  ? | ? | ?\n";
-        cout << "  ? | ? | ?\n";
+        for (int currentRow = 0; currentRow < 3; currentRow++) {
+            cout << "  " << board[currentRow][0] << " | "
+                 << board[currentRow][1] << " | "
+                 << board[currentRow][2] << "\n";
+        }
         UI::keyValue("Attempts left", to_string(attempts));
         cout << "Enter row: ";
         cin >> row;
@@ -46,11 +50,13 @@ int main() {
         }
 
         if (row == mineRow && col == mineCol) {
+            board[row][col] = 'X';
             cout << UI::paint("Boom. You hit a mine.\n", UI::RED + UI::BOLD);
             UI::panelFooter();
             return 0;
         }
 
+        board[row][col] = 'O';
         cout << UI::paint("Safe cell.\n", UI::GREEN + UI::BOLD);
         attempts--;
     }

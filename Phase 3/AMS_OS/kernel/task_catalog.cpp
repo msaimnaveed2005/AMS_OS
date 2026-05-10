@@ -95,29 +95,35 @@ void TaskCatalog::displayAvailableTasks() {
     }
 
     cout << "  ";
-    cout << left
-         << setw(6)  << "ID"
-         << setw(22) << "Task Name"
-         << setw(16) << "Type"
-         << setw(10) << "Priority"
-         << setw(11) << "RAM"
-         << setw(11) << "HDD"
-         << setw(6)  << "CPU"
-         << "Description" << "\n";
+    cout << UI::paint("ID", UI::WHITE + UI::BOLD);
+    cout << string(4, ' ');
+    cout << UI::paint("Task Name", UI::WHITE + UI::BOLD);
+    cout << string(13, ' ');
+    cout << UI::paint("Type", UI::WHITE + UI::BOLD);
+    cout << string(12, ' ');
+    cout << UI::paint("Priority", UI::WHITE + UI::BOLD);
+    cout << string(4, ' ');
+    cout << UI::paint("RAM", UI::WHITE + UI::BOLD);
+    cout << string(8, ' ');
+    cout << UI::paint("HDD", UI::WHITE + UI::BOLD);
+    cout << string(8, ' ');
+    cout << UI::paint("CPU", UI::WHITE + UI::BOLD);
+    cout << string(3, ' ');
+    cout << UI::paint("Description", UI::WHITE + UI::BOLD) << "\n";
 
     cout << "  " << UI::paint(UI::repeat('-', 86) + "\n", UI::DIM);
 
     for (const TaskInfo &task : taskList) {
         cout << "  ";
         cout << left
-             << setw(6)  << task.taskID
-             << setw(22) << UI::fit(task.taskName, 20)
-             << setw(16) << getProcessTypeName(task.processType)
-             << setw(10) << task.priority
-             << setw(11) << (std::to_string(task.ramRequired) + " MB")
-             << setw(11) << (std::to_string(task.hddRequired) + " MB")
-             << setw(6)  << task.coresRequired
-             << UI::fit(task.description, 26)
+             << setw(6)  << UI::paint(std::to_string(task.taskID), UI::WHITE + UI::BOLD)
+             << setw(22) << UI::paint(UI::fit(task.taskName, 20), UI::WHITE + UI::BOLD)
+             << setw(16) << UI::paint(getProcessTypeName(task.processType), UI::WHITE)
+             << setw(10) << UI::paint(std::to_string(task.priority), UI::WHITE)
+             << setw(11) << UI::paint(std::to_string(task.ramRequired) + " MB", UI::WHITE)
+             << setw(11) << UI::paint(std::to_string(task.hddRequired) + " MB", UI::WHITE)
+             << setw(6)  << UI::paint(std::to_string(task.coresRequired), UI::WHITE)
+             << UI::paint(UI::fit(task.description, 26), UI::WHITE)
              << "\n";
     }
 

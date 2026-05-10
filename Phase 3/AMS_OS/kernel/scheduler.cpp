@@ -1,5 +1,7 @@
 #include "scheduler.h"
 #include "ui.h"
+#include <cstdio>
+#include <sstream>
 
 namespace {
 bool sendSignalToScheduledProcess(int pid, int signalNumber) {
@@ -12,6 +14,37 @@ bool sendSignalToScheduledProcess(int pid, int signalNumber) {
     }
 
     return kill(pid, signalNumber) == 0;
+}
+
+bool commandHasOutput(const string &command) {
+    FILE *pipe = popen(command.c_str(), "r");
+
+    if (pipe == nullptr) {
+        return false;
+    }
+
+    char buffer[128];
+    bool hasOutput = fgets(buffer, sizeof(buffer), pipe) != nullptr;
+    pclose(pipe);
+
+    return hasOutput;
+}
+
+bool isTaskTerminalHidden(int pid) {
+    if (pid <= 0) {
+        return false;
+    }
+
+    ostringstream visibleCommand;
+    visibleCommand << "xdotool search --onlyvisible --pid " << pid << " 2>/dev/null";
+
+    ostringstream anyWindowCommand;
+    anyWindowCommand << "xdotool search --pid " << pid << " 2>/dev/null";
+
+    const bool hasVisibleWindow = commandHasOutput(visibleCommand.str());
+    const bool hasAnyWindow = commandHasOutput(anyWindowCommand.str());
+
+    return hasAnyWindow && !hasVisibleWindow;
 }
 }
 
@@ -210,6 +243,28 @@ bool Scheduler::runProcess(
 	    releaseCompletedProcess(item.pid, processManager, resourceManager, logger);
 	    return true;
 	}
+
+        if (isTaskTerminalHidden(item.pid)) {
+            UI::warnLine("[SCHEDULER] Task terminal minimized/hidden. Pausing current task.");
+            sendSignalToScheduledProcess(item.pid, SIGSTOP);
+
+            processManager.updateProcessState(item.pid, MINIMIZED_STATE);
+            processManager.updateQueueType(item.pid, "Minimized");
+            processManager.updateAssignedCore(item.pid, -1);
+            syncManager.releaseCoreSet(assignedCores);
+
+            logger.logProcessEvent(
+                item.pid,
+                item.processName,
+                "Terminal minimized from window controls, process moved to MINIMIZED"
+            );
+
+            logger.logSystemEvent(
+                "CPU execution slot released after terminal minimize for PID " + to_string(item.pid)
+            );
+
+            return false;
+        }
 
         cout << "[SCHEDULER] Time slice " << i << "/" << quantum
              << " completed for PID " << item.pid << "\n";

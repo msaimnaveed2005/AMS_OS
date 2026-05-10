@@ -65,6 +65,7 @@ void bootScreen() {
 
     cout << "\n  " << UI::statusPill("READY", UI::GREEN)
          << " " << UI::paint("System loaded successfully.", UI::WHITE + UI::BOLD) << "\n";
+    UI::playCue("boot");
 }
 
 /*
@@ -158,6 +159,16 @@ Returns: Nothing.
 void clearInputBuffer() {
     cin.clear();
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+}
+
+/*
+Function: demoPause
+Purpose: Adds a short delay so viva demonstrations remain readable.
+Parameters: Pause duration in seconds.
+Returns: Nothing.
+*/
+void demoPause(unsigned int seconds = 2) {
+    sleep(seconds);
 }
 
 /*
@@ -328,11 +339,6 @@ void showMainMenu(
 
     if (currentMode == KERNEL_MODE) {
         UI::sectionBanner("Kernel Tools", UI::YELLOW);
-        UI::menuItem(5, "Test Resource Allocation");
-        UI::menuItem(6, "Test Resource Release");
-        UI::menuItem(8, "Create Dummy PCB");
-        UI::menuItem(9, "Update Process State");
-        UI::menuItem(10, "Remove PCB");
         UI::menuItem(14, "Switch to User Mode");
         UI::menuItem(15, "View System Log");
         UI::menuItem(16, "Kill Process");
@@ -731,6 +737,7 @@ void launchTaskUsingIPCForkTest(
 
     if (!taskCatalog.getTaskByID(taskID, selectedTask)) {
         cout << "\nInvalid Task ID. No task found.\n";
+        UI::playCue("error");
         return;
     }
     logger.logProcessEvent(0, selectedTask.taskName, "Task selected for launch");
@@ -831,6 +838,7 @@ void launchTaskUsingIPCForkTest(
         response.granted = 1;
 
         cout << "\n[KERNEL/PARENT] Resources available. Granting request.\n";
+        UI::playCue("granted");
 
         int memoryStart = -1;
         int memoryEnd = -1;
@@ -917,6 +925,7 @@ void launchTaskUsingIPCForkTest(
         response.granted = 0;
 
         cout << "\n[KERNEL/PARENT] Resources unavailable. Denying request.\n";
+        UI::playCue("denied");
         logger.logResourceEvent("Resources denied for process " + string(request.processName));
     }
 
@@ -944,6 +953,7 @@ void launchTaskUsingIPCForkTest(
         waitpid(pid, &status, 0);
 
         cout << "\n[KERNEL/PARENT] Denied child process has terminated.\n";
+        UI::playCue("error");
         resourceManager.displayResources();
     }
 }
@@ -965,6 +975,7 @@ void shutdownScreen() {
     }
 
     cout << "\n  " << UI::paint("AMS OS shutdown completed successfully.", UI::GREEN + UI::BOLD) << "\n";
+    UI::playCue("shutdown");
     UI::panelFooter();
 }
 
@@ -1160,8 +1171,7 @@ Returns: Nothing.
 void minimizeProcess(
     ProcessManager &processManager,
     ReadyQueueManager &readyQueueManager,
-    Logger &logger,
-    SyncManager &syncManager
+    Logger &logger
 ) {
     int pid;
     PCB pcb;
@@ -1204,23 +1214,18 @@ void minimizeProcess(
     sendSignalToProcessGroup(pid, SIGSTOP);
 
     /*
-    Manual requirement target:
-    minimized running task should go back to READY and wait for scheduling.
+    Manual requirement:
+    minimize keeps the task in RAM but hidden/paused.
+    It should not stay dispatchable until user resumes or switches to it.
     */
-    processManager.updateProcessState(pid, READY_STATE);
-    readyQueueManager.addProcessToReadyQueue(
-        pid,
-        pcb.processName,
-        pcb.processType,
-        pcb.priority
-    );
-    processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
-    syncManager.notifyReadyQueue();
+    processManager.updateProcessState(pid, MINIMIZED_STATE);
+    processManager.updateQueueType(pid, "Minimized");
 
-    logger.logProcessEvent(pid, pcb.processName, "Process minimized: execution paused and moved to READY state");
+    logger.logProcessEvent(pid, pcb.processName, "Process minimized: execution paused and moved to MINIMIZED state");
+    UI::playCue("minimize");
 
     cout << "\n[INTERRUPT HANDLER] Process minimized successfully.\n";
-    cout << "RAM is still allocated, CPU execution paused, process moved to READY queue.\n";
+    cout << "RAM is still allocated, CPU execution paused, process moved to MINIMIZED state.\n";
 
     cout << "\nUpdated PCB Table:\n";
     processManager.displayPCBTable();
@@ -1274,6 +1279,7 @@ void resumeProcess(
     processManager.updateQueueType(pid, readyQueueManager.getQueueName(pcb.priority));
     syncManager.notifyReadyQueue();
     logger.logProcessEvent(pid, pcb.processName, "Process resumed and moved back to READY state");
+    UI::playCue("resume");
 
     cout << "\n[INTERRUPT HANDLER] Process resumed successfully.\n";
     cout << "Run scheduler to continue execution.\n";
@@ -1856,6 +1862,7 @@ void closeProcess(
     );
 
     logger.logProcessEvent(pid, pcb.processName, "Closed by user");
+    UI::playCue("close");
 
     logger.logResourceEvent(
         "Resources released after user close | PID: " + to_string(pid) +
@@ -2167,10 +2174,12 @@ int main(int argc, char* argv[]) {
         switch (choice) {
             case 1:
                 taskCatalog.displayAvailableTasks();
+                demoPause();
                 break;
 
             case 2:
                 showTaskDetailsMenu(taskCatalog);
+                demoPause();
                 break;
 
             case 3:
@@ -2187,50 +2196,12 @@ int main(int argc, char* argv[]) {
 
             case 4:
                 resourceManager.displayResources();
-                break;
-
-            case 5:
-                if (currentMode == KERNEL_MODE) {
-                    testResourceAllocation(resourceManager);
-                } else {
-                    UI::errorLine("Access denied. Resource allocation test requires Kernel Mode.");
-                }
-                break;
-
-            case 6:
-                if (currentMode == KERNEL_MODE) {
-                    testResourceRelease(resourceManager);
-                } else {
-                    UI::errorLine("Access denied. Resource release test requires Kernel Mode.");
-                }
+                demoPause();
                 break;
 
             case 7:
                 processManager.displayPCBTable();
-                break;
-
-            case 8:
-                if (currentMode == KERNEL_MODE) {
-                    testDummyPCBCreation(processManager);
-                } else {
-                    UI::errorLine("Access denied. Dummy PCB creation requires Kernel Mode.");
-                }
-                break;
-
-            case 9:
-                if (currentMode == KERNEL_MODE) {
-                    testProcessStateUpdate(processManager);
-                } else {
-                    UI::errorLine("Access denied. Process state update requires Kernel Mode.");
-                }
-                break;
-
-            case 10:
-                if (currentMode == KERNEL_MODE) {
-                    testPCBRemoval(processManager);
-                } else {
-                    UI::errorLine("Access denied. PCB removal requires Kernel Mode.");
-                }
+                demoPause();
                 break;
 
             case 11:
@@ -2245,6 +2216,7 @@ int main(int argc, char* argv[]) {
 
             case 12:
                 readyQueueManager.displayReadyQueues();
+                demoPause();
                 break;
 
             case 13:
@@ -2266,6 +2238,7 @@ int main(int argc, char* argv[]) {
                 if (currentMode == KERNEL_MODE) {
                     viewSystemLog();
                     logger.logSystemEvent("System log viewed in Kernel Mode");
+                    demoPause();
                 } else {
                     UI::errorLine("Access denied. System logs can only be viewed in Kernel Mode.");
                     logger.logSystemEvent("User Mode tried to access system log");
@@ -2287,7 +2260,7 @@ int main(int argc, char* argv[]) {
                 break;
 
             case 17:
-                minimizeProcess(processManager, readyQueueManager, logger, syncManager);
+                minimizeProcess(processManager, readyQueueManager, logger);
                 break;
 
             case 18:
@@ -2311,6 +2284,7 @@ int main(int argc, char* argv[]) {
 
             case 20:
                 resourceManager.displayMemoryLayout();
+                demoPause();
                 break;
 
             case 21:
@@ -2332,14 +2306,17 @@ int main(int argc, char* argv[]) {
 
             case 24:
                 showInstructionGuide(taskCatalog);
+                demoPause();
                 break;
 
             case 25:
                 processManager.displayProcessesByState(RUNNING_STATE, "Running Tasks List");
+                demoPause();
                 break;
 
             case 26:
                 processManager.displayProcessesByState(MINIMIZED_STATE, "Minimized Tasks List");
+                demoPause();
                 break;
 
             case 27:
