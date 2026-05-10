@@ -49,19 +49,42 @@ Returns: Nothing.
 */
 void bootScreen() {
     UI::clearScreen();
+    UI::panelHeader("AMS OS BIOS", "Retro startup sequence", 86);
+    cout << "  " << UI::paint("Initializing display adapter", UI::LIGHT_GRAY) << "\n";
+    cout << "  " << UI::paint("Loading kernel image...", UI::LIGHT_GRAY) << "\n";
+    UI::terminalBell();
+    sleep(1);
+
+    const vector<string> bootFrames = {
+        "[#---------] 10%",
+        "[###-------] 30%",
+        "[#####-----] 50%",
+        "[#######---] 70%",
+        "[#########-] 90%",
+        "[##########] 100%"
+    };
+
+    cout << "\n  " << UI::paint("SYSTEM BOOT SEQUENCE", UI::BRIGHT_CYAN + UI::BOLD) << "\n";
+    for (const string &frame : bootFrames) {
+        cout << "  " << UI::paint(frame, UI::ROYAL_BLUE + UI::BOLD) << "\r";
+        cout.flush();
+        UI::terminalBell();
+        usleep(220000);
+    }
+    cout << "\n";
+
     UI::asciiLogo();
     UI::panelHeader("AMS OS", "Atomic Management System");
     UI::bootStep("BOOT", "Kernel boot sequence initialized");
     UI::bootStep("RAM", "Memory manager online");
     UI::bootStep("CPU", "Multilevel scheduler online");
     UI::bootStep("IPC", "Fork/exec task bridge online");
-    cout << "\n  " << UI::paint("Loading AMS OS", UI::BRIGHT_MAGENTA + UI::BOLD);
-
-    for (int i = 0; i < 3; i++) {
-        cout << UI::paint(".", UI::YELLOW + UI::BOLD);
-        cout.flush();
-        sleep(1);
-    }
+    cout << "\n  " << UI::paint("Entering 90s terminal mode...", UI::LIGHT_BLUE + UI::BOLD) << "\n";
+    UI::terminalBell();
+    usleep(180000);
+    UI::terminalBell();
+    usleep(180000);
+    UI::terminalBell();
 
     cout << "\n  " << UI::statusPill("READY", UI::GREEN)
          << " " << UI::paint("System loaded successfully.", UI::WHITE + UI::BOLD) << "\n";
@@ -249,6 +272,7 @@ Returns: Nothing.
 void showMainMenu(
     OSMode currentMode,
     bool separateTerminalMode,
+    bool multitaskingModeEnabled,
     ResourceManager &resourceManager,
     ProcessManager &processManager,
     ReadyQueueManager &readyQueueManager,
@@ -271,6 +295,10 @@ void showMainMenu(
     } else {
         terminalBadge = UI::statusPill("SCHEDULER CONTROLLED", UI::CYAN);
     }
+    string multitaskingBadge = UI::statusPill(
+        multitaskingModeEnabled ? "MULTITASKING ON" : "MULTITASKING OFF",
+        multitaskingModeEnabled ? UI::GREEN : UI::SLATE_GRAY
+    );
 
     UI::panelHeader(
         "AMS OS Control Center",
@@ -278,7 +306,7 @@ void showMainMenu(
     );
 
     UI::modeSplash(getModeName(currentMode), getTaskExecutionModeName(separateTerminalMode));
-    cout << "  " << modeBadge << "  " << terminalBadge << "\n\n";
+    cout << "  " << modeBadge << "  " << terminalBadge << "  " << multitaskingBadge << "\n\n";
 
     UI::sectionBanner("System Snapshot", UI::BRIGHT_CYAN);
     UI::metric("Tasks Loaded", to_string(taskCatalog.getTaskCount()), "catalog executables");
@@ -966,16 +994,32 @@ Parameters: None.
 Returns: Nothing.
 */
 void shutdownScreen() {
-    UI::panelHeader("Shutdown", "Graceful cleanup");
-    cout << "  Shutting down AMS OS";
+    UI::panelHeader("Shutdown", "Retro power-off sequence");
+    cout << "  " << UI::paint("Saving system state...", UI::LIGHT_GRAY) << "\n";
+    cout << "  " << UI::paint("Stopping scheduler and services...", UI::LIGHT_GRAY) << "\n\n";
 
-    for (int i = 0; i < 3; i++) {
-        cout << ".";
+    const vector<string> shutdownFrames = {
+        "[##########] 100%",
+        "[########--] 80%",
+        "[######----] 60%",
+        "[####------] 40%",
+        "[##--------] 20%",
+        "[----------] 0%"
+    };
+
+    cout << "  " << UI::paint("POWER DOWN", UI::YELLOW + UI::BOLD) << "\n";
+    for (const string &frame : shutdownFrames) {
+        cout << "  " << UI::paint(frame, UI::RED + UI::BOLD) << "\r";
         cout.flush();
-        sleep(1);
+        UI::terminalBell();
+        usleep(180000);
     }
-
-    cout << "\n  " << UI::paint("AMS OS shutdown completed successfully.", UI::GREEN + UI::BOLD) << "\n";
+    cout << "\n\n";
+    cout << "  " << UI::paint("IT IS NOW SAFE TO CLOSE AMS OS TERMINAL.", UI::LIGHT_BLUE + UI::BOLD) << "\n";
+    cout << "  " << UI::paint("AMS OS shutdown completed successfully.", UI::GREEN + UI::BOLD) << "\n";
+    UI::terminalBell();
+    usleep(200000);
+    UI::terminalBell();
     UI::playCue("shutdown");
     UI::panelFooter();
 }
@@ -2176,6 +2220,7 @@ int main(int argc, char* argv[]) {
         showMainMenu(
             currentMode,
             separateTerminalMode,
+            multitaskingModeEnabled,
             resourceManager,
             processManager,
             readyQueueManager,
@@ -2230,6 +2275,14 @@ int main(int argc, char* argv[]) {
 
             case 28:
                 multitaskingModeEnabled = true;
+                UI::infoLine("[MULTITASK] Running scheduler dispatch on main terminal for visibility.");
+                scheduler.runScheduler(
+                    processManager,
+                    resourceManager,
+                    readyQueueManager,
+                    logger,
+                    syncManager
+                );
                 scheduler.runMultitaskingDispatch(
                     processManager,
                     readyQueueManager,

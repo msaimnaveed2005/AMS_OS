@@ -58,10 +58,6 @@ bool isTaskTerminalVisible(int pid) {
     return commandHasOutput(visibleCommand.str());
 }
 
-bool isTerminalMinimizedProcess(const PCB &pcb) {
-    return pcb.processState == MINIMIZED_STATE && pcb.queueType == "Terminal Minimized";
-}
-
 void restoreVisibleMinimizedTasks(
     ProcessManager &processManager,
     ReadyQueueManager &readyQueueManager,
@@ -81,11 +77,7 @@ void restoreVisibleMinimizedTasks(
             continue;
         }
 
-        if (pcb.queueType != "Terminal Minimized") {
-            continue;
-        }
-
-        if (!isTaskTerminalVisible(pid)) {
+        if (isTaskTerminalHidden(pid)) {
             continue;
         }
 
@@ -549,11 +541,11 @@ void Scheduler::handleTerminalWindowState(
             continue;
         }
 
-        if (!isTerminalMinimizedProcess(pcb)) {
+        if (pcb.processState != MINIMIZED_STATE) {
             continue;
         }
 
-        if (!isTaskTerminalVisible(pid)) {
+        if (isTaskTerminalHidden(pid)) {
             continue;
         }
 
