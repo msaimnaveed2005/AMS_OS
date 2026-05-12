@@ -1,66 +1,61 @@
 #include <iostream>
 #include <unistd.h>
 #include <cstdlib>
-#include <ctime>
+#include <vector>
+#include <string>
 #include "../kernel/ui.h"
 
 using namespace std;
 
+struct Download {
+    string name;
+    int progress;
+    int speed;
+};
+
 /*
 Function: main
-Purpose: Simulates a file download task running in the background with
-         animated progress bar, transfer speed, and file metadata.
+Purpose: Simulates a file download task running in the background.
 Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    srand(static_cast<unsigned int>(time(0)));
-
-    UI::panelHeader("Download Simulator", "Background task");
-    UI::taskControlHint(getpid());
-
-    string fileNames[] = {
-        "ubuntu-22.04-desktop.iso",
-        "kernel-headers-6.8.tar.gz",
-        "vscode-linux-x64.deb",
-        "gcc-13.2-source.tar.xz",
-        "node-v20-linux-x64.tar.gz"
+    srand(time(0));
+    
+    vector<Download> downloads = {
+        {"ubuntu-26.04-desktop-amd64.iso", 0, rand() % 5 + 3},
+        {"linux-kernel-6.8.tar.xz", 0, rand() % 8 + 4},
+        {"ams-os-update-v2.deb", 0, rand() % 12 + 6}
     };
 
-    int fileSizes[] = { 3800, 1200, 580, 2400, 420 };
-    int fileIndex = rand() % 5;
+    bool allDone = false;
 
-    string fileName = fileNames[fileIndex];
-    int totalSizeMB = fileSizes[fileIndex];
+    while (!allDone) {
+        UI::clearScreen();
+        UI::panelHeader("Download Simulator", "Background task");
+        UI::taskControlHint(getpid());
+        cout << "  Active Downloads:\n\n";
 
-    UI::sectionBanner("Download Details", UI::BRIGHT_BLUE);
-    UI::keyValue("File", fileName);
-    UI::keyValue("Size", to_string(totalSizeMB) + " MB");
-    UI::keyValue("Server", "mirror.ams-os.local");
-    cout << "\n";
+        allDone = true;
+        for (auto &dl : downloads) {
+            dl.progress += dl.speed;
+            if (dl.progress > 100) dl.progress = 100;
+            if (dl.progress < 100) allDone = false;
 
-    int steps = 10;
-    int chunkSize = totalSizeMB / steps;
+            cout << "  " << UI::paint(dl.name, UI::WHITE + UI::BOLD) << "\n";
+            cout << "  " << UI::usageBar(dl.progress, 100, 50) << "\n\n";
+        }
 
-    for (int i = 1; i <= steps; i++) {
-        int downloaded = chunkSize * i;
-        if (i == steps) downloaded = totalSizeMB;
-
-        int speed = 40 + (rand() % 80);
-
-        cout << "  " << UI::usageBar(i, steps)
-             << "  " << UI::paint(to_string(downloaded) + "/" + to_string(totalSizeMB) + " MB", UI::WHITE + UI::BOLD)
-             << "  " << UI::paint(to_string(speed) + " MB/s", UI::LIGHT_BLUE)
-             << "\n";
-
-        sleep(1);
+        usleep(500000); // 0.5s updates for smooth animation
     }
 
-    cout << "\n";
-    UI::playCue("granted");
-    UI::successLine("Download completed successfully.");
-    UI::keyValue("Saved to", "data/virtual_disk/" + fileName);
-    UI::keyValue("Total Size", to_string(totalSizeMB) + " MB");
+    UI::clearScreen();
+    UI::panelHeader("Download Simulator", "Background task");
+    for (auto &dl : downloads) {
+        cout << "  " << UI::paint(dl.name, UI::WHITE + UI::BOLD) << "\n";
+        cout << "  " << UI::usageBar(100, 100, 50) << "\n\n";
+    }
+    cout << UI::paint("All downloads completed successfully.\n", UI::GREEN + UI::BOLD);
     UI::panelFooter();
 
     return 0;

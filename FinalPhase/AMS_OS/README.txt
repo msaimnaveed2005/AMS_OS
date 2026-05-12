@@ -1,21 +1,28 @@
 AMS OS - Atomic Management System
-==================================
+=================================
 
-A terminal-based Mini Operating System Simulator for the Operating Systems Lab
-Spring 2026 final project. Demonstrates process creation (fork/exec), IPC
-(pipes), resource allocation, multilevel scheduling (FCFS + Round Robin),
-synchronization (semaphore, mutex, condition variable, threads), interrupt
-handling, deadlock detection, and user/kernel mode separation.
+This repository is documented primarily in README.md and PROJECT_REPORT.md.
 
-Platform: Ubuntu 22.04+ with g++ (C++17), GNU Make, and GNOME Terminal.
+Quick start on Ubuntu:
 
-Build and Run
--------------
-    make check          # verify prerequisites
-    make                # compile kernel + 16 task executables
-    ./OS 2 256 8        # boot with 2 GB RAM, 256 GB HDD, 8 cores
+1. Install dependencies:
+   sudo apt update
+   sudo apt install build-essential gnome-terminal
 
-Kernel Mode password: admin
+2. Build:
+   make check
+   make
 
-See README.md for detailed usage, demo workflow, and project structure.
-See PROJECT_REPORT.md for architecture documentation and compliance matrix.
+3. Run with the recommended project resources:
+   ./OS 2 256 8
+
+4. Open the in-app Instruction Guide with menu option 23.
+
+Default Kernel Mode password:
+admin
+
+Important files:
+
+- README.md: setup, usage, task catalog, and Makefile targets
+- PROJECT_REPORT.md: architecture, design, compliance matrix, and testing plan
+- Makefile: Linux build, install, clean, and run targets

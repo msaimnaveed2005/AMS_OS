@@ -3,9 +3,6 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <unistd.h>
-#include "../kernel/ui.h"
-
 using namespace std;
 
 /*
@@ -67,7 +64,7 @@ string monthName(int month) {
 
 /*
 Function: printCalendar
-Purpose: Prints a formatted monthly calendar grid with ANSI color styling.
+Purpose: Prints a formatted monthly calendar grid to the terminal.
 Parameters: month - month number (1-12), year - the full year,
             todayDay - current day to highlight (0 if not current month).
 Returns: Nothing.
@@ -78,15 +75,13 @@ void printCalendar(int month, int year, int todayDay) {
 
     string header = monthName(month) + " " + to_string(year);
 
-    cout << "\n";
-    cout << "    " << UI::paint(header, UI::ROYAL_BLUE + UI::BOLD) << "\n";
-    cout << "    " << UI::paint("----------------------------", UI::DIM) << "\n";
-    cout << "    " << UI::paint(" Su", UI::RED)
-         << UI::paint("  Mo  Tu  We  Th  Fr", UI::LIGHT_BLUE)
-         << UI::paint("  Sa", UI::RED) << "\n";
-    cout << "    " << UI::paint("----------------------------", UI::DIM) << "\n";
+    int padding = (28 - (int)header.size()) / 2;
 
-    cout << "    ";
+    cout << string(padding, ' ') << header << "\n";
+    cout << "----------------------------\n";
+    cout << " Su  Mo  Tu  We  Th  Fr  Sa\n";
+    cout << "----------------------------\n";
+
     int col = 0;
 
     for (int i = 0; i < startDay; i++) {
@@ -96,9 +91,7 @@ void printCalendar(int month, int year, int todayDay) {
 
     for (int day = 1; day <= totalDays; day++) {
         if (day == todayDay) {
-            cout << UI::paint("[" + string(day < 10 ? " " : "") + to_string(day) + "]", UI::GREEN + UI::BOLD);
-        } else if (col == 0 || col == 6) {
-            cout << " " << UI::paint((day < 10 ? " " : "") + to_string(day), UI::YELLOW) << " ";
+            cout << "[" << setw(2) << day << "]";
         } else {
             cout << " " << setw(2) << day << " ";
         }
@@ -106,7 +99,7 @@ void printCalendar(int month, int year, int todayDay) {
         col++;
 
         if (col == 7) {
-            cout << "\n    ";
+            cout << "\n";
             col = 0;
         }
     }
@@ -115,7 +108,7 @@ void printCalendar(int month, int year, int todayDay) {
         cout << "\n";
     }
 
-    cout << "    " << UI::paint("----------------------------", UI::DIM) << "\n";
+    cout << "----------------------------\n";
 }
 
 /*
@@ -133,14 +126,13 @@ void showCurrentMonth() {
     int thisMonth  = info->tm_mon + 1;
     int thisYear   = info->tm_year + 1900;
 
-    UI::sectionBanner("Current Month", UI::BRIGHT_CYAN);
-    cout << "    " << UI::paint("Today's date is marked with [ ]", UI::DIM) << "\n";
+    cout << "\n  Showing current month (today marked with [ ]):\n\n";
 
     printCalendar(thisMonth, thisYear, todayDay);
 
     char timeBuffer[64];
-    strftime(timeBuffer, sizeof(timeBuffer), "%A, %B %d, %Y  %H:%M:%S", info);
-    UI::keyValue("Today", string(timeBuffer));
+    strftime(timeBuffer, sizeof(timeBuffer), "%A, %B %d, %Y", info);
+    cout << "\n  Today: " << timeBuffer << "\n";
 }
 
 /*
@@ -157,18 +149,19 @@ void showArbitraryMonth() {
     cin  >> month;
 
     if (month < 1 || month > 12) {
-        UI::errorLine("Month must be between 1 and 12.");
+        cout << "  Error: Month must be between 1 and 12.\n";
         return;
     }
 
-    cout << "  Enter year (e.g. 2026): ";
+    cout << "  Enter year (e.g. 2025): ";
     cin  >> year;
 
     if (year < 1) {
-        UI::errorLine("Year must be a positive number.");
+        cout << "  Error: Year must be a positive number.\n";
         return;
     }
 
+    cout << "\n";
     printCalendar(month, year, 0);
 }
 
@@ -186,28 +179,24 @@ void showYearSummary() {
     cin  >> year;
 
     if (year < 1) {
-        UI::errorLine("Year must be a positive number.");
+        cout << "  Error: Year must be a positive number.\n";
         return;
     }
 
-    UI::sectionBanner("Year Summary", UI::BRIGHT_GREEN);
-    cout << "  " << UI::paint(to_string(year), UI::WHITE + UI::BOLD);
-    cout << (isLeapYear(year) ? UI::paint("  (Leap Year)", UI::YELLOW + UI::BOLD) : "") << "\n";
-    cout << "  " << UI::paint(UI::repeat('-', 32), UI::DIM) << "\n";
-    cout << "  " << left << setw(14) << UI::paint("Month", UI::LIGHT_BLUE + UI::BOLD)
-         << setw(6)  << UI::paint("Days", UI::LIGHT_BLUE + UI::BOLD) << "\n";
-    cout << "  " << UI::paint(UI::repeat('-', 32), UI::DIM) << "\n";
+    cout << "\n  Year Summary for " << year;
+    cout << (isLeapYear(year) ? " (Leap Year)" : "") << ":\n";
+    cout << "  --------------------------------\n";
+    cout << "  " << left << setw(14) << "Month"
+         << setw(6)  << "Days" << "\n";
+    cout << "  --------------------------------\n";
 
-    int totalDays = 0;
     for (int m = 1; m <= 12; m++) {
-        int d = daysInMonth(m, year);
-        totalDays += d;
         cout << "  " << left << setw(14) << monthName(m)
-             << setw(6)  << d << "\n";
+             << setw(6)  << daysInMonth(m, year) << "\n";
     }
 
-    cout << "  " << UI::paint(UI::repeat('-', 32), UI::DIM) << "\n";
-    UI::keyValue("Total days", to_string(totalDays));
+    cout << "  --------------------------------\n";
+    cout << "  Total days: " << (isLeapYear(year) ? 366 : 365) << "\n";
 }
 
 /*
@@ -219,46 +208,36 @@ Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    UI::panelHeader("Calendar", "AMS OS task executable");
-    UI::taskControlHint(getpid());
+    cout << "\n========== CALENDAR TASK ==========\n";
+    cout << "Calendar started as separate executable.\n";
 
-    while (true) {
-        UI::sectionBanner("Calendar Menu", UI::BRIGHT_BLUE);
-        UI::menuItem(1, "Current Month", "Today's calendar with date highlighted");
-        UI::menuItem(2, "Browse Month", "View any month/year");
-        UI::menuItem(3, "Year Summary", "Day count for all 12 months");
-        UI::menuItem(0, "Exit Calendar");
+    int choice = 0;
 
-        int choice = 0;
-        cout << "\n  Enter choice: ";
-        cin  >> choice;
+    cout << "\n1. Show current month\n";
+    cout << "2. Browse a specific month\n";
+    cout << "3. Year day-count summary\n";
+    cout << "Enter choice: ";
+    cin  >> choice;
 
-        if (cin.fail()) {
-            cin.clear();
-            cin.ignore(256, '\n');
-            UI::errorLine("Invalid input. Enter a number.");
-            continue;
-        }
+    switch (choice) {
+        case 1:
+            showCurrentMonth();
+            break;
 
-        switch (choice) {
-            case 1:
-                showCurrentMonth();
-                break;
-            case 2:
-                showArbitraryMonth();
-                break;
-            case 3:
-                showYearSummary();
-                break;
-            case 0:
-                UI::successLine("Calendar task completed.");
-                UI::panelFooter();
-                return 0;
-            default:
-                UI::warnLine("Invalid option. Choose 0-3.");
-                break;
-        }
+        case 2:
+            showArbitraryMonth();
+            break;
+
+        case 3:
+            showYearSummary();
+            break;
+
+        default:
+            cout << "\nInvalid option. Showing current month by default.\n";
+            showCurrentMonth();
+            break;
     }
 
+    cout << "\nCalendar task completed.\n";
     return 0;
 }

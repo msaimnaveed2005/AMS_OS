@@ -84,9 +84,6 @@ check:
 	 command -v x-terminal-emulator >/dev/null || \
 	 command -v xfce4-terminal >/dev/null || \
 	 { echo "Missing terminal emulator: install gnome-terminal or x-terminal-emulator"; exit 1; }
-	@command -v xdotool >/dev/null || \
-	 { echo "WARNING: xdotool not found. Install with: sudo apt install xdotool"; \
-	   echo "Terminal minimize/restore detection will not work without xdotool."; }
 	@echo "Ubuntu build prerequisites look available."
 
 install: check all

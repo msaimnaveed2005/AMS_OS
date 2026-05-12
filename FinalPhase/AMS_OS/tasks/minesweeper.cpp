@@ -2,170 +2,128 @@
 #include <cstdlib>
 #include <ctime>
 #include <vector>
-#include <limits>
 #include <unistd.h>
 #include "../kernel/ui.h"
 
 using namespace std;
 
-static const int GRID_SIZE = 5;
-static const int MINE_COUNT = 4;
+const int GRID_SIZE = 5;
+const int NUM_MINES = 4;
+
+int countAdjacentMines(const vector<vector<bool>> &mines, int r, int c) {
+    int count = 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (i == 0 && j == 0) continue;
+            int nr = r + i, nc = c + j;
+            if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE) {
+                if (mines[nr][nc]) count++;
+            }
+        }
+    }
+    return count;
+}
 
 /*
 Function: main
-Purpose: Runs a text-based minesweeper simulation with a 5x5 grid and
-         4 hidden mines. Uses ANSI colors for visual feedback.
+Purpose: Runs a simple text-based minesweeper simulation.
 Parameters: None.
 Returns: Program exit status.
 */
 int main() {
-    srand(static_cast<unsigned int>(time(0)));
+    int row, col;
+    int attempts = 5;
+    vector<vector<char>> board(GRID_SIZE, vector<char>(GRID_SIZE, '?'));
+    vector<vector<bool>> mines(GRID_SIZE, vector<bool>(GRID_SIZE, false));
 
-    vector<vector<int> > mines(GRID_SIZE, vector<int>(GRID_SIZE, 0));
-    vector<vector<char> > board(GRID_SIZE, vector<char>(GRID_SIZE, '.'));
+    srand(time(0));
 
+    // Place mines randomly
     int placed = 0;
-    while (placed < MINE_COUNT) {
+    while (placed < NUM_MINES) {
         int r = rand() % GRID_SIZE;
         int c = rand() % GRID_SIZE;
-        if (mines[r][c] == 0) {
-            mines[r][c] = 1;
+        if (!mines[r][c]) {
+            mines[r][c] = true;
             placed++;
         }
     }
 
-    int safeCells = GRID_SIZE * GRID_SIZE - MINE_COUNT;
-    int revealed = 0;
-    bool alive = true;
-
-    UI::panelHeader("Minesweeper", "5x5 grid simulation");
+    UI::panelHeader("Minesweeper", "5x5 text simulation");
     UI::taskControlHint(getpid());
-    UI::keyValue("Grid Size", to_string(GRID_SIZE) + " x " + to_string(GRID_SIZE));
-    UI::keyValue("Hidden Mines", to_string(MINE_COUNT));
-    UI::keyValue("Safe Cells", to_string(safeCells));
-    UI::infoLine("Enter row and column (0 to " + to_string(GRID_SIZE - 1) + ") to reveal a cell.");
+    cout << "  Enter row and column values between 0 and " << (GRID_SIZE - 1) << ".\n";
+    cout << "  Clear " << attempts << " safe cells to win.\n";
 
-    while (alive && revealed < safeCells) {
-        cout << "\n";
-
-        /* Column headers */
-        cout << "      ";
-        for (int c = 0; c < GRID_SIZE; c++) {
-            cout << UI::paint(" " + to_string(c) + " ", UI::LIGHT_BLUE + UI::BOLD) << " ";
-        }
-        cout << "\n";
-        cout << "      " << UI::paint(string(GRID_SIZE * 4, '-'), UI::DIM) << "\n";
-
+    while (attempts > 0) {
+        cout << "\n    0   1   2   3   4\n";
+        cout << "  +" << string(GRID_SIZE * 4 - 1, '-') << "+\n";
         for (int r = 0; r < GRID_SIZE; r++) {
-            cout << "  " << UI::paint(to_string(r), UI::LIGHT_BLUE + UI::BOLD) << " | ";
+            cout << r << " | ";
             for (int c = 0; c < GRID_SIZE; c++) {
-                char cell = board[r][c];
-                if (cell == '.') {
-                    cout << UI::paint(" . ", UI::SLATE_GRAY);
-                } else if (cell == 'X') {
-                    cout << UI::paint(" X ", UI::RED + UI::BOLD);
-                } else if (cell == '0') {
-                    cout << UI::paint(" 0 ", UI::DIM);
-                } else {
-                    cout << UI::paint(" " + string(1, cell) + " ", UI::YELLOW + UI::BOLD);
-                }
-                cout << " ";
+                if (board[r][c] == '?') cout << board[r][c] << " | ";
+                else if (board[r][c] == '0') cout << UI::paint(" ", UI::DIM) << " | ";
+                else cout << UI::paint(string(1, board[r][c]), UI::BRIGHT_CYAN + UI::BOLD) << " | ";
             }
-            cout << "\n";
+            cout << "\n  +" << string(GRID_SIZE * 4 - 1, '-') << "+\n";
         }
-
-        UI::keyValue("Revealed", to_string(revealed) + "/" + to_string(safeCells));
-
-        int row, col;
-        cout << "\n  Enter row: ";
+        
+        UI::keyValue("Remaining safe cells needed", to_string(attempts));
+        cout << "Enter row: ";
         cin >> row;
+
         if (cin.fail()) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            UI::errorLine("Invalid input.");
             continue;
         }
-        cout << "  Enter col: ";
+
+        cout << "Enter column: ";
         cin >> col;
+
         if (cin.fail()) {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            UI::errorLine("Invalid input.");
             continue;
         }
 
         if (row < 0 || row >= GRID_SIZE || col < 0 || col >= GRID_SIZE) {
-            UI::warnLine("Cell out of bounds. Try again.");
+            cout << UI::paint("Invalid cell.\n", UI::YELLOW + UI::BOLD);
             continue;
         }
 
-        if (board[row][col] != '.') {
-            UI::warnLine("Cell already revealed. Choose another.");
+        if (board[row][col] != '?') {
+            cout << UI::paint("Cell already revealed.\n", UI::YELLOW + UI::BOLD);
             continue;
         }
 
-        if (mines[row][col] == 1) {
+        if (mines[row][col]) {
             board[row][col] = 'X';
-            alive = false;
-
-            /* Reveal all mines */
+            
+            // Reveal board
+            cout << "\n    0   1   2   3   4\n";
+            cout << "  +" << string(GRID_SIZE * 4 - 1, '-') << "+\n";
             for (int r = 0; r < GRID_SIZE; r++) {
+                cout << r << " | ";
                 for (int c = 0; c < GRID_SIZE; c++) {
-                    if (mines[r][c] == 1) board[r][c] = 'X';
+                    if (mines[r][c]) cout << UI::paint("X", UI::RED + UI::BOLD) << " | ";
+                    else if (board[r][c] != '?') cout << board[r][c] << " | ";
+                    else cout << "? | ";
                 }
+                cout << "\n  +" << string(GRID_SIZE * 4 - 1, '-') << "+\n";
             }
-
-            cout << "\n";
-            cout << "      ";
-            for (int c = 0; c < GRID_SIZE; c++) {
-                cout << UI::paint(" " + to_string(c) + " ", UI::LIGHT_BLUE + UI::BOLD) << " ";
-            }
-            cout << "\n";
-            cout << "      " << UI::paint(string(GRID_SIZE * 4, '-'), UI::DIM) << "\n";
-            for (int r = 0; r < GRID_SIZE; r++) {
-                cout << "  " << UI::paint(to_string(r), UI::LIGHT_BLUE + UI::BOLD) << " | ";
-                for (int c = 0; c < GRID_SIZE; c++) {
-                    char cell = board[r][c];
-                    if (cell == 'X') {
-                        cout << UI::paint(" X ", UI::RED + UI::BOLD);
-                    } else if (cell == '.') {
-                        cout << UI::paint(" . ", UI::SLATE_GRAY);
-                    } else {
-                        cout << UI::paint(" " + string(1, cell) + " ", UI::YELLOW + UI::BOLD);
-                    }
-                    cout << " ";
-                }
-                cout << "\n";
-            }
-
-            UI::errorLine("BOOM! You hit a mine. Game Over.");
-            UI::playCue("error");
-        } else {
-            /* Count adjacent mines */
-            int adjacent = 0;
-            for (int dr = -1; dr <= 1; dr++) {
-                for (int dc = -1; dc <= 1; dc++) {
-                    int nr = row + dr;
-                    int nc = col + dc;
-                    if (nr >= 0 && nr < GRID_SIZE && nc >= 0 && nc < GRID_SIZE) {
-                        adjacent += mines[nr][nc];
-                    }
-                }
-            }
-            board[row][col] = static_cast<char>('0' + adjacent);
-            revealed++;
-            UI::successLine("Safe! Adjacent mines: " + to_string(adjacent));
-            UI::playCue("tick");
+            
+            cout << "\n" << UI::paint("Boom! You hit a mine. Game Over.\n", UI::RED + UI::BOLD);
+            UI::panelFooter();
+            return 0;
         }
+
+        int adj = countAdjacentMines(mines, row, col);
+        board[row][col] = '0' + adj;
+        cout << UI::paint("Safe cell.\n", UI::GREEN + UI::BOLD);
+        attempts--;
     }
 
-    if (alive && revealed >= safeCells) {
-        UI::successLine("Congratulations! You cleared all safe cells!");
-        UI::playCue("granted");
-    }
-
-    cout << "\n";
-    UI::keyValue("Cells Revealed", to_string(revealed) + "/" + to_string(safeCells));
+    cout << UI::paint("\nCongratulations! You survived the Minesweeper simulation.\n", UI::GREEN + UI::BOLD);
     UI::panelFooter();
     return 0;
 }

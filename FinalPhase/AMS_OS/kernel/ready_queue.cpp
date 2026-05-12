@@ -351,7 +351,7 @@ void ReadyQueueManager::displayReadyQueues() {
 
     printQueue("Queue 1: System", "Highest priority | FCFS", tempSystemQueue);
     printQueue("Queue 2: Interactive", "Medium priority | Round Robin", tempInteractiveQueue);
-    printQueue("Queue 3: Background", "Low priority | FCFS", tempBackgroundQueue);
+    printQueue("Queue 3: Background", "Low priority", tempBackgroundQueue);
 
     UI::panelFooter(86);
 }
