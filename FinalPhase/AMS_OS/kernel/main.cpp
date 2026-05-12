@@ -156,7 +156,9 @@ void bootScreen() {
     cout << "\n";
 
     UI::asciiLogo();
-    usleep(220000);
+ UI::playCue("boot", false);
+    
+    usleep(2200000);
     UI::panelHeader("AMS OS", "Atomic Management System");
     UI::bootStep("BOOT", "Kernel boot sequence initialized");
     UI::bootStep("RAM", "Memory manager online");
@@ -168,7 +170,7 @@ void bootScreen() {
 
     cout << "\n  " << UI::statusPill("READY", UI::GREEN)
          << " " << UI::paint("System loaded successfully.", UI::WHITE + UI::BOLD) << "\n";
-    UI::playCue("boot", false);
+   
 }
 
 /*
@@ -1101,7 +1103,7 @@ void shutdownScreen() {
         "[##--------] 20%",
         "[----------] 0%"
     };
-
+UI::playCue("shutdown", false);
     cout << "  " << UI::paint("POWER DOWN", UI::YELLOW + UI::BOLD) << "\n";
     for (size_t i = 0; i < shutdownFrames.size(); i++) {
         const string &frame = shutdownFrames[i];
@@ -1116,7 +1118,7 @@ void shutdownScreen() {
     cout << "  " << UI::paint("IT IS NOW SAFE TO CLOSE AMS OS TERMINAL.", UI::LIGHT_BLUE + UI::BOLD) << "\n";
     cout << "  " << UI::paint("AMS OS shutdown completed successfully.", UI::GREEN + UI::BOLD) << "\n";
     UI::terminalBell();
-    UI::playCue("shutdown", false);
+    
     UI::panelFooter();
 }
 

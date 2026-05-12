@@ -8916,3 +8916,589 @@
 ] SYSTEM | Shutdown cleanup completed, no active processes
 [Tue May 12 20:30:33 2026
 ] SYSTEM | AMS OS shutdown completed
+[Tue May 12 20:35:22 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 20:35:22 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 20:35:22 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:35:22 2026
+] RESOURCE | RAM block assigned to auto-start PID 10151 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 20:35:22 2026
+] PROCESS | PID: 10151 | Digital Clock | Auto-start PCB created
+[Tue May 12 20:35:22 2026
+] PROCESS | PID: 10151 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 20:35:22 2026
+] SYSTEM | Monitor thread spawned for PID 10151 | Process: Digital Clock
+[Tue May 12 20:35:22 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:35:22 2026
+] RESOURCE | RAM block assigned to auto-start PID 10153 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 20:35:22 2026
+] PROCESS | PID: 10153 | Calendar | Auto-start PCB created
+[Tue May 12 20:35:22 2026
+] PROCESS | PID: 10153 | Calendar | Auto-start task added to ready queue
+[Tue May 12 20:35:22 2026
+] SYSTEM | Monitor thread spawned for PID 10153 | Process: Calendar
+[Tue May 12 20:35:22 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:35:22 2026
+] SYSTEM | CPU execution slot assigned to PID 10151 | Process: Digital Clock | Core: 0
+[Tue May 12 20:35:22 2026
+] PROCESS | PID: 10151 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:35:24 2026
+] PROCESS | PID: 10151 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:35:24 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10151
+[Tue May 12 20:35:24 2026
+] SYSTEM | Scheduler paused because PID 10151 was minimized
+[Tue May 12 20:35:24 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:35:24 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:35:24 2026
+] PROCESS | PID: 10153 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:35:24 2026
+] SYSTEM | CPU execution slot assigned to PID 10153 | Process: Calendar | Core: 1
+[Tue May 12 20:35:24 2026
+] PROCESS | PID: 10153 | Calendar | Dispatched by scheduler
+[Tue May 12 20:35:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2972MB | Available HDD: 3052MB | Available CPU Cores: 1
+[Tue May 12 20:35:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2972MB | Available HDD: 3052MB | Available CPU Cores: 1
+[Tue May 12 20:35:34 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 10153
+[Tue May 12 20:35:34 2026
+] SYSTEM | CPU execution slot assigned to PID 10153 | Process: Calendar | Core: 2
+[Tue May 12 20:35:34 2026
+] PROCESS | PID: 10153 | Calendar | Dispatched by scheduler
+[Tue May 12 20:35:37 2026
+] PROCESS | PID: 10153 | Calendar | Auto-reaped by task monitor thread
+[Tue May 12 20:35:37 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 10153 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:35:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:35:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:35:44 2026
+] SYSTEM | CPU execution slot released after PID 10153 became non-waitable
+[Tue May 12 20:35:44 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:35:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:35:51 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:35:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:35:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:01 2026
+] PROCESS | PID: 10151 | Digital Clock | Process resumed and moved back to READY state
+[Tue May 12 20:36:01 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:36:01 2026
+] SYSTEM | CPU execution slot assigned to PID 10151 | Process: Digital Clock | Core: 0
+[Tue May 12 20:36:01 2026
+] PROCESS | PID: 10151 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:36:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:07 2026
+] PROCESS | PID: 10151 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:36:07 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10151
+[Tue May 12 20:36:07 2026
+] SYSTEM | Scheduler paused because PID 10151 was minimized
+[Tue May 12 20:36:07 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:36:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:22 2026
+] PROCESS | PID: 10151 | Digital Clock | Process resumed and moved back to READY state
+[Tue May 12 20:36:22 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:36:22 2026
+] SYSTEM | CPU execution slot assigned to PID 10151 | Process: Digital Clock | Core: 1
+[Tue May 12 20:36:22 2026
+] PROCESS | PID: 10151 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:36:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:23 2026
+] PROCESS | PID: 10151 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:36:23 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10151
+[Tue May 12 20:36:23 2026
+] SYSTEM | Scheduler paused because PID 10151 was minimized
+[Tue May 12 20:36:23 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:36:27 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:36:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:36 2026
+] PROCESS | PID: 10151 | Digital Clock | Process resumed and moved back to READY state
+[Tue May 12 20:36:36 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:36:36 2026
+] SYSTEM | CPU execution slot assigned to PID 10151 | Process: Digital Clock | Core: 2
+[Tue May 12 20:36:36 2026
+] PROCESS | PID: 10151 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:36:37 2026
+] PROCESS | PID: 10151 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:36:37 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10151
+[Tue May 12 20:36:37 2026
+] SYSTEM | Scheduler paused because PID 10151 was minimized
+[Tue May 12 20:36:37 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:36:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:49 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:36:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:36:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:37:00 2026
+] PROCESS | PID: 10151 | Digital Clock | Process resumed and moved back to READY state
+[Tue May 12 20:37:00 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:37:00 2026
+] SYSTEM | CPU execution slot assigned to PID 10151 | Process: Digital Clock | Core: 0
+[Tue May 12 20:37:00 2026
+] PROCESS | PID: 10151 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:37:01 2026
+] PROCESS | PID: 10151 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:37:01 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10151
+[Tue May 12 20:37:01 2026
+] SYSTEM | Scheduler paused because PID 10151 was minimized
+[Tue May 12 20:37:01 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:37:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:37:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:37:11 2026
+] PROCESS | PID: 10151 | Digital Clock | Process resumed and moved back to READY state
+[Tue May 12 20:37:11 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:37:11 2026
+] SYSTEM | CPU execution slot assigned to PID 10151 | Process: Digital Clock | Core: 1
+[Tue May 12 20:37:11 2026
+] PROCESS | PID: 10151 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:37:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:37:15 2026
+] PROCESS | PID: 10151 | Digital Clock | Auto-reaped by task monitor thread
+[Tue May 12 20:37:15 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 10151 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:37:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:21 2026
+] SYSTEM | CPU execution slot released after PID 10151 became non-waitable
+[Tue May 12 20:37:21 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:37:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:33 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:38 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:43 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:48 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:53 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:37:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:38:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:38:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:38:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:38:18 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:38:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:38:27 2026
+] SYSTEM | AMS OS shutdown requested
+[Tue May 12 20:38:28 2026
+] SYSTEM | Resource monitor thread stopped
+[Tue May 12 20:38:28 2026
+] SYSTEM | Shutdown cleanup completed, no active processes
+[Tue May 12 20:38:28 2026
+] SYSTEM | All task monitor threads joined
+[Tue May 12 20:38:29 2026
+] SYSTEM | AMS OS shutdown completed
+[Tue May 12 20:38:40 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 20:38:40 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 20:38:40 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:38:40 2026
+] RESOURCE | RAM block assigned to auto-start PID 10474 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 20:38:40 2026
+] PROCESS | PID: 10474 | Digital Clock | Auto-start PCB created
+[Tue May 12 20:38:40 2026
+] PROCESS | PID: 10474 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 20:38:40 2026
+] SYSTEM | Monitor thread spawned for PID 10474 | Process: Digital Clock
+[Tue May 12 20:38:40 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:38:40 2026
+] RESOURCE | RAM block assigned to auto-start PID 10476 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 20:38:40 2026
+] PROCESS | PID: 10476 | Calendar | Auto-start PCB created
+[Tue May 12 20:38:40 2026
+] PROCESS | PID: 10476 | Calendar | Auto-start task added to ready queue
+[Tue May 12 20:38:40 2026
+] SYSTEM | Monitor thread spawned for PID 10476 | Process: Calendar
+[Tue May 12 20:38:40 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:38:40 2026
+] SYSTEM | CPU execution slot assigned to PID 10474 | Process: Digital Clock | Core: 0
+[Tue May 12 20:38:40 2026
+] PROCESS | PID: 10474 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:38:43 2026
+] PROCESS | PID: 10474 | Digital Clock | Auto-reaped by task monitor thread
+[Tue May 12 20:38:43 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 10474 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:38:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:38:50 2026
+] SYSTEM | CPU execution slot released after PID 10474 became non-waitable
+[Tue May 12 20:38:50 2026
+] PROCESS | PID: 10476 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:38:50 2026
+] SYSTEM | CPU execution slot assigned to PID 10476 | Process: Calendar | Core: 1
+[Tue May 12 20:38:50 2026
+] PROCESS | PID: 10476 | Calendar | Dispatched by scheduler
+[Tue May 12 20:38:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:38:51 2026
+] PROCESS | PID: 10476 | Calendar | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:38:51 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10476
+[Tue May 12 20:38:51 2026
+] SYSTEM | Scheduler paused because PID 10476 was minimized
+[Tue May 12 20:38:51 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:38:52 2026
+] PROCESS | PID: 10476 | Calendar | Terminal restored from window controls, process returned to READY
+[Tue May 12 20:38:52 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:38:52 2026
+] SYSTEM | CPU execution slot assigned to PID 10476 | Process: Calendar | Core: 2
+[Tue May 12 20:38:52 2026
+] PROCESS | PID: 10476 | Calendar | Dispatched by scheduler
+[Tue May 12 20:38:53 2026
+] PROCESS | PID: 10476 | Calendar | Auto-reaped by task monitor thread
+[Tue May 12 20:38:53 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 10476 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:38:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:39:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:39:01 2026
+] SYSTEM | CPU execution slot released after PID 10476 became non-waitable
+[Tue May 12 20:39:01 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:39:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:39:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 3072MB | Available HDD: 3072MB | Available CPU Cores: 3
+[Tue May 12 20:39:12 2026
+] SYSTEM | AMS OS shutdown requested
+[Tue May 12 20:39:15 2026
+] SYSTEM | Resource monitor thread stopped
+[Tue May 12 20:39:15 2026
+] SYSTEM | Shutdown cleanup completed, no active processes
+[Tue May 12 20:39:15 2026
+] SYSTEM | All task monitor threads joined
+[Tue May 12 20:39:16 2026
+] SYSTEM | AMS OS shutdown completed
+[Tue May 12 20:40:02 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 20:40:02 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 20:40:02 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:40:02 2026
+] RESOURCE | RAM block assigned to auto-start PID 10704 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 20:40:02 2026
+] PROCESS | PID: 10704 | Digital Clock | Auto-start PCB created
+[Tue May 12 20:40:02 2026
+] PROCESS | PID: 10704 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 20:40:02 2026
+] SYSTEM | Monitor thread spawned for PID 10704 | Process: Digital Clock
+[Tue May 12 20:40:02 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:40:02 2026
+] RESOURCE | RAM block assigned to auto-start PID 10706 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 20:40:02 2026
+] PROCESS | PID: 10706 | Calendar | Auto-start PCB created
+[Tue May 12 20:40:02 2026
+] PROCESS | PID: 10706 | Calendar | Auto-start task added to ready queue
+[Tue May 12 20:40:02 2026
+] SYSTEM | Monitor thread spawned for PID 10706 | Process: Calendar
+[Tue May 12 20:40:02 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:40:02 2026
+] SYSTEM | CPU execution slot assigned to PID 10704 | Process: Digital Clock | Core: 0
+[Tue May 12 20:40:02 2026
+] PROCESS | PID: 10704 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:40:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2972MB | Available HDD: 3052MB | Available CPU Cores: 1
+[Tue May 12 20:40:10 2026
+] PROCESS | PID: 10704 | Digital Clock | Auto-reaped by task monitor thread
+[Tue May 12 20:40:10 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 10704 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:40:12 2026
+] SYSTEM | CPU execution slot released after PID 10704 became non-waitable
+[Tue May 12 20:40:12 2026
+] PROCESS | PID: 10706 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:40:12 2026
+] SYSTEM | CPU execution slot assigned to PID 10706 | Process: Calendar | Core: 1
+[Tue May 12 20:40:12 2026
+] PROCESS | PID: 10706 | Calendar | Dispatched by scheduler
+[Tue May 12 20:40:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:13 2026
+] PROCESS | PID: 10706 | Calendar | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:40:13 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10706
+[Tue May 12 20:40:13 2026
+] SYSTEM | Scheduler paused because PID 10706 was minimized
+[Tue May 12 20:40:13 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:40:13 2026
+] PROCESS | PID: 10706 | Calendar | Terminal restored from window controls, process returned to READY
+[Tue May 12 20:40:13 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:40:13 2026
+] SYSTEM | CPU execution slot assigned to PID 10706 | Process: Calendar | Core: 2
+[Tue May 12 20:40:13 2026
+] PROCESS | PID: 10706 | Calendar | Dispatched by scheduler
+[Tue May 12 20:40:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:23 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 10706
+[Tue May 12 20:40:23 2026
+] SYSTEM | CPU execution slot assigned to PID 10706 | Process: Calendar | Core: 0
+[Tue May 12 20:40:23 2026
+] PROCESS | PID: 10706 | Calendar | Dispatched by scheduler
+[Tue May 12 20:40:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:32 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 10706
+[Tue May 12 20:40:32 2026
+] SYSTEM | CPU execution slot assigned to PID 10706 | Process: Calendar | Core: 1
+[Tue May 12 20:40:32 2026
+] PROCESS | PID: 10706 | Calendar | Dispatched by scheduler
+[Tue May 12 20:40:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:42 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 10706
+[Tue May 12 20:40:42 2026
+] SYSTEM | CPU execution slot assigned to PID 10706 | Process: Calendar | Core: 2
+[Tue May 12 20:40:42 2026
+] PROCESS | PID: 10706 | Calendar | Dispatched by scheduler
+[Tue May 12 20:40:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:40:49 2026
+] PROCESS | PID: 10706 | Calendar | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:40:49 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 10706
+[Tue May 12 20:40:49 2026
+] SYSTEM | Scheduler paused because PID 10706 was minimized
+[Tue May 12 20:40:49 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:40:51 2026
+] SYSTEM | AMS OS shutdown requested
+[Tue May 12 20:40:52 2026
+] SYSTEM | Resource monitor thread stopped
+[Tue May 12 20:40:52 2026
+] PROCESS | PID: 10706 | Calendar | Terminated during graceful shutdown
+[Tue May 12 20:40:52 2026
+] RESOURCE | Resources released during shutdown | PID: 10706 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:40:52 2026
+] SYSTEM | Graceful shutdown cleanup completed
+[Tue May 12 20:40:52 2026
+] SYSTEM | All task monitor threads joined
+[Tue May 12 20:40:53 2026
+] SYSTEM | AMS OS shutdown completed
+[Tue May 12 20:43:16 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 20:43:16 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 20:43:16 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:43:16 2026
+] RESOURCE | RAM block assigned to auto-start PID 11008 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 20:43:16 2026
+] PROCESS | PID: 11008 | Digital Clock | Auto-start PCB created
+[Tue May 12 20:43:16 2026
+] PROCESS | PID: 11008 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 20:43:16 2026
+] SYSTEM | Monitor thread spawned for PID 11008 | Process: Digital Clock
+[Tue May 12 20:43:16 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:43:16 2026
+] RESOURCE | RAM block assigned to auto-start PID 11010 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 20:43:16 2026
+] PROCESS | PID: 11010 | Calendar | Auto-start PCB created
+[Tue May 12 20:43:16 2026
+] PROCESS | PID: 11010 | Calendar | Auto-start task added to ready queue
+[Tue May 12 20:43:16 2026
+] SYSTEM | Monitor thread spawned for PID 11010 | Process: Calendar
+[Tue May 12 20:43:16 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:43:16 2026
+] SYSTEM | CPU execution slot assigned to PID 11008 | Process: Digital Clock | Core: 0
+[Tue May 12 20:43:16 2026
+] PROCESS | PID: 11008 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:43:17 2026
+] PROCESS | PID: 11008 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:43:17 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 11008
+[Tue May 12 20:43:17 2026
+] SYSTEM | Scheduler paused because PID 11008 was minimized
+[Tue May 12 20:43:17 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:43:18 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:43:18 2026
+] PROCESS | PID: 11010 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:43:18 2026
+] SYSTEM | CPU execution slot assigned to PID 11010 | Process: Calendar | Core: 1
+[Tue May 12 20:43:18 2026
+] PROCESS | PID: 11010 | Calendar | Dispatched by scheduler
+[Tue May 12 20:43:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 2972MB | Available HDD: 3052MB | Available CPU Cores: 1
+[Tue May 12 20:43:23 2026
+] PROCESS | PID: 11010 | Calendar | Auto-reaped by task monitor thread
+[Tue May 12 20:43:23 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 11010 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:43:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:43:27 2026
+] SYSTEM | CPU execution slot released after PID 11010 became non-waitable
+[Tue May 12 20:43:27 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:43:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:43:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:43:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:43:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:43:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:43:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:44:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:44:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:44:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:44:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:44:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:44:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:44:31 2026
+] SYSTEM | AMS OS shutdown requested
+[Tue May 12 20:44:32 2026
+] SYSTEM | Resource monitor thread stopped
+[Tue May 12 20:44:32 2026
+] PROCESS | PID: 11008 | Digital Clock | Terminated during graceful shutdown
+[Tue May 12 20:44:32 2026
+] RESOURCE | Resources released during shutdown | PID: 11008 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:44:32 2026
+] SYSTEM | Graceful shutdown cleanup completed
+[Tue May 12 20:44:32 2026
+] SYSTEM | All task monitor threads joined
+[Tue May 12 20:44:33 2026
+] SYSTEM | AMS OS shutdown completed
+[Tue May 12 20:46:53 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 20:46:53 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 20:46:53 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:46:53 2026
+] RESOURCE | RAM block assigned to auto-start PID 11208 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 20:46:53 2026
+] PROCESS | PID: 11208 | Digital Clock | Auto-start PCB created
+[Tue May 12 20:46:53 2026
+] PROCESS | PID: 11208 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 20:46:53 2026
+] SYSTEM | Monitor thread spawned for PID 11208 | Process: Digital Clock
+[Tue May 12 20:46:53 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:46:53 2026
+] RESOURCE | RAM block assigned to auto-start PID 11210 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 20:46:53 2026
+] PROCESS | PID: 11210 | Calendar | Auto-start PCB created
+[Tue May 12 20:46:53 2026
+] PROCESS | PID: 11210 | Calendar | Auto-start task added to ready queue
+[Tue May 12 20:46:53 2026
+] SYSTEM | Monitor thread spawned for PID 11210 | Process: Calendar
+[Tue May 12 20:46:53 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:46:53 2026
+] SYSTEM | CPU execution slot assigned to PID 11208 | Process: Digital Clock | Core: 0
+[Tue May 12 20:46:53 2026
+] PROCESS | PID: 11208 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:46:57 2026
+] PROCESS | PID: 11208 | Digital Clock | Auto-reaped by task monitor thread
+[Tue May 12 20:46:57 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 11208 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:46:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:47:02 2026
+] SYSTEM | CPU execution slot released after PID 11208 became non-waitable
+[Tue May 12 20:47:02 2026
+] PROCESS | PID: 11210 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:47:02 2026
+] SYSTEM | CPU execution slot assigned to PID 11210 | Process: Calendar | Core: 1
+[Tue May 12 20:47:02 2026
+] PROCESS | PID: 11210 | Calendar | Dispatched by scheduler
+[Tue May 12 20:47:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 20:47:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 21:08:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
+[Tue May 12 21:08:52 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 11210
+[Tue May 12 21:08:52 2026
+] SYSTEM | CPU execution slot assigned to PID 11210 | Process: Calendar | Core: 2
+[Tue May 12 21:08:52 2026
+] PROCESS | PID: 11210 | Calendar | Dispatched by scheduler
+[Tue May 12 21:08:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 3022MB | Available HDD: 3062MB | Available CPU Cores: 2
