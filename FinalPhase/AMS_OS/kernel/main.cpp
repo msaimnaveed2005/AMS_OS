@@ -76,6 +76,7 @@ void bootScreen() {
     cout << "\n";
 
     UI::asciiLogo();
+    usleep(220000);
     UI::panelHeader("AMS OS", "Atomic Management System");
     UI::bootStep("BOOT", "Kernel boot sequence initialized");
     UI::bootStep("RAM", "Memory manager online");

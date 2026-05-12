@@ -7180,3 +7180,1739 @@
 ] SYSTEM | Shutdown cleanup completed, no active processes
 [Sun May 10 23:18:33 2026
 ] SYSTEM | AMS OS shutdown completed
+[Tue May 12 19:35:42 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 19:35:42 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 19:35:42 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:35:42 2026
+] RESOURCE | RAM block assigned to auto-start PID 4718 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 19:35:42 2026
+] PROCESS | PID: 4718 | Digital Clock | Auto-start PCB created
+[Tue May 12 19:35:42 2026
+] PROCESS | PID: 4718 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 19:35:42 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:35:42 2026
+] RESOURCE | RAM block assigned to auto-start PID 4719 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 19:35:42 2026
+] PROCESS | PID: 4719 | Calendar | Auto-start PCB created
+[Tue May 12 19:35:42 2026
+] PROCESS | PID: 4719 | Calendar | Auto-start task added to ready queue
+[Tue May 12 19:35:42 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:35:42 2026
+] SYSTEM | CPU execution slot assigned to PID 4718 | Process: Digital Clock | Core: 0
+[Tue May 12 19:35:42 2026
+] PROCESS | PID: 4718 | Digital Clock | Dispatched by scheduler
+[Tue May 12 19:35:44 2026
+] PROCESS | PID: 4718 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 19:35:44 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 4718
+[Tue May 12 19:35:44 2026
+] SYSTEM | Scheduler paused because PID 4718 was minimized
+[Tue May 12 19:35:44 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:41:20 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 19:41:20 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 19:41:20 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:41:20 2026
+] RESOURCE | RAM block assigned to auto-start PID 6018 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 19:41:20 2026
+] PROCESS | PID: 6018 | Digital Clock | Auto-start PCB created
+[Tue May 12 19:41:20 2026
+] PROCESS | PID: 6018 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 19:41:20 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:41:20 2026
+] RESOURCE | RAM block assigned to auto-start PID 6019 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 19:41:20 2026
+] PROCESS | PID: 6019 | Calendar | Auto-start PCB created
+[Tue May 12 19:41:20 2026
+] PROCESS | PID: 6019 | Calendar | Auto-start task added to ready queue
+[Tue May 12 19:41:20 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:41:20 2026
+] SYSTEM | CPU execution slot assigned to PID 6018 | Process: Digital Clock | Core: 0
+[Tue May 12 19:41:20 2026
+] PROCESS | PID: 6018 | Digital Clock | Dispatched by scheduler
+[Tue May 12 19:41:21 2026
+] PROCESS | PID: 6018 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 19:41:21 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 6018
+[Tue May 12 19:41:21 2026
+] SYSTEM | Scheduler paused because PID 6018 was minimized
+[Tue May 12 19:41:21 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:41:22 2026
+] PROCESS | PID: 6018 | Digital Clock | Terminal restored from window controls, process returned to READY
+[Tue May 12 19:41:22 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:41:22 2026
+] PROCESS | PID: 6019 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 19:41:22 2026
+] SYSTEM | CPU execution slot assigned to PID 6019 | Process: Calendar | Core: 1
+[Tue May 12 19:41:22 2026
+] PROCESS | PID: 6019 | Calendar | Dispatched by scheduler
+[Tue May 12 19:41:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:41:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:41:31 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 6019
+[Tue May 12 19:41:31 2026
+] PROCESS | PID: 6018 | Digital Clock | Aging applied, priority improved from 2 to 1
+[Tue May 12 19:41:31 2026
+] SYSTEM | CPU execution slot assigned to PID 6019 | Process: Calendar | Core: 2
+[Tue May 12 19:41:31 2026
+] PROCESS | PID: 6019 | Calendar | Dispatched by scheduler
+[Tue May 12 19:41:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:41:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:41:41 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 6019
+[Tue May 12 19:41:41 2026
+] SYSTEM | CPU execution slot assigned to PID 6018 | Process: Digital Clock | Core: 3
+[Tue May 12 19:41:41 2026
+] PROCESS | PID: 6018 | Digital Clock | Dispatched by scheduler
+[Tue May 12 19:41:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:41:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:41:50 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 6018
+[Tue May 12 19:41:50 2026
+] SYSTEM | CPU execution slot assigned to PID 6019 | Process: Calendar | Core: 4
+[Tue May 12 19:41:50 2026
+] PROCESS | PID: 6019 | Calendar | Dispatched by scheduler
+[Tue May 12 19:41:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:41:59 2026
+] SYSTEM | CPU execution slot released from PID 6019
+[Tue May 12 19:41:59 2026
+] PROCESS | PID: 6019 | Calendar | Process terminated
+[Tue May 12 19:41:59 2026
+] RESOURCE | Resources released from PID 6019 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:41:59 2026
+] SYSTEM | CPU execution slot assigned to PID 6018 | Process: Digital Clock | Core: 5
+[Tue May 12 19:41:59 2026
+] PROCESS | PID: 6018 | Digital Clock | Dispatched by scheduler
+[Tue May 12 19:42:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:42:00 2026
+] SYSTEM | CPU execution slot released from PID 6018
+[Tue May 12 19:42:00 2026
+] PROCESS | PID: 6018 | Digital Clock | Process terminated
+[Tue May 12 19:42:00 2026
+] RESOURCE | Resources released from PID 6018 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:42:00 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:42:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 6
+[Tue May 12 19:42:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 6
+[Tue May 12 19:42:12 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Tue May 12 19:42:12 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 19:42:12 2026
+] RESOURCE | RAM block assigned to PID 6220 | Snake Game | Start: 0MB | End: 250MB
+[Tue May 12 19:42:12 2026
+] PROCESS | PID: 6220 | Snake Game | PCB Created
+[Tue May 12 19:42:12 2026
+] PROCESS | PID: 6220 | Snake Game | Added to Ready Queue
+[Tue May 12 19:42:12 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:42:12 2026
+] SYSTEM | CPU execution slot assigned to PID 6220 | Process: Snake Game | Core: 0
+[Tue May 12 19:42:12 2026
+] PROCESS | PID: 6220 | Snake Game | Dispatched by scheduler
+[Tue May 12 19:42:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:42:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:42:21 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 6220
+[Tue May 12 19:42:21 2026
+] SYSTEM | CPU execution slot assigned to PID 6220 | Process: Snake Game | Core: 1
+[Tue May 12 19:42:21 2026
+] PROCESS | PID: 6220 | Snake Game | Dispatched by scheduler
+[Tue May 12 19:42:22 2026
+] SYSTEM | CPU execution slot released from PID 6220
+[Tue May 12 19:42:22 2026
+] PROCESS | PID: 6220 | Snake Game | Process terminated
+[Tue May 12 19:42:22 2026
+] RESOURCE | Resources released from PID 6220 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 19:42:22 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:42:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 6
+[Tue May 12 19:42:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 6
+[Tue May 12 19:42:33 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Tue May 12 19:42:33 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 19:42:33 2026
+] RESOURCE | RAM block assigned to PID 6288 | Snake Game | Start: 0MB | End: 250MB
+[Tue May 12 19:42:33 2026
+] PROCESS | PID: 6288 | Snake Game | PCB Created
+[Tue May 12 19:42:33 2026
+] PROCESS | PID: 6288 | Snake Game | Added to Ready Queue
+[Tue May 12 19:42:33 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:42:33 2026
+] SYSTEM | CPU execution slot assigned to PID 6288 | Process: Snake Game | Core: 2
+[Tue May 12 19:42:33 2026
+] PROCESS | PID: 6288 | Snake Game | Dispatched by scheduler
+[Tue May 12 19:42:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:42:38 2026
+] PROCESS | PID: 6288 | Snake Game | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 19:42:38 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 6288
+[Tue May 12 19:42:38 2026
+] SYSTEM | Scheduler paused because PID 6288 was minimized
+[Tue May 12 19:42:38 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:42:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:42:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:42:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:42:55 2026
+] PROCESS | PID: 6288 | Snake Game | Process resumed and moved back to READY state
+[Tue May 12 19:42:55 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:42:55 2026
+] SYSTEM | CPU execution slot assigned to PID 6288 | Process: Snake Game | Core: 3
+[Tue May 12 19:42:55 2026
+] PROCESS | PID: 6288 | Snake Game | Dispatched by scheduler
+[Tue May 12 19:42:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:04 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 6288
+[Tue May 12 19:43:04 2026
+] SYSTEM | CPU execution slot assigned to PID 6288 | Process: Snake Game | Core: 4
+[Tue May 12 19:43:04 2026
+] PROCESS | PID: 6288 | Snake Game | Dispatched by scheduler
+[Tue May 12 19:43:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:05 2026
+] PROCESS | PID: 6288 | Snake Game | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 19:43:05 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 6288
+[Tue May 12 19:43:05 2026
+] SYSTEM | Scheduler paused because PID 6288 was minimized
+[Tue May 12 19:43:05 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:43:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 5
+[Tue May 12 19:43:30 2026
+] SYSTEM | AMS OS shutdown requested
+[Tue May 12 19:43:35 2026
+] SYSTEM | Resource monitor thread stopped
+[Tue May 12 19:43:35 2026
+] PROCESS | PID: 6288 | Snake Game | Terminated during graceful shutdown
+[Tue May 12 19:43:35 2026
+] RESOURCE | Resources released during shutdown | PID: 6288 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 19:43:35 2026
+] SYSTEM | Graceful shutdown cleanup completed
+[Tue May 12 19:43:36 2026
+] SYSTEM | AMS OS shutdown completed
+[Tue May 12 19:44:07 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 19:44:07 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 19:44:07 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:44:07 2026
+] RESOURCE | RAM block assigned to auto-start PID 6426 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 19:44:07 2026
+] PROCESS | PID: 6426 | Digital Clock | Auto-start PCB created
+[Tue May 12 19:44:07 2026
+] PROCESS | PID: 6426 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 19:44:07 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:44:07 2026
+] RESOURCE | RAM block assigned to auto-start PID 6427 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 19:44:07 2026
+] PROCESS | PID: 6427 | Calendar | Auto-start PCB created
+[Tue May 12 19:44:07 2026
+] PROCESS | PID: 6427 | Calendar | Auto-start task added to ready queue
+[Tue May 12 19:44:07 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:44:07 2026
+] SYSTEM | CPU execution slot assigned to PID 6426 | Process: Digital Clock | Core: 0
+[Tue May 12 19:44:07 2026
+] PROCESS | PID: 6426 | Digital Clock | Dispatched by scheduler
+[Tue May 12 19:44:08 2026
+] PROCESS | PID: 6426 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 19:44:08 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 6426
+[Tue May 12 19:44:08 2026
+] SYSTEM | Scheduler paused because PID 6426 was minimized
+[Tue May 12 19:44:08 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:44:09 2026
+] PROCESS | PID: 6426 | Digital Clock | Terminal restored from window controls, process returned to READY
+[Tue May 12 19:44:09 2026
+] SYSTEM | Scheduler started
+[Tue May 12 19:44:09 2026
+] PROCESS | PID: 6427 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 19:44:09 2026
+] SYSTEM | CPU execution slot assigned to PID 6427 | Process: Calendar | Core: 1
+[Tue May 12 19:44:09 2026
+] PROCESS | PID: 6427 | Calendar | Dispatched by scheduler
+[Tue May 12 19:44:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 4
+[Tue May 12 19:44:15 2026
+] SYSTEM | CPU execution slot released from PID 6427
+[Tue May 12 19:44:15 2026
+] PROCESS | PID: 6427 | Calendar | Process terminated
+[Tue May 12 19:44:15 2026
+] RESOURCE | Resources released from PID 6427 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 19:44:15 2026
+] PROCESS | PID: 6426 | Digital Clock | Aging applied, priority improved from 2 to 1
+[Tue May 12 19:44:15 2026
+] SYSTEM | CPU execution slot assigned to PID 6426 | Process: Digital Clock | Core: 2
+[Tue May 12 19:44:15 2026
+] PROCESS | PID: 6426 | Digital Clock | Dispatched by scheduler
+[Tue May 12 19:44:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:24 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 6426
+[Tue May 12 19:44:24 2026
+] SYSTEM | CPU execution slot assigned to PID 6426 | Process: Digital Clock | Core: 3
+[Tue May 12 19:44:24 2026
+] PROCESS | PID: 6426 | Digital Clock | Dispatched by scheduler
+[Tue May 12 19:44:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:29 2026
+] PROCESS | PID: 6426 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 19:44:29 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 6426
+[Tue May 12 19:44:29 2026
+] SYSTEM | Scheduler paused because PID 6426 was minimized
+[Tue May 12 19:44:29 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 19:44:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:44:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:45:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:46:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:33 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:38 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:43 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:48 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:53 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:47:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:18 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:33 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:38 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:43 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:48 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:53 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:48:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:18 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:33 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:38 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:43 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:48 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:53 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:49:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:18 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:33 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:38 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:43 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:48 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:53 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:50:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:18 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:23 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:28 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:33 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:38 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:43 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:48 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:53 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:51:58 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:03 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:08 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:13 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:52:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:53:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:54:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:55:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:56:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:57:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:58:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 19:59:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 5
+[Tue May 12 20:02:07 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 20:02:07 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 20:02:07 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:02:07 2026
+] RESOURCE | RAM block assigned to auto-start PID 7580 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 20:02:07 2026
+] PROCESS | PID: 7580 | Digital Clock | Auto-start PCB created
+[Tue May 12 20:02:07 2026
+] PROCESS | PID: 7580 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 20:02:07 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:02:07 2026
+] RESOURCE | RAM block assigned to auto-start PID 7581 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 20:02:07 2026
+] PROCESS | PID: 7581 | Calendar | Auto-start PCB created
+[Tue May 12 20:02:07 2026
+] PROCESS | PID: 7581 | Calendar | Auto-start task added to ready queue
+[Tue May 12 20:02:07 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:02:07 2026
+] SYSTEM | CPU execution slot assigned to PID 7580 | Process: Digital Clock | Core: 0
+[Tue May 12 20:02:07 2026
+] PROCESS | PID: 7580 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:02:08 2026
+] PROCESS | PID: 7580 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:02:08 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 7580
+[Tue May 12 20:02:08 2026
+] SYSTEM | Scheduler paused because PID 7580 was minimized
+[Tue May 12 20:02:08 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:02:09 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:02:09 2026
+] PROCESS | PID: 7581 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:02:09 2026
+] SYSTEM | CPU execution slot assigned to PID 7581 | Process: Calendar | Core: 1
+[Tue May 12 20:02:09 2026
+] PROCESS | PID: 7581 | Calendar | Dispatched by scheduler
+[Tue May 12 20:02:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 5100MB | Available CPU Cores: 3
+[Tue May 12 20:02:15 2026
+] SYSTEM | CPU execution slot released from PID 7581
+[Tue May 12 20:02:15 2026
+] PROCESS | PID: 7581 | Calendar | Process terminated
+[Tue May 12 20:02:15 2026
+] RESOURCE | Resources released from PID 7581 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:02:15 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:05:34 2026
+] SYSTEM | AMS OS Booted
+[Tue May 12 20:05:34 2026
+] SYSTEM | Resource monitor thread started
+[Tue May 12 20:05:34 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:05:34 2026
+] RESOURCE | RAM block assigned to auto-start PID 8119 | Digital Clock | Start: 0MB | End: 50MB
+[Tue May 12 20:05:34 2026
+] PROCESS | PID: 8119 | Digital Clock | Auto-start PCB created
+[Tue May 12 20:05:34 2026
+] PROCESS | PID: 8119 | Digital Clock | Auto-start task added to ready queue
+[Tue May 12 20:05:34 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:05:34 2026
+] RESOURCE | RAM block assigned to auto-start PID 8120 | Calendar | Start: 50MB | End: 100MB
+[Tue May 12 20:05:34 2026
+] PROCESS | PID: 8120 | Calendar | Auto-start PCB created
+[Tue May 12 20:05:34 2026
+] PROCESS | PID: 8120 | Calendar | Auto-start task added to ready queue
+[Tue May 12 20:05:34 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:05:34 2026
+] SYSTEM | CPU execution slot assigned to PID 8119 | Process: Digital Clock | Core: 0
+[Tue May 12 20:05:34 2026
+] PROCESS | PID: 8119 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:05:35 2026
+] PROCESS | PID: 8119 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:05:35 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 8119
+[Tue May 12 20:05:35 2026
+] SYSTEM | Scheduler paused because PID 8119 was minimized
+[Tue May 12 20:05:35 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:05:36 2026
+] PROCESS | PID: 8119 | Digital Clock | Terminal restored from window controls, process returned to READY
+[Tue May 12 20:05:36 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:05:36 2026
+] PROCESS | PID: 8120 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:05:36 2026
+] SYSTEM | CPU execution slot assigned to PID 8120 | Process: Calendar | Core: 1
+[Tue May 12 20:05:36 2026
+] PROCESS | PID: 8120 | Calendar | Dispatched by scheduler
+[Tue May 12 20:05:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:05:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:05:46 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 8120
+[Tue May 12 20:05:46 2026
+] PROCESS | PID: 8119 | Digital Clock | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:05:46 2026
+] SYSTEM | CPU execution slot assigned to PID 8120 | Process: Calendar | Core: 2
+[Tue May 12 20:05:46 2026
+] PROCESS | PID: 8120 | Calendar | Dispatched by scheduler
+[Tue May 12 20:05:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:05:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:05:55 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 8120
+[Tue May 12 20:05:55 2026
+] SYSTEM | CPU execution slot assigned to PID 8119 | Process: Digital Clock | Core: 3
+[Tue May 12 20:05:55 2026
+] PROCESS | PID: 8119 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:05:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:06:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:06:05 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 8119
+[Tue May 12 20:06:05 2026
+] SYSTEM | CPU execution slot assigned to PID 8120 | Process: Calendar | Core: 4
+[Tue May 12 20:06:05 2026
+] PROCESS | PID: 8120 | Calendar | Dispatched by scheduler
+[Tue May 12 20:06:06 2026
+] PROCESS | PID: 8120 | Calendar | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:06:06 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 8120
+[Tue May 12 20:06:06 2026
+] SYSTEM | Scheduler paused because PID 8120 was minimized
+[Tue May 12 20:06:06 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:06:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:06:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:06:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:06:21 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Tue May 12 20:06:21 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:06:21 2026
+] RESOURCE | RAM block assigned to PID 8277 | Snake Game | Start: 100MB | End: 350MB
+[Tue May 12 20:06:21 2026
+] PROCESS | PID: 8277 | Snake Game | PCB Created
+[Tue May 12 20:06:21 2026
+] PROCESS | PID: 8277 | Snake Game | Added to Ready Queue
+[Tue May 12 20:06:21 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:06:21 2026
+] SYSTEM | CPU execution slot assigned to PID 8119 | Process: Digital Clock | Core: 0
+[Tue May 12 20:06:21 2026
+] PROCESS | PID: 8119 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:06:22 2026
+] PROCESS | PID: 8119 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:06:22 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 8119
+[Tue May 12 20:06:22 2026
+] SYSTEM | Scheduler paused because PID 8119 was minimized
+[Tue May 12 20:06:22 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:06:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1698MB | Available HDD: 1988MB | Available CPU Cores: 2
+[Tue May 12 20:06:25 2026
+] PROCESS | PID: 0 | Minesweeper | Task selected for launch
+[Tue May 12 20:06:25 2026
+] RESOURCE | Resources granted to Minesweeper | RAM: 220MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:06:25 2026
+] RESOURCE | RAM block assigned to PID 8293 | Minesweeper | Start: 350MB | End: 570MB
+[Tue May 12 20:06:25 2026
+] PROCESS | PID: 8293 | Minesweeper | PCB Created
+[Tue May 12 20:06:25 2026
+] PROCESS | PID: 8293 | Minesweeper | Added to Ready Queue
+[Tue May 12 20:06:26 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:06:26 2026
+] PROCESS | PID: 8277 | Snake Game | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:06:26 2026
+] SYSTEM | CPU execution slot assigned to PID 8277 | Process: Snake Game | Core: 1
+[Tue May 12 20:06:26 2026
+] PROCESS | PID: 8277 | Snake Game | Dispatched by scheduler
+[Tue May 12 20:06:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1478MB | Available HDD: 1948MB | Available CPU Cores: 1
+[Tue May 12 20:06:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1478MB | Available HDD: 1948MB | Available CPU Cores: 1
+[Tue May 12 20:06:35 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 8277
+[Tue May 12 20:06:35 2026
+] PROCESS | PID: 8293 | Minesweeper | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:06:35 2026
+] SYSTEM | CPU execution slot assigned to PID 8277 | Process: Snake Game | Core: 2
+[Tue May 12 20:06:35 2026
+] PROCESS | PID: 8277 | Snake Game | Dispatched by scheduler
+[Tue May 12 20:06:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1478MB | Available HDD: 1948MB | Available CPU Cores: 1
+[Tue May 12 20:06:41 2026
+] SYSTEM | CPU execution slot released from PID 8277
+[Tue May 12 20:06:41 2026
+] PROCESS | PID: 8277 | Snake Game | Process terminated
+[Tue May 12 20:06:41 2026
+] RESOURCE | Resources released from PID 8277 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:06:41 2026
+] SYSTEM | CPU execution slot assigned to PID 8293 | Process: Minesweeper | Core: 3
+[Tue May 12 20:06:41 2026
+] PROCESS | PID: 8293 | Minesweeper | Dispatched by scheduler
+[Tue May 12 20:06:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1728MB | Available HDD: 1988MB | Available CPU Cores: 2
+[Tue May 12 20:06:46 2026
+] SYSTEM | CPU execution slot released from PID 8293
+[Tue May 12 20:06:46 2026
+] PROCESS | PID: 8293 | Minesweeper | Process terminated
+[Tue May 12 20:06:46 2026
+] RESOURCE | Resources released from PID 8293 | RAM: 220MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:06:46 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:06:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:06:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 3
+[Tue May 12 20:06:57 2026
+] PROCESS | PID: 0 | Snake Game | Task selected for launch
+[Tue May 12 20:06:57 2026
+] RESOURCE | Resources granted to Snake Game | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:06:57 2026
+] RESOURCE | RAM block assigned to PID 8449 | Snake Game | Start: 100MB | End: 350MB
+[Tue May 12 20:06:57 2026
+] PROCESS | PID: 8449 | Snake Game | PCB Created
+[Tue May 12 20:06:57 2026
+] PROCESS | PID: 8449 | Snake Game | Added to Ready Queue
+[Tue May 12 20:06:58 2026
+] PROCESS | PID: 8119 | Digital Clock | Terminal restored from window controls, process returned to READY
+[Tue May 12 20:06:58 2026
+] PROCESS | PID: 8120 | Calendar | Terminal restored from window controls, process returned to READY
+[Tue May 12 20:06:58 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:06:58 2026
+] SYSTEM | CPU execution slot assigned to PID 8119 | Process: Digital Clock | Core: 4
+[Tue May 12 20:06:58 2026
+] PROCESS | PID: 8119 | Digital Clock | Dispatched by scheduler
+[Tue May 12 20:06:59 2026
+] SYSTEM | CPU execution slot released from PID 8119
+[Tue May 12 20:06:59 2026
+] PROCESS | PID: 8119 | Digital Clock | Process terminated
+[Tue May 12 20:06:59 2026
+] RESOURCE | Resources released from PID 8119 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:06:59 2026
+] PROCESS | PID: 8449 | Snake Game | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:06:59 2026
+] SYSTEM | CPU execution slot assigned to PID 8120 | Process: Calendar | Core: 0
+[Tue May 12 20:06:59 2026
+] PROCESS | PID: 8120 | Calendar | Dispatched by scheduler
+[Tue May 12 20:06:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 1998MB | Available CPU Cores: 3
+[Tue May 12 20:07:00 2026
+] SYSTEM | CPU execution slot released from PID 8120
+[Tue May 12 20:07:00 2026
+] PROCESS | PID: 8120 | Calendar | Process terminated
+[Tue May 12 20:07:00 2026
+] RESOURCE | Resources released from PID 8120 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:07:00 2026
+] SYSTEM | CPU execution slot assigned to PID 8449 | Process: Snake Game | Core: 1
+[Tue May 12 20:07:00 2026
+] PROCESS | PID: 8449 | Snake Game | Dispatched by scheduler
+[Tue May 12 20:07:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:07:04 2026
+] PROCESS | PID: 8449 | Snake Game | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:07:04 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 8449
+[Tue May 12 20:07:04 2026
+] SYSTEM | Scheduler paused because PID 8449 was minimized
+[Tue May 12 20:07:04 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:07:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:07:12 2026
+] PROCESS | PID: 0 | Minesweeper | Task selected for launch
+[Tue May 12 20:07:12 2026
+] RESOURCE | Resources granted to Minesweeper | RAM: 220MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:07:12 2026
+] RESOURCE | RAM block assigned to PID 8510 | Minesweeper | Start: 350MB | End: 570MB
+[Tue May 12 20:07:12 2026
+] PROCESS | PID: 8510 | Minesweeper | PCB Created
+[Tue May 12 20:07:12 2026
+] PROCESS | PID: 8510 | Minesweeper | Added to Ready Queue
+[Tue May 12 20:07:13 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:07:13 2026
+] SYSTEM | CPU execution slot assigned to PID 8510 | Process: Minesweeper | Core: 2
+[Tue May 12 20:07:13 2026
+] PROCESS | PID: 8510 | Minesweeper | Dispatched by scheduler
+[Tue May 12 20:07:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1578MB | Available HDD: 1968MB | Available CPU Cores: 3
+[Tue May 12 20:07:16 2026
+] PROCESS | PID: 8510 | Minesweeper | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:07:16 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 8510
+[Tue May 12 20:07:16 2026
+] SYSTEM | Scheduler paused because PID 8510 was minimized
+[Tue May 12 20:07:16 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:07:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1578MB | Available HDD: 1968MB | Available CPU Cores: 3
+[Tue May 12 20:07:21 2026
+] PROCESS | PID: 0 | Download Simulator | Task selected for launch
+[Tue May 12 20:07:21 2026
+] RESOURCE | Resources granted to Download Simulator | RAM: 180MB | HDD: 200MB | CPU: 1
+[Tue May 12 20:07:21 2026
+] RESOURCE | RAM block assigned to PID 8554 | Download Simulator | Start: 570MB | End: 750MB
+[Tue May 12 20:07:21 2026
+] PROCESS | PID: 8554 | Download Simulator | PCB Created
+[Tue May 12 20:07:21 2026
+] PROCESS | PID: 8554 | Download Simulator | Added to Ready Queue
+[Tue May 12 20:07:21 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:07:21 2026
+] SYSTEM | CPU execution slot assigned to PID 8554 | Process: Download Simulator | Core: 3
+[Tue May 12 20:07:21 2026
+] PROCESS | PID: 8554 | Download Simulator | Dispatched by scheduler
+[Tue May 12 20:07:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1398MB | Available HDD: 1768MB | Available CPU Cores: 2
+[Tue May 12 20:07:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1398MB | Available HDD: 1768MB | Available CPU Cores: 2
+[Tue May 12 20:07:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1398MB | Available HDD: 1768MB | Available CPU Cores: 2
+[Tue May 12 20:07:35 2026
+] SYSTEM | CPU execution slot released from PID 8554
+[Tue May 12 20:07:35 2026
+] PROCESS | PID: 8554 | Download Simulator | Process terminated
+[Tue May 12 20:07:35 2026
+] RESOURCE | Resources released from PID 8554 | RAM: 180MB | HDD: 200MB | CPU: 1
+[Tue May 12 20:07:35 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:07:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1578MB | Available HDD: 1968MB | Available CPU Cores: 3
+[Tue May 12 20:07:39 2026
+] PROCESS | PID: 0 | Calendar | Task selected for launch
+[Tue May 12 20:07:39 2026
+] RESOURCE | Resources granted to Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:07:39 2026
+] RESOURCE | RAM block assigned to PID 8606 | Calendar | Start: 0MB | End: 50MB
+[Tue May 12 20:07:39 2026
+] PROCESS | PID: 8606 | Calendar | PCB Created
+[Tue May 12 20:07:39 2026
+] PROCESS | PID: 8606 | Calendar | Added to Ready Queue
+[Tue May 12 20:07:39 2026
+] PROCESS | PID: 8449 | Snake Game | Terminal restored from window controls, process returned to READY
+[Tue May 12 20:07:40 2026
+] PROCESS | PID: 8510 | Minesweeper | Terminal restored from window controls, process returned to READY
+[Tue May 12 20:07:40 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:07:40 2026
+] SYSTEM | CPU execution slot assigned to PID 8449 | Process: Snake Game | Core: 4
+[Tue May 12 20:07:40 2026
+] PROCESS | PID: 8449 | Snake Game | Dispatched by scheduler
+[Tue May 12 20:07:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1528MB | Available HDD: 1958MB | Available CPU Cores: 2
+[Tue May 12 20:07:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1528MB | Available HDD: 1958MB | Available CPU Cores: 2
+[Tue May 12 20:07:49 2026
+] SYSTEM | CPU execution slot released after quantum expiry for PID 8449
+[Tue May 12 20:07:49 2026
+] PROCESS | PID: 8606 | Calendar | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:07:49 2026
+] PROCESS | PID: 8510 | Minesweeper | Aging applied, priority improved from 2 to 1
+[Tue May 12 20:07:49 2026
+] SYSTEM | CPU execution slot assigned to PID 8449 | Process: Snake Game | Core: 0
+[Tue May 12 20:07:49 2026
+] PROCESS | PID: 8449 | Snake Game | Dispatched by scheduler
+[Tue May 12 20:07:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1528MB | Available HDD: 1958MB | Available CPU Cores: 2
+[Tue May 12 20:07:56 2026
+] PROCESS | PID: 8449 | Snake Game | Terminal minimized from window controls, process moved to MINIMIZED
+[Tue May 12 20:07:56 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 8449
+[Tue May 12 20:07:56 2026
+] SYSTEM | Scheduler paused because PID 8449 was minimized
+[Tue May 12 20:07:56 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:07:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1528MB | Available HDD: 1958MB | Available CPU Cores: 2
+[Tue May 12 20:08:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1528MB | Available HDD: 1958MB | Available CPU Cores: 2
+[Tue May 12 20:08:06 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:08:06 2026
+] SYSTEM | CPU execution slot assigned to PID 8606 | Process: Calendar | Core: 1
+[Tue May 12 20:08:06 2026
+] PROCESS | PID: 8606 | Calendar | Dispatched by scheduler
+[Tue May 12 20:08:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1528MB | Available HDD: 1958MB | Available CPU Cores: 2
+[Tue May 12 20:08:13 2026
+] SYSTEM | CPU execution slot released from PID 8606
+[Tue May 12 20:08:13 2026
+] PROCESS | PID: 8606 | Calendar | Process terminated
+[Tue May 12 20:08:13 2026
+] RESOURCE | Resources released from PID 8606 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:08:13 2026
+] SYSTEM | CPU execution slot assigned to PID 8510 | Process: Minesweeper | Core: 2
+[Tue May 12 20:08:13 2026
+] PROCESS | PID: 8510 | Minesweeper | Dispatched by scheduler
+[Tue May 12 20:08:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1578MB | Available HDD: 1968MB | Available CPU Cores: 3
+[Tue May 12 20:08:14 2026
+] SYSTEM | CPU execution slot released from PID 8510
+[Tue May 12 20:08:14 2026
+] PROCESS | PID: 8510 | Minesweeper | Process terminated
+[Tue May 12 20:08:14 2026
+] RESOURCE | Resources released from PID 8510 | RAM: 220MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:08:14 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:08:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:08:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:08:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:08:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:08:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:08:42 2026
+] PROCESS | PID: 0 | Calendar | Task selected for launch
+[Tue May 12 20:08:42 2026
+] RESOURCE | Resources granted to Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:08:42 2026
+] RESOURCE | RAM block assigned to PID 8756 | Calendar | Start: 0MB | End: 50MB
+[Tue May 12 20:08:42 2026
+] PROCESS | PID: 8756 | Calendar | PCB Created
+[Tue May 12 20:08:42 2026
+] PROCESS | PID: 8756 | Calendar | Added to Ready Queue
+[Tue May 12 20:08:43 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:08:43 2026
+] SYSTEM | CPU execution slot assigned to PID 8756 | Process: Calendar | Core: 3
+[Tue May 12 20:08:43 2026
+] PROCESS | PID: 8756 | Calendar | Dispatched by scheduler
+[Tue May 12 20:08:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 1998MB | Available CPU Cores: 3
+[Tue May 12 20:08:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 1748MB | Available HDD: 1998MB | Available CPU Cores: 3
+[Tue May 12 20:08:50 2026
+] SYSTEM | CPU execution slot released from PID 8756
+[Tue May 12 20:08:50 2026
+] PROCESS | PID: 8756 | Calendar | Process terminated
+[Tue May 12 20:08:50 2026
+] RESOURCE | Resources released from PID 8756 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Tue May 12 20:08:50 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:08:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:08:54 2026
+] PROCESS | PID: 0 | Process Killer | Task selected for launch
+[Tue May 12 20:08:54 2026
+] RESOURCE | Resources granted to Process Killer | RAM: 100MB | HDD: 20MB | CPU: 1
+[Tue May 12 20:08:54 2026
+] RESOURCE | RAM block assigned to PID 8811 | Process Killer | Start: 0MB | End: 100MB
+[Tue May 12 20:08:54 2026
+] PROCESS | PID: 8811 | Process Killer | PCB Created
+[Tue May 12 20:08:54 2026
+] PROCESS | PID: 8811 | Process Killer | Added to Ready Queue
+[Tue May 12 20:08:54 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:08:54 2026
+] SYSTEM | CPU execution slot assigned to PID 8811 | Process: Process Killer | Core: 4
+[Tue May 12 20:08:54 2026
+] PROCESS | PID: 8811 | Process Killer | Dispatched by scheduler
+[Tue May 12 20:08:56 2026
+] SYSTEM | CPU execution slot released from PID 8811
+[Tue May 12 20:08:56 2026
+] PROCESS | PID: 8811 | Process Killer | Process terminated
+[Tue May 12 20:08:56 2026
+] RESOURCE | Resources released from PID 8811 | RAM: 100MB | HDD: 20MB | CPU: 1
+[Tue May 12 20:08:56 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:08:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:09:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:09:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:09:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:09:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 1798MB | Available HDD: 2008MB | Available CPU Cores: 4
+[Tue May 12 20:09:20 2026
+] PROCESS | PID: 8449 | Snake Game | Closed by user
+[Tue May 12 20:09:20 2026
+] RESOURCE | Resources released after user close | PID: 8449 | RAM: 250MB | HDD: 40MB | CPU: 1
+[Tue May 12 20:09:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:09:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:09:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:09:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:09:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:09:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:09:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:09:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:04 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:09 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:14 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:19 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:24 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:29 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:34 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:39 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:44 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:49 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:54 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:10:59 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:11:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:11:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:11:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:11:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:11:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:11:28 2026
+] PROCESS | PID: 0 | Music Player | Task selected for launch
+[Tue May 12 20:11:28 2026
+] RESOURCE | Resources granted to Music Player | RAM: 120MB | HDD: 30MB | CPU: 1
+[Tue May 12 20:11:28 2026
+] RESOURCE | RAM block assigned to PID 9036 | Music Player | Start: 0MB | End: 120MB
+[Tue May 12 20:11:28 2026
+] PROCESS | PID: 9036 | Music Player | PCB Created
+[Tue May 12 20:11:28 2026
+] PROCESS | PID: 9036 | Music Player | Added to Ready Queue
+[Tue May 12 20:11:28 2026
+] SYSTEM | Scheduler started
+[Tue May 12 20:11:28 2026
+] SYSTEM | CPU execution slot assigned to PID 9036 | Process: Music Player | Core: 0
+[Tue May 12 20:11:28 2026
+] PROCESS | PID: 9036 | Music Player | Dispatched by scheduler
+[Tue May 12 20:11:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1928MB | Available HDD: 2018MB | Available CPU Cores: 4
+[Tue May 12 20:11:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1928MB | Available HDD: 2018MB | Available CPU Cores: 4
+[Tue May 12 20:11:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1928MB | Available HDD: 2018MB | Available CPU Cores: 4
+[Tue May 12 20:11:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1928MB | Available HDD: 2018MB | Available CPU Cores: 4
+[Tue May 12 20:11:48 2026
+] SYSTEM | CPU execution slot released from PID 9036
+[Tue May 12 20:11:48 2026
+] PROCESS | PID: 9036 | Music Player | Process terminated
+[Tue May 12 20:11:48 2026
+] RESOURCE | Resources released from PID 9036 | RAM: 120MB | HDD: 30MB | CPU: 1
+[Tue May 12 20:11:48 2026
+] SYSTEM | Scheduler finished
+[Tue May 12 20:11:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:11:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:12:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:13:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:14:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:15:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:50 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:16:55 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:00 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:05 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:10 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:17:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:18:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:19:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:20:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:21:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:11 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:16 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:21 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:26 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:31 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:36 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:41 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:46 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:51 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:22:56 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:01 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:06 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:23:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:24:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:25:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:26:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:27:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:28:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:32 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:37 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:42 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:47 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:52 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:29:57 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:30:02 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:30:07 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:30:12 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:30:17 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:30:22 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:30:27 2026
+] RESOURCE | Monitor Thread | Available RAM: 2048MB | Available HDD: 2048MB | Available CPU Cores: 5
+[Tue May 12 20:30:30 2026
+] SYSTEM | AMS OS shutdown requested
+[Tue May 12 20:30:32 2026
+] SYSTEM | Resource monitor thread stopped
+[Tue May 12 20:30:32 2026
+] SYSTEM | Shutdown cleanup completed, no active processes
+[Tue May 12 20:30:33 2026
+] SYSTEM | AMS OS shutdown completed
