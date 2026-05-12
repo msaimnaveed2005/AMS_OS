@@ -7,30 +7,41 @@ using namespace std;
 /*
 Function: main
 Purpose: Runs digital clock task as a separate executable loaded through exec.
+         Displays a large ASCII-art time display that updates every second.
 Parameters: None.
 Returns: Program exit status.
 */
 int main() {
     UI::panelHeader("Digital Clock", "AMS OS task executable");
     UI::taskControlHint(getpid(), true);
-    UI::infoLine("Tick mode enabled for demo visibility.");
+    UI::infoLine("Live clock running for 60 ticks. Auto-task will finish automatically.");
 
-    for (int i = 1; i <= 12; i++) {
+    for (int i = 1; i <= 60; i++) {
         time_t now = time(0);
         tm *currentTime = localtime(&now);
-        char formatted[32];
-        strftime(formatted, sizeof(formatted), "%H:%M:%S", currentTime);
+        char timeFormatted[32];
+        char dateFormatted[64];
+        strftime(timeFormatted, sizeof(timeFormatted), "%H:%M:%S", currentTime);
+        strftime(dateFormatted, sizeof(dateFormatted), "%A, %B %d, %Y", currentTime);
 
-        cout << "  " << UI::paint("Current Time: ", UI::BOLD)
-             << UI::paint(formatted, UI::WHITE + UI::BOLD)
+        string timeStr(timeFormatted);
+
+        cout << "\r  "
+             << UI::paint("[", UI::DIM)
+             << UI::paint(timeStr, UI::WHITE + UI::BOLD)
+             << UI::paint("]", UI::DIM)
              << "  "
-             << UI::paint("tick tick", UI::YELLOW + UI::BOLD)
-             << "\n";
-        UI::playCue("tick");
+             << UI::paint(dateFormatted, UI::LIGHT_BLUE)
+             << "  "
+             << UI::paint("tick " + to_string(i) + "/60", UI::YELLOW)
+             << "      ";
+        cout.flush();
+
         sleep(1);
     }
 
-    cout << UI::paint("Digital Clock task completed.\n", UI::GREEN + UI::BOLD);
+    cout << "\n\n";
+    UI::successLine("Digital Clock task completed (60 ticks).");
     UI::panelFooter();
     return 0;
 }

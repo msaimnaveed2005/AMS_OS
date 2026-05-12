@@ -2290,15 +2290,40 @@ int main(int argc, char* argv[]) {
     }
 
     do {
+        /*
+        Always monitor terminal window state regardless of multitasking mode.
+        When the user minimizes a task terminal (via the window minimize button),
+        the scheduler detects the hidden window and pauses the process.
+        When the user restores the terminal, this code detects the visible window
+        and automatically resumes the task:
+        - Multitasking mode: directly resume to RUNNING state
+        - Normal mode: move to READY state and auto-dispatch via scheduler
+        */
+        scheduler.handleTerminalWindowState(
+            processManager,
+            readyQueueManager,
+            logger,
+            syncManager,
+            multitaskingModeEnabled
+        );
+
         if (multitaskingModeEnabled) {
-            scheduler.handleTerminalWindowState(
-                processManager,
-                readyQueueManager,
-                logger,
-                syncManager,
-                true
-            );
             scheduler.reapFinishedParallelTasks(processManager, resourceManager, logger);
+        } else {
+            /*
+            In normal scheduler mode, if any processes were just restored to READY
+            by handleTerminalWindowState, automatically dispatch them so the user
+            doesn't have to manually run the scheduler from the menu.
+            */
+            if (readyQueueManager.hasReadyProcess()) {
+                scheduler.runScheduler(
+                    processManager,
+                    resourceManager,
+                    readyQueueManager,
+                    logger,
+                    syncManager
+                );
+            }
         }
 
         showMainMenu(

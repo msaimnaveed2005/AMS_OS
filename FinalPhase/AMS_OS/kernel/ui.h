@@ -306,17 +306,17 @@ namespace UI {
             return false;
         }
 
-        string pulseCommand = "timeout 2s paplay \"" + path + "\" >/dev/null 2>&1";
-        int pulseResult = system(pulseCommand.c_str());
+        /*
+        Play sound asynchronously in a single background subshell.
+        Uses paplay as primary player; falls back to aplay only if paplay fails.
+        The || ensures only one player runs, and & prevents blocking the OS.
+        This avoids the previous issue where both paplay and aplay could fire
+        simultaneously (e.g. paplay plays audio but returns non-zero from timeout).
+        */
+        string command = "( paplay \"" + path + "\" || aplay -q \"" + path + "\" ) >/dev/null 2>&1 &";
+        system(command.c_str());
 
-        if (pulseResult == 0) {
-            return true;
-        }
-
-        string alsaCommand = "timeout 2s aplay -q \"" + path + "\" >/dev/null 2>&1";
-        int alsaResult = system(alsaCommand.c_str());
-
-        return alsaResult == 0;
+        return true;
     }
 
     inline void playCue(const string &cueName, bool allowBellFallback = true) {
