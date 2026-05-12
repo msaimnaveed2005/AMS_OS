@@ -10,6 +10,9 @@
 #include <signal.h>
 #include <cerrno>
 #include <vector>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
 #include "resource_manager.h"
 #include "process_manager.h"
@@ -22,6 +25,83 @@
 #include "ui.h"
 
 using namespace std;
+
+/*
+Thread infrastructure for per-task lifecycle monitoring.
+Each launched task spawns a dedicated monitor thread that waits for the
+child process to terminate. When the child exits naturally (e.g. user
+closes the terminal or the task finishes), the thread auto-releases RAM,
+HDD, CPU, and PCB records without requiring manual cleanup from the menu.
+*/
+static mutex taskCleanupMutex;
+static vector<thread> taskMonitorThreads;
+
+void spawnTaskMonitorThread(
+    int pid,
+    string processName,
+    ProcessManager &processManager,
+    ResourceManager &resourceManager,
+    ReadyQueueManager &readyQueueManager,
+    Logger &logger
+) {
+    taskMonitorThreads.emplace_back([pid, processName,
+        &processManager, &resourceManager, &readyQueueManager, &logger]() {
+
+        /*
+        Block until the child process actually terminates.
+        Without WUNTRACED the call ignores stop/continue signals,
+        so it only returns when the child exits or is killed.
+        If the scheduler or another cleanup path reaps the child first,
+        waitpid returns -1 and the thread exits harmlessly.
+        */
+        int status;
+        pid_t result = waitpid(pid, &status, 0);
+
+        if (result <= 0) {
+            return;
+        }
+
+        /*
+        Lock shared managers so the monitor thread and the main
+        menu thread never modify PCB / resources at the same time.
+        */
+        lock_guard<mutex> lock(taskCleanupMutex);
+
+        PCB pcb;
+        if (!processManager.getPCB(pid, pcb)) {
+            return;
+        }
+
+        if (pcb.processState == TERMINATED_STATE) {
+            return;
+        }
+
+        processManager.updateProcessState(pid, TERMINATED_STATE);
+        readyQueueManager.removeProcessByPID(pid);
+        resourceManager.releaseMemoryBlock(pid);
+        resourceManager.releaseResources(
+            pcb.ramRequired,
+            pcb.hddRequired,
+            pcb.coresRequired
+        );
+
+        logger.logProcessEvent(pid, processName,
+            "Auto-reaped by task monitor thread");
+        logger.logResourceEvent(
+            "Resources auto-released by monitor thread | PID: " + to_string(pid) +
+            " | RAM: " + to_string(pcb.ramRequired) +
+            "MB | HDD: " + to_string(pcb.hddRequired) +
+            "MB | CPU: " + to_string(pcb.coresRequired)
+        );
+
+        processManager.removeProcess(pid);
+    });
+
+    logger.logSystemEvent(
+        "Monitor thread spawned for PID " + to_string(pid) +
+        " | Process: " + processName
+    );
+}
 
 enum OSMode {
     USER_MODE,
@@ -974,6 +1054,20 @@ void launchTaskUsingIPCForkTest(
             cout << "[KERNEL/PARENT] Run scheduler from menu to execute this process.\n";
         }
 
+        /*
+        Spawn a dedicated monitor thread for this task.
+        The thread blocks on waitpid until the child exits, then
+        automatically releases RAM, HDD, CPU, and PCB records.
+        */
+        spawnTaskMonitorThread(
+            pid,
+            request.processName,
+            processManager,
+            resourceManager,
+            readyQueueManager,
+            logger
+        );
+
         cout << "\n[KERNEL/PARENT] Current PCB Table:\n";
         processManager.displayPCBTable();
 
@@ -1891,6 +1985,18 @@ void autoStartTask(
             cout << "[KERNEL/PARENT] Auto-start " << startupLabel
                  << " is waiting in ready queue.\n";
         }
+
+        /*
+        Spawn a monitor thread for the auto-started task.
+        */
+        spawnTaskMonitorThread(
+            pid,
+            request.processName,
+            processManager,
+            resourceManager,
+            readyQueueManager,
+            logger
+        );
     } else {
         waitpid(pid, &status, 0);
     }
@@ -2519,6 +2625,19 @@ int main(int argc, char* argv[]) {
                     readyQueueManager,
                     logger
                 );
+
+                /*
+                Join all per-task monitor threads before shutdown.
+                gracefulShutdownCleanup already SIGKILLed every child,
+                so the threads will unblock from waitpid and exit.
+                */
+                for (auto &monitorThread : taskMonitorThreads) {
+                    if (monitorThread.joinable()) {
+                        monitorThread.join();
+                    }
+                }
+                logger.logSystemEvent("All task monitor threads joined");
+
                 shutdownScreen();
                 logger.logSystemEvent("AMS OS shutdown completed");
                 break;
