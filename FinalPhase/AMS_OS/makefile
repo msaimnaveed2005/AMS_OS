@@ -84,7 +84,10 @@ GUI_TASK_NAMES := \
 	process_killer \
 	snake \
 	system_info \
-	task_manager
+	task_manager \
+	ai_copilot \
+	sudoku \
+	chess
 
 GUI_TASK_BINS := $(addprefix $(BUILD_DIR)/gui_,$(GUI_TASK_NAMES))
 GUI_THEME_H := $(GUI_DIR)/gui_theme.h
@@ -177,8 +180,8 @@ help:
 	@echo "AMS OS Makefile targets"
 	@echo "  make          Build kernel, CMD tasks, GUI desktop + GUI tasks"
 	@echo "  make run      Build and start CMD mode (2 GB RAM, 256 GB HDD, 8 cores)"
-	@echo "  make gui      Build GUI desktop + all 16 GUI task apps"
-	@echo "  make gui-tasks Build only the 16 GUI task apps"
+	@echo "  make gui      Build GUI desktop + all 19 GUI task apps"
+	@echo "  make gui-tasks Build only the 19 GUI task apps"
 	@echo "  make run-gui  Build and start GUI mode"
 	@echo "  make check    Verify compiler, terminal emulator, and GTK3 availability"
 	@echo "  make install  Install under PREFIX=$(PREFIX)"

@@ -46,6 +46,9 @@ static const TaskEntry TASKS[] = {
     {14, "Task Manager",     "📊", "./build/gui_task_manager"},
     {15, "Process Killer",   "⚡", "./build/gui_process_killer"},
     {16, "Calendar",         "📅", "./build/gui_calendar"},
+    {17, "AI Copilot",       "✦",  "./build/gui_ai_copilot"},
+    {18, "Sudoku",           "🔢", "./build/gui_sudoku"},
+    {19, "Chess",            "♟️",  "./build/gui_chess"},
 };
 static const int TASK_COUNT = sizeof(TASKS) / sizeof(TASKS[0]);
 
@@ -538,7 +541,7 @@ static void show_desktop() {
     GtkWidget *dock = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     add_class(dock, "dock");
 
-    int pinned[] = {7, 6, 8, 16, 10, 11, 12, 9};
+    int pinned[] = {17, 7, 6, 8, 16, 10, 18, 19, 11, 12, 9};
     for (int p : pinned) {
         for (int i = 0; i < TASK_COUNT; i++) {
             if (TASKS[i].id != p) continue;
