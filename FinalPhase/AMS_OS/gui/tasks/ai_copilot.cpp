@@ -65,7 +65,7 @@ static GtkWidget *chat_box      = NULL;   /* VBox inside scroll */
 static GtkWidget *chat_scroll   = NULL;
 static GtkWidget *input_entry   = NULL;
 static GtkWidget *typing_box    = NULL;
-static GtkWidget *status_label  = NULL;
+
 static std::string api_key;
 static bool online_mode = false;
 static bool busy        = false;
@@ -515,7 +515,6 @@ static const char *CHAT_CSS = R"CSS(
 .chat-text {
     color: rgba(255,255,255,0.9);
     font-size: 13px;
-    line-height: 1.5;
 }
 
 .chat-input {

@@ -71,30 +71,30 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .chess-selected {
-    background-color: rgba(99,102,241,0.45) !important;
+    background-color: rgba(99,102,241,0.45);
     box-shadow: inset 0 0 12px rgba(99,102,241,0.5);
 }
 
 .chess-valid {
-    background-color: rgba(52,211,153,0.3) !important;
+    background-color: rgba(52,211,153,0.3);
     box-shadow: inset 0 0 8px rgba(52,211,153,0.3);
 }
 
 .chess-valid:hover {
-    background-color: rgba(52,211,153,0.5) !important;
+    background-color: rgba(52,211,153,0.5);
 }
 
 .chess-check {
-    background-color: rgba(220,38,38,0.35) !important;
+    background-color: rgba(220,38,38,0.35);
     box-shadow: inset 0 0 12px rgba(220,38,38,0.4);
 }
 
 .chess-last-from {
-    background-color: rgba(234,179,8,0.15) !important;
+    background-color: rgba(234,179,8,0.15);
 }
 
 .chess-last-to {
-    background-color: rgba(234,179,8,0.25) !important;
+    background-color: rgba(234,179,8,0.25);
 }
 
 .chess-board {
