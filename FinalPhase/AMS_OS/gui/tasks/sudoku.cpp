@@ -133,19 +133,19 @@ static const char *SUDOKU_CSS = R"CSS(
 }
 
 .sudoku-selected {
-    border-color: rgba(139,92,246,0.7) !important;
-    background-color: rgba(139,92,246,0.2) !important;
+    border-color: rgba(139,92,246,0.7);
+    background-color: rgba(139,92,246,0.2);
     box-shadow: 0 0 12px rgba(139,92,246,0.3);
 }
 
 .sudoku-error {
-    color: #f87171 !important;
-    background-color: rgba(220,38,38,0.15) !important;
-    border-color: rgba(220,38,38,0.4) !important;
+    color: #f87171;
+    background-color: rgba(220,38,38,0.15);
+    border-color: rgba(220,38,38,0.4);
 }
 
 .sudoku-correct {
-    color: #34d399 !important;
+    color: #34d399;
 }
 
 .sudoku-box {
