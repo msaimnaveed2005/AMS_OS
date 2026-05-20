@@ -79,17 +79,23 @@ void restoreVisibleMinimizedTasks(
         readyQueueManager.addProcessToReadyQueue(pid, pcb.processName, pcb.processType, pcb.priority);
         syncManager.notifyReadyQueue();
 
+        /*
+        Send SIGCONT to unfreeze the Linux process. Without this,
+        the terminal window appears but the task stays suspended.
+        */
+        sendSignalToScheduledProcess(pid, SIGCONT);
+
         logger.logProcessEvent(
             pid,
             pcb.processName,
-            "Terminal restored from window controls, process moved back to READY"
+            "Terminal restored from window controls, process resumed and moved to READY"
         );
         UI::successLine(
-            "[SCHEDULER] Terminal restored for PID " + to_string(pid) + ". Process returned to READY."
+            "[SCHEDULER] Terminal restored for PID " + to_string(pid) + ". Process resumed."
         );
     }
 }
-}
+} // end anonymous namespace
 
 /*
 Function: Scheduler

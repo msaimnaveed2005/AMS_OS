@@ -33,6 +33,7 @@ child process to terminate. When the child exits naturally (e.g. user
 closes the terminal or the task finishes), the thread auto-releases RAM,
 HDD, CPU, and PCB records without requiring manual cleanup from the menu.
 */
+
 static mutex taskCleanupMutex;
 static vector<thread> taskMonitorThreads;
 
@@ -156,7 +157,7 @@ void bootScreen() {
     cout << "\n";
 
     UI::asciiLogo();
- UI::playCue("boot", false);
+    UI::playCue("boot", false);
     
     usleep(2200000);
     UI::panelHeader("AMS OS", "Atomic Management System");
@@ -1128,8 +1129,10 @@ Purpose: Creates required folders for build output and virtual disk storage.
 Parameters: None.
 Returns: Nothing.
 */
-void createRequiredDirectories() {
-    try {
+void createRequiredDirectories() 
+{
+    try 
+    {
         filesystem::create_directories("build");
         filesystem::create_directories("data");
         filesystem::create_directories("data/sounds");
@@ -2647,8 +2650,6 @@ int main(int argc, char* argv[]) {
             default:
                 UI::errorLine("Invalid choice. Please select a valid option from the menu.");
         }
-
     } while (choice != 0);
-
     return 0;
 }
