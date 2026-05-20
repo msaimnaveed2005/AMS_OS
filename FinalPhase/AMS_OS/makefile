@@ -15,8 +15,14 @@ BUILD_DIR := build
 DATA_DIR := data
 TASK_DIR := tasks
 KERNEL_DIR := kernel
+GUI_DIR := gui
 
 OS_BIN := OS
+GUI_BIN := $(BUILD_DIR)/ams_desktop
+
+# GTK3 flags (only evaluated when GUI target is built)
+GTK_CFLAGS = $(shell pkg-config --cflags gtk+-3.0 2>/dev/null)
+GTK_LIBS   = $(shell pkg-config --libs   gtk+-3.0 2>/dev/null)
 
 KERNEL_SRC := \
 	$(KERNEL_DIR)/main.cpp \
@@ -60,10 +66,10 @@ TASK_NAMES := \
 
 TASK_BINS := $(addprefix $(BUILD_DIR)/,$(TASK_NAMES))
 
-.PHONY: all dirs run check install uninstall clean distclean help
+.PHONY: all dirs run gui run-gui check install uninstall clean distclean help
 
-all: dirs $(OS_BIN) $(TASK_BINS)
-	@echo "Build complete. Run './OS' or 'make run' to start AMS OS."
+all: dirs $(OS_BIN) $(TASK_BINS) gui
+	@echo "Build complete. Run './OS' for CMD mode or 'make run-gui' for GUI mode."
 
 dirs:
 	@mkdir -p $(BUILD_DIR)
@@ -75,8 +81,23 @@ $(OS_BIN): $(KERNEL_SRC) $(KERNEL_HEADERS) | dirs
 $(BUILD_DIR)/%: $(TASK_DIR)/%.cpp $(KERNEL_DIR)/ui.h | dirs
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $< $(LDFLAGS) -o $@
 
+# GUI desktop (requires libgtk-3-dev)
+gui: $(GUI_BIN)
+
+$(GUI_BIN): $(GUI_DIR)/ams_desktop.cpp | dirs
+	@if pkg-config --exists gtk+-3.0 2>/dev/null; then \
+		echo "Building GUI desktop..."; \
+		$(CXX) $(CPPFLAGS) $(CXXFLAGS) $(GTK_CFLAGS) $< $(LDFLAGS) $(GTK_LIBS) -o $@; \
+	else \
+		echo "GTK3 not found. Install with: sudo apt install libgtk-3-dev"; \
+		echo "Skipping GUI build. CMD mode (./OS) is still available."; \
+	fi
+
 run: all
 	./$(OS_BIN) 2 256 8
+
+run-gui: all
+	./$(GUI_BIN) 2 256 8
 
 check:
 	@command -v $(CXX) >/dev/null || { echo "Missing compiler: $(CXX)"; exit 1; }
@@ -84,6 +105,7 @@ check:
 	 command -v x-terminal-emulator >/dev/null || \
 	 command -v xfce4-terminal >/dev/null || \
 	 { echo "Missing terminal emulator: install gnome-terminal or x-terminal-emulator"; exit 1; }
+	@pkg-config --exists gtk+-3.0 2>/dev/null && echo "GTK3: OK" || echo "GTK3: Missing (install libgtk-3-dev for GUI mode)"
 	@echo "Ubuntu build prerequisites look available."
 
 install: check all
@@ -105,6 +127,7 @@ uninstall:
 clean:
 	rm -f "$(OS_BIN)"
 	rm -f $(TASK_BINS)
+	rm -f "$(GUI_BIN)"
 	rm -f "$(DATA_DIR)/system_log.txt"
 	@echo "Clean complete."
 
@@ -115,11 +138,14 @@ distclean: clean
 
 help:
 	@echo "AMS OS Makefile targets"
-	@echo "  make          Build kernel and all task executables"
-	@echo "  make run      Build and start with 2 GB RAM, 256 GB HDD, 8 cores"
-	@echo "  make check    Verify compiler and terminal emulator availability"
+	@echo "  make          Build kernel, tasks, and GUI desktop"
+	@echo "  make run      Build and start CMD mode (2 GB RAM, 256 GB HDD, 8 cores)"
+	@echo "  make gui      Build only the GUI desktop binary"
+	@echo "  make run-gui  Build and start GUI mode"
+	@echo "  make check    Verify compiler, terminal emulator, and GTK3 availability"
 	@echo "  make install  Install under PREFIX=$(PREFIX)"
 	@echo "  make clean    Remove binaries and runtime log"
 	@echo "  make distclean Remove generated build and virtual disk directories"
 	@echo "  make uninstall Remove installed files"
 	@echo "  make help     Show this message"
+
