@@ -1,12 +1,15 @@
 /* AMS OS — GUI Music Player
    Plays built-in demo playlist + real audio files from data/music/ folder.
-   Supports .wav, .mp3, .ogg playback via aplay/ffplay. */
+   Supports .wav, .mp3, .ogg playback via aplay/ffplay.
+   Supports seeking to any position in real audio. */
 #include "../gui_theme.h"
 #include <string>
 #include <algorithm>
 #include <cctype>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/wait.h>
+#include <dirent.h>
 
 struct Song {
     std::string title;
@@ -29,7 +32,7 @@ static void stop_audio() {
     }
 }
 
-static void play_audio(const std::string &filepath) {
+static void play_audio(const std::string &filepath, double start_seconds = 0.0) {
     stop_audio();
     if (filepath.empty()) return;
 
@@ -48,19 +51,40 @@ static void play_audio(const std::string &filepath) {
             std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
         }
 
+        /* Use ffplay for everything — it supports seeking with -ss */
+        char ss_buf[32];
+        snprintf(ss_buf, sizeof(ss_buf), "%.1f", start_seconds);
+
+        if (start_seconds > 0.1) {
+            execlp("ffplay", "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet",
+                   "-ss", ss_buf, filepath.c_str(), (char *)NULL);
+        } else {
+            execlp("ffplay", "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet",
+                   filepath.c_str(), (char *)NULL);
+        }
+
+        /* Fallback for .wav without ffplay */
         if (ext == ".wav") {
             execlp("aplay", "aplay", "-q", filepath.c_str(), (char *)NULL);
-            /* Fallback to ffplay if aplay not found */
-            execlp("ffplay", "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet",
-                   filepath.c_str(), (char *)NULL);
-        } else {
-            /* .mp3, .ogg, and others — try ffplay first, then mpg123 */
-            execlp("ffplay", "ffplay", "-nodisp", "-autoexit", "-loglevel", "quiet",
-                   filepath.c_str(), (char *)NULL);
-            execlp("mpg123", "mpg123", "-q", filepath.c_str(), (char *)NULL);
         }
         _exit(1);
     }
+}
+
+/* ── Get real duration using ffprobe ── */
+static int get_audio_duration(const std::string &filepath) {
+    std::string cmd = "ffprobe -v quiet -show_entries format=duration -of csv=p=0 \"" + filepath + "\" 2>/dev/null";
+    FILE *fp = popen(cmd.c_str(), "r");
+    if (!fp) return 180;
+    char buf[64];
+    if (fgets(buf, sizeof(buf), fp)) {
+        pclose(fp);
+        double dur = atof(buf);
+        if (dur > 0.5 && dur < 36000) return (int)(dur + 0.5);
+    } else {
+        pclose(fp);
+    }
+    return 180; /* fallback 3 minutes */
 }
 
 /* ── Scan data/music/ directory for audio files ── */
@@ -83,12 +107,13 @@ static void scan_music_dir() {
 
         /* Derive title from filename without extension */
         std::string title = fname.substr(0, dot);
+        std::string full_path = "data/music/" + fname;
 
         Song s;
         s.title = title;
         s.artist = "📂 Local Library";
-        s.duration = 180; /* default 3 minutes */
-        s.filepath = "data/music/" + fname;
+        s.duration = get_audio_duration(full_path);
+        s.filepath = full_path;
         PLAYLIST.push_back(s);
     }
     closedir(dir);
@@ -104,10 +129,12 @@ struct PlayerState {
     int  current;
     bool playing;
     double progress;
+    bool seeking;  /* true while user drags the scale */
 };
-static PlayerState P = {NULL, NULL, NULL, NULL, NULL, 0, false, 0};
+static PlayerState P = {NULL, NULL, NULL, NULL, NULL, 0, false, 0, false};
 static int initial_song_index = 0;
 static bool should_autoplay = false;
+static bool is_updating_programmatically = false;
 
 static void load_song(int idx) {
     stop_audio();
@@ -115,19 +142,25 @@ static void load_song(int idx) {
     P.progress = 0;
     gtk_label_set_text(GTK_LABEL(P.title_lbl), PLAYLIST[idx].title.c_str());
     gtk_label_set_text(GTK_LABEL(P.artist_lbl), PLAYLIST[idx].artist.c_str());
+    is_updating_programmatically = true;
     gtk_range_set_value(GTK_RANGE(P.scale), 0);
+    is_updating_programmatically = false;
     char buf[32]; snprintf(buf, sizeof(buf), "0:00 / %d:%02d",
         PLAYLIST[idx].duration / 60, PLAYLIST[idx].duration % 60);
     gtk_label_set_text(GTK_LABEL(P.time_lbl), buf);
 }
 
-static void start_playback() {
+static void start_playback_at(double seconds) {
     P.playing = true;
+    P.progress = seconds;
     gtk_button_set_label(GTK_BUTTON(P.play_btn), "⏸");
-    /* If the current song has a real audio file, play it */
     if (!PLAYLIST[P.current].filepath.empty()) {
-        play_audio(PLAYLIST[P.current].filepath);
+        play_audio(PLAYLIST[P.current].filepath, seconds);
     }
+}
+
+static void start_playback() {
+    start_playback_at(P.progress);
 }
 
 static void stop_playback() {
@@ -137,7 +170,7 @@ static void stop_playback() {
 }
 
 static gboolean playback_tick(gpointer) {
-    if (!P.playing) return G_SOURCE_CONTINUE;
+    if (!P.playing || P.seeking) return G_SOURCE_CONTINUE;
     P.progress += 0.5;
     int dur = PLAYLIST[P.current].duration;
     double pct = (P.progress / dur) * 100.0;
@@ -148,12 +181,46 @@ static gboolean playback_tick(gpointer) {
         load_song(next);
         start_playback();
     }
+    is_updating_programmatically = true;
     gtk_range_set_value(GTK_RANGE(P.scale), pct);
+    is_updating_programmatically = false;
     int elapsed = (int)P.progress;
     char buf[32]; snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d",
         elapsed/60, elapsed%60, dur/60, dur%60);
     gtk_label_set_text(GTK_LABEL(P.time_lbl), buf);
     return G_SOURCE_CONTINUE;
+}
+
+/* ── Seek handler — when user releases the scale ── */
+static void on_seek(GtkRange *range, gpointer) {
+    if (is_updating_programmatically) return;
+
+    double pct = gtk_range_get_value(range);
+    int dur = PLAYLIST[P.current].duration;
+    double new_pos = (pct / 100.0) * dur;
+    P.progress = new_pos;
+
+    /* Update time label */
+    int elapsed = (int)new_pos;
+    char buf[32]; snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d",
+        elapsed/60, elapsed%60, dur/60, dur%60);
+    gtk_label_set_text(GTK_LABEL(P.time_lbl), buf);
+
+    /* Restart audio at new position if playing a real file and not dragging */
+    if (P.playing && !P.seeking && !PLAYLIST[P.current].filepath.empty()) {
+        play_audio(PLAYLIST[P.current].filepath, new_pos);
+    }
+}
+
+static gboolean on_seek_start(GtkWidget *, GdkEvent *, gpointer) {
+    P.seeking = true;
+    return FALSE; /* let the event propagate */
+}
+
+static gboolean on_seek_end(GtkWidget *widget, GdkEvent *, gpointer) {
+    P.seeking = false;
+    on_seek(GTK_RANGE(widget), NULL);
+    return FALSE;
 }
 
 static void on_play(GtkWidget *, gpointer) {
@@ -206,9 +273,13 @@ static void on_activate(GtkApplication *app, gpointer) {
     ams_css(P.artist_lbl, "artist");
     gtk_box_pack_start(GTK_BOX(vbox), P.artist_lbl, FALSE, FALSE, 0);
 
-    /* Seek bar */
-    P.scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 100, 1);
+    /* Seek bar — interactive */
+    P.scale = gtk_scale_new_with_range(GTK_ORIENTATION_HORIZONTAL, 0, 100, 0.5);
     gtk_scale_set_draw_value(GTK_SCALE(P.scale), FALSE);
+    gtk_range_set_warp_on_click(GTK_RANGE(P.scale), TRUE);
+    g_signal_connect(P.scale, "value-changed", G_CALLBACK(on_seek), NULL);
+    g_signal_connect(P.scale, "button-press-event", G_CALLBACK(on_seek_start), NULL);
+    g_signal_connect(P.scale, "button-release-event", G_CALLBACK(on_seek_end), NULL);
     gtk_box_pack_start(GTK_BOX(vbox), P.scale, FALSE, FALSE, 4);
 
     P.time_lbl = gtk_label_new("0:00 / 3:54");
@@ -312,7 +383,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    GtkApplication *app = gtk_application_new("com.ams.task.music", G_APPLICATION_FLAGS_NONE);
+    GtkApplication *app = gtk_application_new("com.ams.task.music", G_APPLICATION_NON_UNIQUE);
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
     int s = g_application_run(G_APPLICATION(app), argc, argv);
 

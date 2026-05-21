@@ -9,6 +9,7 @@ and DYNAMICALLY CREATE new GUI applications on demand.
 #include <signal.h>
 #include <map>
 #include <sys/wait.h>
+#include <dirent.h>
 
 /* ══════════════════════════════════════════════════════════════
    Constants & Configuration
@@ -85,6 +86,18 @@ static const char *SYSTEM_PROMPT =
     "- Make apps premium and polished — proper spacing, dark theme, great UX\n"
     "- The code MUST be 100% complete and compilable. NO placeholders, NO TODOs.\n"
     "- Always include ALL necessary #include headers\n"
+    "- CRITICAL C++ RULES TO AVOID COMPILATION ERRORS:\n"
+    "  * Use std::string for ALL string variables, never raw char arrays for mutable strings\n"
+    "  * gtk_button_get_label() returns const gchar* (const char*). Compare with strcmp(), do NOT assign to std::string directly in comparisons\n"
+    "  * gtk_entry_get_text() returns const gchar*. Use std::string(gtk_entry_get_text(...)) to convert\n"
+    "  * When setting labels: gtk_label_set_text(GTK_LABEL(lbl), str.c_str()) — always use .c_str()\n"
+    "  * Use g_signal_connect with G_CALLBACK() wrapper for all signal handlers\n"
+    "  * Use GINT_TO_POINTER/GPOINTER_TO_INT for passing integer data through gpointer\n"
+    "  * Always use G_APPLICATION_NON_UNIQUE instead of G_APPLICATION_FLAGS_NONE\n"
+    "  * For Tic-Tac-Toe and grid games: use a static char array for game state, NOT button labels\n"
+    "  * For drawing games: use gtk_widget_queue_draw() to trigger redraws\n"
+    "  * For key events: use key-press-event signal on the window widget\n"
+    "  * Always cast callback functions: G_CALLBACK(+[](GtkWidget*, gpointer) { ... })\n"
     "- BEFORE the <create_app> block, write a SHORT friendly message (1-2 sentences) about the app you're creating.\n"
     "- AFTER the </create_app> closing tag, do NOT write anything else.\n\n"
     "EXAMPLE — if user says 'create a color picker app':\n"
@@ -385,6 +398,34 @@ static std::string offline_respond(const std::string &input) {
         for (auto &s : songs) {
             if (q.find(s.pattern) != std::string::npos) {
                 return std::string("Sure! Playing \"") + s.title + "\" in the Music Player! 🎵 <<LAUNCH:music_player:" + s.title + ">>";
+            }
+        }
+
+        /* ── Also scan data/music/ folder for matching real audio files ── */
+        {
+            DIR *dir = opendir("data/music");
+            if (dir) {
+                struct dirent *entry;
+                while ((entry = readdir(dir)) != NULL) {
+                    std::string fname = entry->d_name;
+                    if (fname == "." || fname == "..") continue;
+                    size_t dot = fname.rfind('.');
+                    if (dot == std::string::npos) continue;
+                    std::string ext = fname.substr(dot);
+                    std::string ext_lower = ext;
+                    std::transform(ext_lower.begin(), ext_lower.end(), ext_lower.begin(), ::tolower);
+                    if (ext_lower != ".wav" && ext_lower != ".mp3" && ext_lower != ".ogg") continue;
+
+                    /* Get title from filename without extension */
+                    std::string title = fname.substr(0, dot);
+                    std::string title_lower = to_lower(title);
+
+                    if (q.find(title_lower) != std::string::npos) {
+                        closedir(dir);
+                        return "🎵 Playing \"" + title + "\" from your music library! <<LAUNCH:music_player:" + title + ">>";
+                    }
+                }
+                closedir(dir);
             }
         }
         

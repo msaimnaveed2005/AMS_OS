@@ -87,7 +87,8 @@ GUI_TASK_NAMES := \
 	task_manager \
 	ai_copilot \
 	sudoku \
-	chess
+	chess \
+	tic_tac_toe
 
 GUI_TASK_BINS := $(addprefix $(BUILD_DIR)/gui_,$(GUI_TASK_NAMES))
 GUI_THEME_H := $(GUI_DIR)/gui_theme.h
