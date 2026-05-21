@@ -15856,4 +15856,77 @@
 ] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 1
 [Wed May 13 16:42:05 2026
 ] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 1
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            [Wed May 20 23:16:10 2026
+] SYSTEM | AMS OS Booted
+[Wed May 20 23:16:10 2026
+] SYSTEM | Resource monitor thread started
+[Wed May 20 23:16:10 2026
+] RESOURCE | Resources granted to auto-start task Digital Clock | RAM: 50MB | HDD: 10MB | CPU: 1
+[Wed May 20 23:16:10 2026
+] RESOURCE | RAM block assigned to auto-start PID 5418 | Digital Clock | Start: 0MB | End: 50MB
+[Wed May 20 23:16:10 2026
+] PROCESS | PID: 5418 | Digital Clock | Auto-start PCB created
+[Wed May 20 23:16:10 2026
+] PROCESS | PID: 5418 | Digital Clock | Auto-start task added to ready queue
+[Wed May 20 23:16:10 2026
+] SYSTEM | Monitor thread spawned for PID 5418 | Process: Digital Clock
+[Wed May 20 23:16:10 2026
+] RESOURCE | Resources granted to auto-start task Calendar | RAM: 50MB | HDD: 10MB | CPU: 1
+[Wed May 20 23:16:10 2026
+] RESOURCE | RAM block assigned to auto-start PID 5420 | Calendar | Start: 50MB | End: 100MB
+[Wed May 20 23:16:10 2026
+] PROCESS | PID: 5420 | Calendar | Auto-start PCB created
+[Wed May 20 23:16:10 2026
+] PROCESS | PID: 5420 | Calendar | Auto-start task added to ready queue
+[Wed May 20 23:16:10 2026
+] SYSTEM | Monitor thread spawned for PID 5420 | Process: Calendar
+[Wed May 20 23:16:10 2026
+] SYSTEM | Scheduler started
+[Wed May 20 23:16:10 2026
+] SYSTEM | CPU execution slot assigned to PID 5418 | Process: Digital Clock | Core: 0
+[Wed May 20 23:16:10 2026
+] PROCESS | PID: 5418 | Digital Clock | Dispatched by scheduler
+[Wed May 20 23:16:12 2026
+] PROCESS | PID: 5418 | Digital Clock | Terminal minimized from window controls, process moved to MINIMIZED
+[Wed May 20 23:16:12 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 5418
+[Wed May 20 23:16:12 2026
+] SYSTEM | Scheduler paused because PID 5418 was minimized
+[Wed May 20 23:16:12 2026
+] SYSTEM | Scheduler finished
+[Wed May 20 23:16:12 2026
+] PROCESS | PID: 5418 | Digital Clock | Terminal restored from window controls, process returned to READY
+[Wed May 20 23:16:12 2026
+] SYSTEM | Scheduler started
+[Wed May 20 23:16:12 2026
+] PROCESS | PID: 5420 | Calendar | Aging applied, priority improved from 2 to 1
+[Wed May 20 23:16:12 2026
+] SYSTEM | CPU execution slot assigned to PID 5420 | Process: Calendar | Core: 1
+[Wed May 20 23:16:12 2026
+] PROCESS | PID: 5420 | Calendar | Dispatched by scheduler
+[Wed May 20 23:16:14 2026
+] PROCESS | PID: 5420 | Calendar | Terminal minimized from window controls, process moved to MINIMIZED
+[Wed May 20 23:16:14 2026
+] SYSTEM | CPU execution slot released after terminal minimize for PID 5420
+[Wed May 20 23:16:14 2026
+] SYSTEM | Scheduler paused because PID 5420 was minimized
+[Wed May 20 23:16:14 2026
+] SYSTEM | Scheduler finished
+[Wed May 20 23:16:15 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 0
+[Wed May 20 23:16:20 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 0
+[Wed May 20 23:16:25 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 0
+[Wed May 20 23:16:30 2026
+] RESOURCE | Monitor Thread | Available RAM: 1948MB | Available HDD: 2028MB | Available CPU Cores: 0
+[Wed May 20 23:16:31 2026
+] PROCESS | PID: 5418 | Digital Clock | Auto-reaped by task monitor thread
+[Wed May 20 23:16:31 2026
+] RESOURCE | Resources auto-released by monitor thread | PID: 5418 | RAM: 50MB | HDD: 10MB | CPU: 1
+[Wed May 20 23:16:35 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 1
+[Wed May 20 23:16:40 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 1
+[Wed May 20 23:16:45 2026
+] RESOURCE | Monitor Thread | Available RAM: 1998MB | Available HDD: 2038MB | Available CPU Cores: 1
