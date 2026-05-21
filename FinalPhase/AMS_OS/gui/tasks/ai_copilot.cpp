@@ -106,7 +106,19 @@ static const char *SYSTEM_PROMPT =
     "#include \"../gui_theme.h\"\n"
     "#include <signal.h>\n"
     "// ... complete code ...\n"
-    "</create_app>\n\n";
+    "</create_app>\n\n"
+    "8. **ADVANCED FILESYSTEM OPERATIONS** — You can create folders, files, and update existing files.\n"
+    "To create a folder: `<create_folder path=\"folder/name\"></create_folder>`\n"
+    "To create a file: `<create_file path=\"path/to/file.txt\">file content here</create_file>`\n"
+    "To update a file: \n"
+    "`<update_file path=\"path/to/file.ext\">\n"
+    "===SEARCH===\n"
+    "old content to find\n"
+    "===REPLACE===\n"
+    "new content to replace with\n"
+    "</update_file>`\n"
+    "For updates, you MUST match the SEARCH block exactly with the file's current contents (including whitespace).\n"
+    "You can chain multiple operations together in your response.\n\n";
 
 /* ══════════════════════════════════════════════════════════════
    Dynamic App Registry — loaded from data/desktop_apps.txt
@@ -280,33 +292,15 @@ static std::string create_new_program(const std::string &id, const std::string &
         /* Check if the id is already listed */
         if (makefile_content.find("\t" + id) == std::string::npos &&
             makefile_content.find(" " + id) == std::string::npos) {
-            /* Find the end of GUI_TASK_NAMES list (the line with just the last entry before blank line) */
-            size_t gui_pos = makefile_content.find("GUI_TASK_NAMES");
+            
+            size_t gui_pos = makefile_content.find("GUI_TASK_NAMES :=");
             if (gui_pos != std::string::npos) {
-                /* Find the last continuation line: search for the last \\\n\t before a non-continuation line */
-                /* Strategy: find "chess" (last entry) and append after it */
-                size_t last_entry = makefile_content.find("\tchess", gui_pos);
-                if (last_entry == std::string::npos) {
-                    /* Try to find any last entry — look for the line that doesn't end with \ */
-                    last_entry = makefile_content.find("chess", gui_pos);
-                }
-                if (last_entry != std::string::npos) {
-                    /* Find end of "chess" line */
-                    size_t eol = makefile_content.find('\n', last_entry);
-                    if (eol == std::string::npos) eol = makefile_content.size();
-
-                    /* The "chess" line currently ends without a backslash continuation.
-                       We need to add " \" to chess line and then add our new entry */
-                    std::string chess_line = makefile_content.substr(last_entry, eol - last_entry);
-                    /* Remove trailing \r if present */
-                    std::string trimmed = chess_line;
-                    while (!trimmed.empty() && (trimmed.back() == '\r' || trimmed.back() == ' '))
-                        trimmed.pop_back();
-
-                    std::string new_content = makefile_content.substr(0, last_entry);
-                    new_content += trimmed + " \\\r\n\t" + id;
+                // Find the first newline after GUI_TASK_NAMES :=
+                size_t eol = makefile_content.find('\n', gui_pos);
+                if (eol != std::string::npos) {
+                    // Insert the new app immediately under the GUI_TASK_NAMES := \ declaration
+                    std::string new_content = makefile_content.substr(0, eol) + "\n\t" + id + " \\";
                     new_content += makefile_content.substr(eol);
-
                     std::ofstream out("makefile");
                     out << new_content;
                 }
@@ -641,6 +635,125 @@ static std::string parse_and_execute_actions(const std::string &text) {
                     if (!after.empty()) display += "\n" + after;
                 }
             }
+        }
+    }
+
+    /* ── Handle Advanced Filesystem Actions ── */
+    
+    // <create_folder>
+    size_t cf_pos = 0;
+    while ((cf_pos = display.find("<create_folder")) != std::string::npos) {
+        size_t cf_end = display.find("</create_folder>", cf_pos);
+        if (cf_end == std::string::npos) break;
+        
+        std::string tag = display.substr(cf_pos, display.find('>', cf_pos) - cf_pos + 1);
+        std::string path;
+        size_t p = tag.find("path=\"");
+        if (p != std::string::npos) {
+            p += 6;
+            size_t q = tag.find('"', p);
+            if (q != std::string::npos) path = tag.substr(p, q - p);
+        }
+        
+        if (!path.empty()) {
+            std::string cmd = "mkdir -p \"" + path + "\"";
+            int ret = system(cmd.c_str());
+            (void)ret; // Ignore return value warning
+            fprintf(stderr, "[AMS Copilot] Created folder: %s\n", path.c_str());
+            display.replace(cf_pos, cf_end - cf_pos + 16, "📁 Created folder: " + path);
+        } else {
+            display.erase(cf_pos, cf_end - cf_pos + 16);
+        }
+    }
+
+    // <create_file>
+    size_t file_pos = 0;
+    while ((file_pos = display.find("<create_file")) != std::string::npos) {
+        size_t file_end = display.find("</create_file>", file_pos);
+        if (file_end == std::string::npos) break;
+        
+        size_t tag_end = display.find('>', file_pos);
+        if (tag_end == std::string::npos || tag_end > file_end) break;
+        
+        std::string tag = display.substr(file_pos, tag_end - file_pos + 1);
+        std::string content = display.substr(tag_end + 1, file_end - tag_end - 1);
+        
+        if (!content.empty() && content.front() == '\n') content.erase(0, 1);
+        if (!content.empty() && content.back() == '\n') content.pop_back();
+
+        std::string path;
+        size_t p = tag.find("path=\"");
+        if (p != std::string::npos) {
+            p += 6;
+            size_t q = tag.find('"', p);
+            if (q != std::string::npos) path = tag.substr(p, q - p);
+        }
+        
+        if (!path.empty()) {
+            std::ofstream out(path);
+            out << content;
+            out.close();
+            fprintf(stderr, "[AMS Copilot] Created file: %s\n", path.c_str());
+            display.replace(file_pos, file_end - file_pos + 14, "📄 Created file: " + path);
+        } else {
+            display.erase(file_pos, file_end - file_pos + 14);
+        }
+    }
+
+    // <update_file>
+    size_t up_pos = 0;
+    while ((up_pos = display.find("<update_file")) != std::string::npos) {
+        size_t up_end = display.find("</update_file>", up_pos);
+        if (up_end == std::string::npos) break;
+        
+        size_t tag_end = display.find('>', up_pos);
+        if (tag_end == std::string::npos || tag_end > up_end) break;
+        
+        std::string tag = display.substr(up_pos, tag_end - up_pos + 1);
+        std::string inner = display.substr(tag_end + 1, up_end - tag_end - 1);
+        
+        std::string path;
+        size_t p = tag.find("path=\"");
+        if (p != std::string::npos) {
+            p += 6;
+            size_t q = tag.find('"', p);
+            if (q != std::string::npos) path = tag.substr(p, q - p);
+        }
+        
+        size_t s_pos = inner.find("===SEARCH===");
+        size_t r_pos = inner.find("===REPLACE===");
+        
+        if (!path.empty() && s_pos != std::string::npos && r_pos != std::string::npos && r_pos > s_pos) {
+            std::string search_text = inner.substr(s_pos + 12, r_pos - (s_pos + 12));
+            std::string replace_text = inner.substr(r_pos + 13);
+            
+            if (!search_text.empty() && search_text.front() == '\n') search_text.erase(0, 1);
+            if (!search_text.empty() && search_text.back() == '\n') search_text.pop_back();
+            if (!replace_text.empty() && replace_text.front() == '\n') replace_text.erase(0, 1);
+            if (!replace_text.empty() && replace_text.back() == '\n') replace_text.pop_back();
+            
+            std::ifstream in(path);
+            if (in.is_open()) {
+                std::string file_content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+                in.close();
+                
+                size_t rep_idx = file_content.find(search_text);
+                if (rep_idx != std::string::npos) {
+                    file_content.replace(rep_idx, search_text.size(), replace_text);
+                    std::ofstream out(path);
+                    out << file_content;
+                    out.close();
+                    fprintf(stderr, "[AMS Copilot] Updated file: %s\n", path.c_str());
+                    display.replace(up_pos, up_end - up_pos + 14, "✏️ Updated file: " + path);
+                } else {
+                    fprintf(stderr, "[AMS Copilot] Update failed (search text not found): %s\n", path.c_str());
+                    display.replace(up_pos, up_end - up_pos + 14, "❌ Update failed for " + path + ": search text not found in file.");
+                }
+            } else {
+                display.replace(up_pos, up_end - up_pos + 14, "❌ Update failed: could not open " + path);
+            }
+        } else {
+            display.erase(up_pos, up_end - up_pos + 14);
         }
     }
 
