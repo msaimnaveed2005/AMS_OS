@@ -8,10 +8,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-<<<<<<< HEAD
-=======
 #include <dirent.h>
->>>>>>> 32ae8bb3ce880439b4d53d4fe1678862b3a64d16
 
 struct Song {
     std::string title;
@@ -68,8 +65,6 @@ static void play_audio(const std::string &filepath) {
     }
 }
 
-<<<<<<< HEAD
-=======
 /* ── Get real duration using ffprobe or WAV header ── */
 static int get_audio_duration(const std::string &filepath) {
     /* 1. Try ffprobe (if installed) */
@@ -105,8 +100,6 @@ static int get_audio_duration(const std::string &filepath) {
     /* 3. Fallback to 10 hours so the user is never interrupted */
     return 36000;
 }
-
->>>>>>> 32ae8bb3ce880439b4d53d4fe1678862b3a64d16
 /* ── Scan data/music/ directory for audio files ── */
 static void scan_music_dir() {
     DIR *dir = opendir("data/music");
