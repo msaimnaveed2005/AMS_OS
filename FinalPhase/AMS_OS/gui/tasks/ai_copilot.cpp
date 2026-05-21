@@ -66,7 +66,7 @@ static GtkWidget *chat_scroll   = NULL;
 static GtkWidget *input_entry   = NULL;
 static GtkWidget *typing_box    = NULL;
 
-enum Provider { PROVIDER_NONE, PROVIDER_GEMINI, PROVIDER_DEEPSEEK };
+enum Provider { PROVIDER_NONE, PROVIDER_GEMINI, PROVIDER_DEEPSEEK, PROVIDER_GROQ };
 static Provider current_provider = PROVIDER_NONE;
 static std::string api_key;
 static bool online_mode = false;
@@ -315,8 +315,8 @@ static std::string build_gemini_json() {
     return json;
 }
 
-static std::string build_deepseek_json() {
-    std::string json = "{\"model\":\"deepseek-chat\",\"messages\":[";
+static std::string build_openai_compatible_json(const std::string &model) {
+    std::string json = "{\"model\":\"" + model + "\",\"messages\":[";
     json += "{\"role\":\"system\",\"content\":\"" + json_escape(SYSTEM_PROMPT) + "\"}";
 
     int start = (int)history.size() - 20;
@@ -420,7 +420,15 @@ static gpointer online_thread_func(gpointer data) {
     ApiRequest *req = (ApiRequest *)data;
 
     /* Write JSON body to temp file */
-    std::string json_body = (current_provider == PROVIDER_DEEPSEEK) ? build_deepseek_json() : build_gemini_json();
+    std::string json_body;
+    if (current_provider == PROVIDER_DEEPSEEK) {
+        json_body = build_openai_compatible_json("deepseek-chat");
+    } else if (current_provider == PROVIDER_GROQ) {
+        json_body = build_openai_compatible_json("llama-3.3-70b-versatile");
+    } else {
+        json_body = build_gemini_json();
+    }
+    
     std::string tmp_path = "/tmp/ams_copilot_req.json";
     {
         std::ofstream tmp(tmp_path);
@@ -430,6 +438,11 @@ static gpointer online_thread_func(gpointer data) {
     std::string cmd;
     if (current_provider == PROVIDER_DEEPSEEK) {
         cmd = "curl -s -m 30 -X POST \"https://api.deepseek.com/chat/completions\" "
+              "-H \"Content-Type: application/json\" "
+              "-H \"Authorization: Bearer " + api_key + "\" "
+              "-d @" + tmp_path;
+    } else if (current_provider == PROVIDER_GROQ) {
+        cmd = "curl -s -m 30 -X POST \"https://api.groq.com/openai/v1/chat/completions\" "
               "-H \"Content-Type: application/json\" "
               "-H \"Authorization: Bearer " + api_key + "\" "
               "-d @" + tmp_path;
@@ -468,13 +481,15 @@ static gpointer online_thread_func(gpointer data) {
             if (err_msg.empty()) {
                 if (current_provider == PROVIDER_DEEPSEEK)
                     req->response = "⚠️ API Error. Please check your DEEPSEEK_API_KEY.";
+                else if (current_provider == PROVIDER_GROQ)
+                    req->response = "⚠️ API Error. Please check your GROQ_API_KEY.";
                 else
                     req->response = "⚠️ API Error. Please check your GEMINI_API_KEY.";
             } else {
                 req->response = "⚠️ API Error: " + err_msg;
             }
         } else {
-            if (current_provider == PROVIDER_DEEPSEEK) {
+            if (current_provider == PROVIDER_DEEPSEEK || current_provider == PROVIDER_GROQ) {
                 req->response = extract_text_field(raw, "\"content\"");
             } else {
                 req->response = extract_text_field(raw, "\"text\"");
@@ -632,6 +647,7 @@ static void on_activate(GtkApplication *app, gpointer) {
 
     /* Check API key */
     const char *deepseek_key = getenv("DEEPSEEK_API_KEY");
+    const char *groq_key = getenv("GROQ_API_KEY");
     const char *gemini_key = getenv("GEMINI_API_KEY");
 
     if (deepseek_key && strlen(deepseek_key) > 0) {
@@ -639,6 +655,11 @@ static void on_activate(GtkApplication *app, gpointer) {
         current_provider = PROVIDER_DEEPSEEK;
         online_mode = true;
         fprintf(stderr, "[AMS Copilot] DeepSeek API key found, online mode enabled.\n");
+    } else if (groq_key && strlen(groq_key) > 0) {
+        api_key = groq_key;
+        current_provider = PROVIDER_GROQ;
+        online_mode = true;
+        fprintf(stderr, "[AMS Copilot] Groq API key found, online mode enabled.\n");
     } else if (gemini_key && strlen(gemini_key) > 0) {
         api_key = gemini_key;
         current_provider = PROVIDER_GEMINI;
@@ -647,7 +668,7 @@ static void on_activate(GtkApplication *app, gpointer) {
     } else {
         current_provider = PROVIDER_NONE;
         online_mode = false;
-        fprintf(stderr, "[AMS Copilot] No API key set (GEMINI_API_KEY or DEEPSEEK_API_KEY), running in offline mode.\n");
+        fprintf(stderr, "[AMS Copilot] No API key set (GEMINI_API_KEY, DEEPSEEK_API_KEY, or GROQ_API_KEY), running in offline mode.\n");
     }
 
     /* Verify curl is available for online mode */
@@ -678,6 +699,8 @@ static void on_activate(GtkApplication *app, gpointer) {
     if (online_mode) {
         if (current_provider == PROVIDER_DEEPSEEK)
             subtitle = "🟢  Online — DeepSeek API";
+        else if (current_provider == PROVIDER_GROQ)
+            subtitle = "🟢  Online — Groq API";
         else
             subtitle = "🟢  Online — Gemini API";
     } else {
@@ -756,10 +779,12 @@ static void on_activate(GtkApplication *app, gpointer) {
     if (online_mode) {
         if (current_provider == PROVIDER_DEEPSEEK)
             welcome += "Status: 🟢 Online — powered by DeepSeek AI";
+        else if (current_provider == PROVIDER_GROQ)
+            welcome += "Status: 🟢 Online — powered by Groq (Llama 3)";
         else
             welcome += "Status: 🟢 Online — powered by Gemini AI";
     } else {
-        welcome += "Status: 🔴 Offline — set GEMINI_API_KEY or DEEPSEEK_API_KEY for full AI mode";
+        welcome += "Status: 🔴 Offline — set GEMINI_API_KEY, DEEPSEEK_API_KEY, or GROQ_API_KEY for full AI mode";
     }
 
     add_bubble("✦ AMS Copilot", welcome, false);
