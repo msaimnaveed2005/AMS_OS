@@ -94,11 +94,7 @@ GUI_TASK_NAMES := \
 	task_manager \
 	ai_copilot \
 	sudoku \
-<<<<<<< HEAD
 	chess \
-=======
-	chess \
->>>>>>> d6d1f78b9d908957d6cb42d4466cf5ba25a8539d
 	tic_tac_toe
 
 # Strip \r carriage returns to handle Windows CRLF line endings on Linux
