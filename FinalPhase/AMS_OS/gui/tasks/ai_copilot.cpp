@@ -102,15 +102,37 @@ static std::string extract_text_field(const std::string &json, const std::string
     std::string result;
     while (pos < json.size()) {
         if (json[pos] == '\\' && pos + 1 < json.size()) {
-            switch (json[pos + 1]) {
-                case '"':  result += '"';  break;
-                case '\\': result += '\\'; break;
-                case 'n':  result += '\n'; break;
-                case 'r':  result += '\r'; break;
-                case 't':  result += '\t'; break;
-                default:   result += json[pos + 1]; break;
+            if (json[pos + 1] == 'u' && pos + 5 < json.size()) {
+                /* Parse 4 hex digits: json[pos+2..pos+5] */
+                std::string hex_str = json.substr(pos + 2, 4);
+                try {
+                    unsigned long codepoint = std::stoul(hex_str, nullptr, 16);
+                    if (codepoint <= 0x7f) {
+                        result += (char)codepoint;
+                    } else if (codepoint <= 0x7ff) {
+                        result += (char)(0xc0 | ((codepoint >> 6) & 0x1f));
+                        result += (char)(0x80 | (codepoint & 0x3f));
+                    } else if (codepoint <= 0xffff) {
+                        result += (char)(0xe0 | ((codepoint >> 12) & 0x0f));
+                        result += (char)(0x80 | ((codepoint >> 6) & 0x3f));
+                        result += (char)(0x80 | (codepoint & 0x3f));
+                    }
+                } catch (...) {
+                    /* Fallback if parsing fails: just retain raw chars */
+                    result += "\\u" + hex_str;
+                }
+                pos += 6;
+            } else {
+                switch (json[pos + 1]) {
+                    case '"':  result += '"';  break;
+                    case '\\': result += '\\'; break;
+                    case 'n':  result += '\n'; break;
+                    case 'r':  result += '\r'; break;
+                    case 't':  result += '\t'; break;
+                    default:   result += json[pos + 1]; break;
+                }
+                pos += 2;
             }
-            pos += 2;
         } else if (json[pos] == '"') {
             break;
         } else {
