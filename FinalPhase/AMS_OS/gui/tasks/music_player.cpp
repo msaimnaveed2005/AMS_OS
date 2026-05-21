@@ -120,12 +120,13 @@ static void scan_music_dir() {
 
         /* Derive title from filename without extension */
         std::string title = fname.substr(0, dot);
+        std::string full_path = "data/music/" + fname;
 
         Song s;
         s.title = title;
         s.artist = "📂 Local Library";
-        s.duration = 180; /* default 3 minutes */
-        s.filepath = "data/music/" + fname;
+        s.duration = get_audio_duration(full_path);
+        s.filepath = full_path;
         PLAYLIST.push_back(s);
     }
     closedir(dir);
