@@ -66,6 +66,8 @@ static GtkWidget *chat_scroll   = NULL;
 static GtkWidget *input_entry   = NULL;
 static GtkWidget *typing_box    = NULL;
 
+enum Provider { PROVIDER_NONE, PROVIDER_GEMINI, PROVIDER_DEEPSEEK };
+static Provider current_provider = PROVIDER_NONE;
 static std::string api_key;
 static bool online_mode = false;
 static bool busy        = false;
@@ -90,11 +92,10 @@ static std::string json_escape(const std::string &s) {
     return out;
 }
 
-static std::string extract_text(const std::string &json) {
-    /* Find first "text" field value in Gemini response JSON */
-    size_t pos = json.find("\"text\"");
+static std::string extract_text_field(const std::string &json, const std::string &field_name) {
+    size_t pos = json.find(field_name);
     if (pos == std::string::npos) return "";
-    pos = json.find('"', pos + 6);
+    pos = json.find('"', pos + field_name.size());
     if (pos == std::string::npos) return "";
     pos++; /* skip opening quote */
 
@@ -293,7 +294,7 @@ struct ApiRequest {
     std::string response;
 };
 
-static std::string build_request_json() {
+static std::string build_gemini_json() {
     std::string json = "{\"contents\":[";
 
     /* Include last 10 exchanges from history */
@@ -310,6 +311,24 @@ static std::string build_request_json() {
     json += "],\"systemInstruction\":{\"parts\":[{\"text\":\"";
     json += json_escape(SYSTEM_PROMPT);
     json += "\"}]},\"generationConfig\":{\"maxOutputTokens\":512,\"temperature\":0.7}}";
+
+    return json;
+}
+
+static std::string build_deepseek_json() {
+    std::string json = "{\"model\":\"deepseek-chat\",\"messages\":[";
+    json += "{\"role\":\"system\",\"content\":\"" + json_escape(SYSTEM_PROMPT) + "\"}";
+
+    int start = (int)history.size() - 20;
+    if (start < 0) start = 0;
+
+    for (int i = start; i < (int)history.size(); i++) {
+        json += ",";
+        std::string role = (history[i].role == "model") ? "assistant" : "user";
+        json += "{\"role\":\"" + role + "\",\"content\":\"" + json_escape(history[i].text) + "\"}";
+    }
+
+    json += "],\"stream\":false,\"max_tokens\":512,\"temperature\":0.7}";
 
     return json;
 }
@@ -401,19 +420,25 @@ static gpointer online_thread_func(gpointer data) {
     ApiRequest *req = (ApiRequest *)data;
 
     /* Write JSON body to temp file */
-    std::string json_body = build_request_json();
+    std::string json_body = (current_provider == PROVIDER_DEEPSEEK) ? build_deepseek_json() : build_gemini_json();
     std::string tmp_path = "/tmp/ams_copilot_req.json";
     {
         std::ofstream tmp(tmp_path);
         tmp << json_body;
     }
 
-    std::string cmd =
-        "curl -s -m 30 -X POST "
-        "\"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
-        api_key + "\" "
-        "-H \"Content-Type: application/json\" "
-        "-d @" + tmp_path;
+    std::string cmd;
+    if (current_provider == PROVIDER_DEEPSEEK) {
+        cmd = "curl -s -m 30 -X POST \"https://api.deepseek.com/chat/completions\" "
+              "-H \"Content-Type: application/json\" "
+              "-H \"Authorization: Bearer " + api_key + "\" "
+              "-d @" + tmp_path;
+    } else {
+        cmd = "curl -s -m 30 -X POST \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+              api_key + "\" "
+              "-H \"Content-Type: application/json\" "
+              "-d @" + tmp_path;
+    }
 
     fprintf(stderr, "[AMS Copilot] Sending API request...\n");
 
@@ -440,12 +465,20 @@ static gpointer online_thread_func(gpointer data) {
                 if (q1 != std::string::npos && q2 != std::string::npos)
                     err_msg = raw.substr(q1 + 1, q2 - q1 - 1);
             }
-            if (err_msg.empty())
-                req->response = "⚠️ API Error. Please check your GEMINI_API_KEY.";
-            else
+            if (err_msg.empty()) {
+                if (current_provider == PROVIDER_DEEPSEEK)
+                    req->response = "⚠️ API Error. Please check your DEEPSEEK_API_KEY.";
+                else
+                    req->response = "⚠️ API Error. Please check your GEMINI_API_KEY.";
+            } else {
                 req->response = "⚠️ API Error: " + err_msg;
+            }
         } else {
-            req->response = extract_text(raw);
+            if (current_provider == PROVIDER_DEEPSEEK) {
+                req->response = extract_text_field(raw, "\"content\"");
+            } else {
+                req->response = extract_text_field(raw, "\"text\"");
+            }
             if (req->response.empty())
                 req->response = "🤔 I received an empty response. Please try again.";
         }
@@ -598,13 +631,23 @@ static void on_activate(GtkApplication *app, gpointer) {
     g_object_unref(cp);
 
     /* Check API key */
-    const char *key_env = getenv("GEMINI_API_KEY");
-    if (key_env && strlen(key_env) > 0) {
-        api_key = key_env;
+    const char *deepseek_key = getenv("DEEPSEEK_API_KEY");
+    const char *gemini_key = getenv("GEMINI_API_KEY");
+
+    if (deepseek_key && strlen(deepseek_key) > 0) {
+        api_key = deepseek_key;
+        current_provider = PROVIDER_DEEPSEEK;
+        online_mode = true;
+        fprintf(stderr, "[AMS Copilot] DeepSeek API key found, online mode enabled.\n");
+    } else if (gemini_key && strlen(gemini_key) > 0) {
+        api_key = gemini_key;
+        current_provider = PROVIDER_GEMINI;
         online_mode = true;
         fprintf(stderr, "[AMS Copilot] Gemini API key found, online mode enabled.\n");
     } else {
-        fprintf(stderr, "[AMS Copilot] No GEMINI_API_KEY set, running in offline mode.\n");
+        current_provider = PROVIDER_NONE;
+        online_mode = false;
+        fprintf(stderr, "[AMS Copilot] No API key set (GEMINI_API_KEY or DEEPSEEK_API_KEY), running in offline mode.\n");
     }
 
     /* Verify curl is available for online mode */
@@ -631,8 +674,16 @@ static void on_activate(GtkApplication *app, gpointer) {
 
     /* Update subtitle with status */
     GtkWidget *hbar = gtk_window_get_titlebar(GTK_WINDOW(win));
-    gtk_header_bar_set_subtitle(GTK_HEADER_BAR(hbar),
-        online_mode ? "🟢  Online — Gemini API" : "🔴  Offline — Local Engine");
+    std::string subtitle;
+    if (online_mode) {
+        if (current_provider == PROVIDER_DEEPSEEK)
+            subtitle = "🟢  Online — DeepSeek API";
+        else
+            subtitle = "🟢  Online — Gemini API";
+    } else {
+        subtitle = "🔴  Offline — Local Engine";
+    }
+    gtk_header_bar_set_subtitle(GTK_HEADER_BAR(hbar), subtitle.c_str());
 
     /* ── Main layout ── */
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -702,9 +753,14 @@ static void on_activate(GtkApplication *app, gpointer) {
         "• OS concepts → \"explain deadlock\"\n"
         "• Play games → \"play chess\"\n"
         "• General chat → ask me anything!\n\n";
-    welcome += online_mode
-        ? "Status: 🟢 Online — powered by Gemini AI"
-        : "Status: 🔴 Offline — set GEMINI_API_KEY for full AI mode";
+    if (online_mode) {
+        if (current_provider == PROVIDER_DEEPSEEK)
+            welcome += "Status: 🟢 Online — powered by DeepSeek AI";
+        else
+            welcome += "Status: 🟢 Online — powered by Gemini AI";
+    } else {
+        welcome += "Status: 🔴 Offline — set GEMINI_API_KEY or DEEPSEEK_API_KEY for full AI mode";
+    }
 
     add_bubble("✦ AMS Copilot", welcome, false);
 }
