@@ -583,12 +583,28 @@ static void on_activate(GtkApplication *app, gpointer) {
     if (key_env && strlen(key_env) > 0) {
         api_key = key_env;
         online_mode = true;
+        fprintf(stderr, "[AMS Copilot] API key found, online mode enabled.\n");
+    } else {
+        fprintf(stderr, "[AMS Copilot] No GEMINI_API_KEY set, running in offline mode.\n");
     }
 
-    /* Also check if curl is available for online mode */
+    /* Verify curl is available for online mode */
     if (online_mode) {
-        int rc = system("which curl > /dev/null 2>&1");
-        if (rc != 0) online_mode = false;
+        bool curl_ok = (access("/usr/bin/curl", X_OK) == 0);
+        if (!curl_ok) {
+            /* Fallback: try which command */
+            FILE *fp = popen("which curl 2>/dev/null", "r");
+            if (fp) {
+                char buf[256];
+                if (fgets(buf, sizeof(buf), fp) && strlen(buf) > 0)
+                    curl_ok = true;
+                pclose(fp);
+            }
+        }
+        if (!curl_ok) {
+            online_mode = false;
+            fprintf(stderr, "[AMS Copilot] curl not found, falling back to offline mode.\n");
+        }
     }
 
     /* ── Window ── */
