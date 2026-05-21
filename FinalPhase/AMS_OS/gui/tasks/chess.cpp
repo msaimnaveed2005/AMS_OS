@@ -19,9 +19,7 @@ and an integrated Vs Copilot AI mode.
    ══════════════════════════════════════════════════════════════ */
 
 static const char* piece_unicode(char p) {
-    switch (p) {
-        case 'K': return "♔"; case 'Q': return "♕"; case 'R': return "♖";
-        case 'B': return "♗"; case 'N': return "♘"; case 'P': return "♙";
+    switch (tolower(p)) {
         case 'k': return "♚"; case 'q': return "♛"; case 'r': return "♜";
         case 'b': return "♝"; case 'n': return "♞"; case 'p': return "♟";
         default:  return "";
@@ -68,7 +66,8 @@ static bool black_rook_q_moved = false;
 static const char *CHESS_CSS = R"CSS(
 
 .chess-light {
-    background-color: rgba(255,255,255,0.12);
+    background-color: rgba(255,255,255,0.12) !important;
+    background-image: none !important;
     border: none;
     border-radius: 2px;
     min-width: 56px;
@@ -79,7 +78,8 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .chess-dark {
-    background-color: rgba(139,92,246,0.15);
+    background-color: rgba(139,92,246,0.15) !important;
+    background-image: none !important;
     border: none;
     border-radius: 2px;
     min-width: 56px;
@@ -90,30 +90,36 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .chess-selected {
-    background-color: rgba(99,102,241,0.45);
-    box-shadow: inset 0 0 12px rgba(99,102,241,0.5);
+    background-color: rgba(99,102,241,0.45) !important;
+    background-image: none !important;
+    box-shadow: inset 0 0 12px rgba(99,102,241,0.5) !important;
 }
 
 .chess-valid {
-    background-color: rgba(52,211,153,0.3);
-    box-shadow: inset 0 0 8px rgba(52,211,153,0.3);
+    background-color: rgba(52,211,153,0.3) !important;
+    background-image: none !important;
+    box-shadow: inset 0 0 8px rgba(52,211,153,0.3) !important;
 }
 
 .chess-valid:hover {
-    background-color: rgba(52,211,153,0.5);
+    background-color: rgba(52,211,153,0.5) !important;
+    background-image: none !important;
 }
 
 .chess-check {
-    background-color: rgba(220,38,38,0.35);
-    box-shadow: inset 0 0 12px rgba(220,38,38,0.4);
+    background-color: rgba(220,38,38,0.35) !important;
+    background-image: none !important;
+    box-shadow: inset 0 0 12px rgba(220,38,38,0.4) !important;
 }
 
 .chess-last-from {
-    background-color: rgba(234,179,8,0.15);
+    background-color: rgba(234,179,8,0.15) !important;
+    background-image: none !important;
 }
 
 .chess-last-to {
-    background-color: rgba(234,179,8,0.25);
+    background-color: rgba(234,179,8,0.25) !important;
+    background-image: none !important;
 }
 
 .chess-board {
@@ -151,6 +157,14 @@ static const char *CHESS_CSS = R"CSS(
     font-size: 11px;
     font-weight: 600;
     min-height: 16px;
+}
+
+.piece-white, .piece-white label {
+    color: #f3f4f6 !important;
+}
+
+.piece-black, .piece-black label {
+    color: #a78bfa !important;
 }
 
 )CSS";
@@ -580,10 +594,19 @@ static void refresh_ui() {
             gtk_style_context_remove_class(ctx, "chess-check");
             gtk_style_context_remove_class(ctx, "chess-last-from");
             gtk_style_context_remove_class(ctx, "chess-last-to");
+            gtk_style_context_remove_class(ctx, "piece-white");
+            gtk_style_context_remove_class(ctx, "piece-black");
 
             /* Piece label */
+            char p = board[r][c];
             gtk_button_set_label(GTK_BUTTON(cell_btns[r][c]),
-                                 piece_unicode(board[r][c]));
+                                 piece_unicode(p));
+
+            if (is_white_piece(p)) {
+                gtk_style_context_add_class(ctx, "piece-white");
+            } else if (is_black_piece(p)) {
+                gtk_style_context_add_class(ctx, "piece-black");
+            }
 
             /* Last move highlight */
             if (r == last_fr && c == last_fc)
@@ -927,7 +950,7 @@ int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
     srand(time(NULL));
     
-    GtkApplication *app = gtk_application_new("com.ams.task.chess", G_APPLICATION_FLAGS_NONE);
+    GtkApplication *app = gtk_application_new("com.ams.task.chess", G_APPLICATION_NON_UNIQUE);
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
     int s = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);

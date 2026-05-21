@@ -46,6 +46,9 @@ KERNEL_HEADERS := \
 	$(KERNEL_DIR)/sync_manager.h \
 	$(KERNEL_DIR)/ui.h
 
+# Strip \r carriage returns to handle Windows CRLF line endings on Linux
+KERNEL_SRC := $(subst $(shell printf '\r'),,$(KERNEL_SRC))
+KERNEL_HEADERS := $(subst $(shell printf '\r'),,$(KERNEL_HEADERS))
 # ── Terminal-based tasks (CMD mode) ──
 TASK_NAMES := \
 	calculator \
@@ -65,6 +68,10 @@ TASK_NAMES := \
 	system_info \
 	task_manager
 
+# Strip \r carriage returns to handle Windows CRLF line endings on Linux
+CR_X := $(shell printf '\rX')
+CR := $(subst X,,$(CR_X))
+TASK_NAMES := $(subst $(CR),,$(TASK_NAMES))
 TASK_BINS := $(addprefix $(BUILD_DIR)/,$(TASK_NAMES))
 
 # ── GUI task applications (GUI mode) ──
@@ -87,9 +94,15 @@ GUI_TASK_NAMES := \
 	task_manager \
 	ai_copilot \
 	sudoku \
+<<<<<<< HEAD
 	chess \
+=======
+	chess \
+>>>>>>> d6d1f78b9d908957d6cb42d4466cf5ba25a8539d
 	tic_tac_toe
 
+# Strip \r carriage returns to handle Windows CRLF line endings on Linux
+GUI_TASK_NAMES := $(subst $(CR),,$(GUI_TASK_NAMES))
 GUI_TASK_BINS := $(addprefix $(BUILD_DIR)/gui_,$(GUI_TASK_NAMES))
 GUI_THEME_H := $(GUI_DIR)/gui_theme.h
 

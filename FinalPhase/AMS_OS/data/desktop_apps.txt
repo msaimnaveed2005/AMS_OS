@@ -17,3 +17,4 @@
 17|AI Copilot|✦|./build/gui_ai_copilot
 18|Sudoku|🔢|./build/gui_sudoku
 19|Chess|♟️|./build/gui_chess
+20|Tic Tac Toe|❌|./build/gui_tic_tac_toe

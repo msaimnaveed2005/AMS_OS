@@ -293,34 +293,49 @@ window.desktop {
 /* ── App Icons — Glassmorphic hover with glow ── */
 .app-btn {
     background-color: transparent;
-    border: 1px solid transparent;
+    border: none;
+    background-image: none;
     border-radius: 20px;
-    padding: 14px;
+    padding: 8px;
     min-width: 108px;
-    min-height: 108px;
-    transition: all 200ms ease-in-out;
+    min-height: 120px;
     box-shadow: none;
 }
-.app-btn:hover {
-    background-color: rgba(139, 92, 246, 0.1);
-    border-color: rgba(139, 92, 246, 0.2);
-    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.12),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+.app-icon-wrapper {
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 18px;
+    min-width: 52px;
+    min-height: 52px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
 }
-.app-btn:active {
-    background-color: rgba(139, 92, 246, 0.2);
-    border-color: rgba(139, 92, 246, 0.35);
+.app-btn:hover .app-icon-wrapper {
+    background-color: rgba(139, 92, 246, 0.15);
+    border-color: rgba(139, 92, 246, 0.45);
+    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.app-btn:active .app-icon-wrapper {
+    background-color: rgba(139, 92, 246, 0.28);
+    border-color: rgba(139, 92, 246, 0.6);
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.2);
 }
 .app-icon-emoji {
-    font-size: 48px;
+    font-size: 38px;
 }
 .app-icon-name {
-    color: rgba(255, 255, 255, 0.88);
+    color: rgba(255, 255, 255, 0.9);
     font-size: 11px;
     font-weight: 600;
-    margin-top: 6px;
+    margin-top: 8px;
     letter-spacing: 0.3px;
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+.app-btn:hover .app-icon-name {
+    color: #c084fc;
 }
 
 /* ── Bottom Dock — Frosted glass bar ── */
@@ -328,29 +343,46 @@ window.desktop {
     margin: 0px 0px 14px 0px;
 }
 .dock {
-    background-color: rgba(8, 4, 22, 0.75);
+    background-color: rgba(8, 4, 22, 0.7);
     border: 1px solid rgba(139, 92, 246, 0.15);
-    border-radius: 22px;
-    padding: 6px 16px;
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    border-radius: 24px;
+    padding: 8px 18px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .dock-btn {
     background-color: transparent;
-    border: 1px solid transparent;
+    border: none;
+    background-image: none;
     border-radius: 16px;
-    padding: 6px 12px;
-    min-width: 54px;
-    min-height: 54px;
-    transition: all 180ms ease-in-out;
+    padding: 2px;
+    min-width: 50px;
+    min-height: 50px;
+    box-shadow: none;
 }
-.dock-btn:hover {
-    background-color: rgba(139, 92, 246, 0.18);
-    border-color: rgba(139, 92, 246, 0.25);
-    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+.dock-icon-wrapper {
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 8px;
+    min-width: 32px;
+    min-height: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: all 250ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dock-btn:hover .dock-icon-wrapper {
+    background-color: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.45);
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.35),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+.dock-btn:active .dock-icon-wrapper {
+    background-color: rgba(139, 92, 246, 0.3);
+    border-color: rgba(139, 92, 246, 0.6);
 }
 .dock-emoji {
-    font-size: 28px;
+    font-size: 24px;
 }
 
 /* ── Power / Refresh — Pill buttons ── */
@@ -529,9 +561,15 @@ static void populate_grid() {
         GtkWidget *inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
         gtk_widget_set_halign(inner, GTK_ALIGN_CENTER);
 
+        GtkWidget *emoji_wrapper = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+        add_class(emoji_wrapper, "app-icon-wrapper");
+        gtk_widget_set_halign(emoji_wrapper, GTK_ALIGN_CENTER);
+        gtk_widget_set_valign(emoji_wrapper, GTK_ALIGN_CENTER);
+
         GtkWidget *emoji = gtk_label_new(TASKS[i].emoji.c_str());
         add_class(emoji, "app-icon-emoji");
-        gtk_box_pack_start(GTK_BOX(inner), emoji, FALSE, FALSE, 0);
+        gtk_box_pack_start(GTK_BOX(emoji_wrapper), emoji, TRUE, TRUE, 0);
+        gtk_box_pack_start(GTK_BOX(inner), emoji_wrapper, FALSE, FALSE, 0);
 
         GtkWidget *name = gtk_label_new(TASKS[i].name.c_str());
         add_class(name, "app-icon-name");
@@ -791,9 +829,17 @@ static void show_desktop() {
             add_class(dbtn, "dock-btn");
             gtk_widget_set_tooltip_text(dbtn, TASKS[i].name.c_str());
             g_object_set_data(G_OBJECT(dbtn), "task_idx", GINT_TO_POINTER(i));
+
+            GtkWidget *de_wrapper = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+            add_class(de_wrapper, "dock-icon-wrapper");
+            gtk_widget_set_halign(de_wrapper, GTK_ALIGN_CENTER);
+            gtk_widget_set_valign(de_wrapper, GTK_ALIGN_CENTER);
+
             GtkWidget *de = gtk_label_new(TASKS[i].emoji.c_str());
             add_class(de, "dock-emoji");
-            gtk_container_add(GTK_CONTAINER(dbtn), de);
+            gtk_box_pack_start(GTK_BOX(de_wrapper), de, TRUE, TRUE, 0);
+
+            gtk_container_add(GTK_CONTAINER(dbtn), de_wrapper);
             g_signal_connect(dbtn, "clicked", G_CALLBACK(on_app_click), NULL);
             gtk_box_pack_start(GTK_BOX(dock), dbtn, FALSE, FALSE, 2);
             break;
