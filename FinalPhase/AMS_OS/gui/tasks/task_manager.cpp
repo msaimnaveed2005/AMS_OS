@@ -26,6 +26,11 @@ static void refresh_list() {
             if (line.find("VmRSS:") == 0) { mem_str = line.substr(7); mem_str.erase(0, mem_str.find_first_not_of(" \t")); }
         }
 
+        /* Filter to only show AMS OS tasks */
+        if (name.find("gui_") != 0 && name != "ams_kernel" && name != "ams_desktop") {
+            continue;
+        }
+
         GtkTreeIter iter;
         gtk_list_store_append(store, &iter);
         gtk_list_store_set(store, &iter,

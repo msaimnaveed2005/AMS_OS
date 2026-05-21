@@ -21,6 +21,36 @@ Dynamic app registry loaded from data/desktop_apps.txt.
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <dirent.h>
+
+/* ═══════════════════════════════════════════════════════
+   Icon Mapping Helper
+   ═══════════════════════════════════════════════════════ */
+static const char* get_icon_for_app(const std::string& name) {
+    if (name == "Create File") return "document-new";
+    if (name == "Delete File") return "edit-delete";
+    if (name == "Copy File") return "edit-copy";
+    if (name == "Move File") return "go-next";
+    if (name == "File Info") return "dialog-information";
+    if (name == "Notepad") return "text-editor";
+    if (name == "Calculator") return "accessories-calculator";
+    if (name == "Digital Clock") return "preferences-system-time";
+    if (name == "System Info") return "utilities-system-monitor";
+    if (name == "Snake Game") return "applications-games";
+    if (name == "Minesweeper") return "applications-games";
+    if (name == "Music Player") return "media-playback-start";
+    if (name == "Downloads") return "emblem-downloads";
+    if (name == "Task Manager") return "utilities-system-monitor";
+    if (name == "Process Killer") return "process-stop";
+    if (name == "Calendar") return "x-office-calendar";
+    if (name == "AI Copilot") return "face-smile";
+    if (name == "Sudoku") return "applications-games";
+    if (name == "Chess") return "applications-games";
+    if (name == "Tic Tac Toe") return "applications-games";
+    
+    if (name.find(".") != std::string::npos) return "text-x-generic"; // For files
+    return "application-x-executable";
+}
 
 /* ═══════════════════════════════════════════════════════
    Task Registry — Dynamic, loaded from data/desktop_apps.txt
@@ -97,6 +127,33 @@ static void load_tasks() {
 
         TASKS.push_back(t);
     }
+    
+    /* Ensure desktop directory exists and load files from it */
+    system("mkdir -p data/desktop 2>/dev/null");
+    DIR *dir = opendir("data/desktop");
+    if (dir) {
+        struct dirent *ent;
+        int virtual_id = 1000;
+        while ((ent = readdir(dir))) {
+            if (ent->d_name[0] == '.') continue;
+            std::string name = ent->d_name;
+            std::string path = std::string("data/desktop/") + name;
+            
+            TaskEntry t;
+            t.id = virtual_id++;
+            t.name = name;
+            t.emoji = ""; // Unused when using GTK icons
+            
+            if (ent->d_type == DT_DIR) {
+                t.exec_path = std::string("xdg-open ") + path; // Simple fallback
+            } else {
+                t.exec_path = std::string("./build/gui_notepad ") + path;
+            }
+            TASKS.push_back(t);
+        }
+        closedir(dir);
+    }
+    
     TASK_COUNT = (int)TASKS.size();
 }
 
@@ -566,8 +623,12 @@ static void populate_grid() {
         gtk_widget_set_halign(emoji_wrapper, GTK_ALIGN_CENTER);
         gtk_widget_set_valign(emoji_wrapper, GTK_ALIGN_CENTER);
 
-        GtkWidget *emoji = gtk_label_new(TASKS[i].emoji.c_str());
-        add_class(emoji, "app-icon-emoji");
+        const char *icon_name = get_icon_for_app(TASKS[i].name);
+        if (TASKS[i].exec_path.find("xdg-open") != std::string::npos) {
+            icon_name = "folder";
+        }
+        GtkWidget *emoji = gtk_image_new_from_icon_name(icon_name, GTK_ICON_SIZE_DIALOG);
+        add_class(emoji, "app-icon-emoji"); // Keep class for possible CSS
         gtk_box_pack_start(GTK_BOX(emoji_wrapper), emoji, TRUE, TRUE, 0);
         gtk_box_pack_start(GTK_BOX(inner), emoji_wrapper, FALSE, FALSE, 0);
 
@@ -835,7 +896,8 @@ static void show_desktop() {
             gtk_widget_set_halign(de_wrapper, GTK_ALIGN_CENTER);
             gtk_widget_set_valign(de_wrapper, GTK_ALIGN_CENTER);
 
-            GtkWidget *de = gtk_label_new(TASKS[i].emoji.c_str());
+            const char *icon_name = get_icon_for_app(TASKS[i].name);
+            GtkWidget *de = gtk_image_new_from_icon_name(icon_name, GTK_ICON_SIZE_DND);
             add_class(de, "dock-emoji");
             gtk_box_pack_start(GTK_BOX(de_wrapper), de, TRUE, TRUE, 0);
 

@@ -164,7 +164,8 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .piece-black, .piece-black label {
-    color: #a78bfa !important;
+    color: #000000 !important;
+    text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.6);
 }
 
 )CSS";
