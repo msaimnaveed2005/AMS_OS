@@ -12,6 +12,18 @@ and DYNAMICALLY CREATE new GUI applications on demand.
 #include <dirent.h>
 
 /* ══════════════════════════════════════════════════════════════
+   Security & Pathing
+   ══════════════════════════════════════════════════════════════ */
+static bool is_safe_path(const std::string& path) {
+    if (path.empty()) return false;
+    /* Block absolute paths */
+    if (path[0] == '/' || path[0] == '\\' || path.find(":\\") != std::string::npos) return false;
+    /* Block directory traversal */
+    if (path.find("..") != std::string::npos) return false;
+    return true;
+}
+
+/* ══════════════════════════════════════════════════════════════
    Constants & Configuration
    ══════════════════════════════════════════════════════════════ */
 
@@ -100,6 +112,7 @@ static const char *SYSTEM_PROMPT =
     "  * Always cast callback functions: G_CALLBACK(+[](GtkWidget*, gpointer) { ... })\n"
     "- BEFORE the <create_app> block, write a SHORT friendly message (1-2 sentences) about the app you're creating.\n"
     "- AFTER the </create_app> closing tag, do NOT write anything else.\n\n"
+    "CRITICAL: If the user asks you to create a GUI program/app, you MUST use the <create_app> tag. Do NOT use <create_file> for apps! The app will AUTOMATICALLY appear on the user's GUI Desktop once compiled!\n\n"
     "EXAMPLE — if user says 'create a color picker app':\n"
     "Sure! I'm creating a Color Picker app for you! 🎨\n"
     "<create_app id=\"color_picker\" emoji=\"🎨\" name=\"Color Picker\">\n"
@@ -108,8 +121,9 @@ static const char *SYSTEM_PROMPT =
     "// ... complete code ...\n"
     "</create_app>\n\n"
     "8. **ADVANCED FILESYSTEM OPERATIONS** — You can create folders, files, and update existing files.\n"
-    "To create a folder: `<create_folder path=\"folder/name\"></create_folder>`\n"
-    "To create a file: `<create_file path=\"path/to/file.txt\">file content here</create_file>`\n"
+    "CRITICAL: If the user wants a file or folder to appear on their GUI Desktop, you MUST use the `data/desktop/` prefix!\n"
+    "To create a folder on desktop: `<create_folder path=\"data/desktop/FolderName\"></create_folder>`\n"
+    "To create a file on desktop: `<create_file path=\"data/desktop/file.txt\">file content here</create_file>`\n"
     "To update a file: \n"
     "`<update_file path=\"path/to/file.ext\">\n"
     "===SEARCH===\n"
@@ -118,7 +132,10 @@ static const char *SYSTEM_PROMPT =
     "new content to replace with\n"
     "</update_file>`\n"
     "For updates, you MUST match the SEARCH block exactly with the file's current contents (including whitespace).\n"
-    "You can chain multiple operations together in your response.\n\n";
+    "You can chain multiple operations together in your response.\n\n"
+    "9. **INTERNET DOWNLOADS** — You can download files or images from the internet directly to the user's system.\n"
+    "CRITICAL: To make a downloaded file/image appear on the GUI Desktop, use `data/desktop/filename.ext` as the path!\n"
+    "To download a file: `<download_file url=\"https://example.com/logo.png\" path=\"data/desktop/logo.png\"></download_file>`\n\n";
 
 /* ══════════════════════════════════════════════════════════════
    Dynamic App Registry — loaded from data/desktop_apps.txt
@@ -655,13 +672,14 @@ static std::string parse_and_execute_actions(const std::string &text) {
             if (q != std::string::npos) path = tag.substr(p, q - p);
         }
         
-        if (!path.empty()) {
+        if (!path.empty() && is_safe_path(path)) {
             std::string cmd = "mkdir -p \"" + path + "\"";
             int ret = system(cmd.c_str());
             (void)ret; // Ignore return value warning
             fprintf(stderr, "[AMS Copilot] Created folder: %s\n", path.c_str());
             display.replace(cf_pos, cf_end - cf_pos + 16, "📁 Created folder: " + path);
         } else {
+            fprintf(stderr, "[AMS Copilot] Blocked unsafe or empty folder path: %s\n", path.c_str());
             display.erase(cf_pos, cf_end - cf_pos + 16);
         }
     }
@@ -689,13 +707,14 @@ static std::string parse_and_execute_actions(const std::string &text) {
             if (q != std::string::npos) path = tag.substr(p, q - p);
         }
         
-        if (!path.empty()) {
+        if (!path.empty() && is_safe_path(path)) {
             std::ofstream out(path);
             out << content;
             out.close();
             fprintf(stderr, "[AMS Copilot] Created file: %s\n", path.c_str());
             display.replace(file_pos, file_end - file_pos + 14, "📄 Created file: " + path);
         } else {
+            fprintf(stderr, "[AMS Copilot] Blocked unsafe or empty file path: %s\n", path.c_str());
             display.erase(file_pos, file_end - file_pos + 14);
         }
     }
@@ -720,6 +739,12 @@ static std::string parse_and_execute_actions(const std::string &text) {
             if (q != std::string::npos) path = tag.substr(p, q - p);
         }
         
+        if (!path.empty() && !is_safe_path(path)) {
+            fprintf(stderr, "[AMS Copilot] Blocked unsafe update file path: %s\n", path.c_str());
+            display.erase(up_pos, up_end - up_pos + 14);
+            continue;
+        }
+
         size_t s_pos = inner.find("===SEARCH===");
         size_t r_pos = inner.find("===REPLACE===");
         
@@ -754,6 +779,42 @@ static std::string parse_and_execute_actions(const std::string &text) {
             }
         } else {
             display.erase(up_pos, up_end - up_pos + 14);
+        }
+    }
+
+    // <download_file>
+    size_t dl_pos = 0;
+    while ((dl_pos = display.find("<download_file")) != std::string::npos) {
+        size_t dl_end = display.find("</download_file>", dl_pos);
+        if (dl_end == std::string::npos) break;
+        
+        std::string tag = display.substr(dl_pos, display.find('>', dl_pos) - dl_pos + 1);
+        std::string url;
+        size_t u = tag.find("url=\"");
+        if (u != std::string::npos) {
+            u += 5;
+            size_t v = tag.find('"', u);
+            if (v != std::string::npos) url = tag.substr(u, v - u);
+        }
+        std::string path;
+        size_t p = tag.find("path=\"");
+        if (p != std::string::npos) {
+            p += 6;
+            size_t q = tag.find('"', p);
+            if (q != std::string::npos) path = tag.substr(p, q - p);
+        }
+        
+        if (!url.empty() && !path.empty() && is_safe_path(path)) {
+            std::string cmd = "wget -qO \"" + path + "\" \"" + url + "\"";
+            int ret = system(cmd.c_str());
+            (void)ret;
+            fprintf(stderr, "[AMS Copilot] Downloaded file: %s from %s\n", path.c_str(), url.c_str());
+            display.replace(dl_pos, dl_end - dl_pos + 16, "⬇️ Downloaded file: " + path);
+        } else if (!is_safe_path(path)) {
+            fprintf(stderr, "[AMS Copilot] Blocked unsafe download path: %s\n", path.c_str());
+            display.erase(dl_pos, dl_end - dl_pos + 16);
+        } else {
+            display.erase(dl_pos, dl_end - dl_pos + 16);
         }
     }
 

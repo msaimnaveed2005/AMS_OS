@@ -9,10 +9,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-<<<<<<< HEAD
-=======
 #include <dirent.h>
->>>>>>> d6d1f78b9d908957d6cb42d4466cf5ba25a8539d
 
 struct Song {
     std::string title;
@@ -74,20 +71,40 @@ static void play_audio(const std::string &filepath, double start_seconds = 0.0) 
     }
 }
 
-/* ── Get real duration using ffprobe ── */
+/* ── Get real duration using ffprobe or WAV header ── */
 static int get_audio_duration(const std::string &filepath) {
+    /* 1. Try ffprobe (if installed) */
     std::string cmd = "ffprobe -v quiet -show_entries format=duration -of csv=p=0 \"" + filepath + "\" 2>/dev/null";
     FILE *fp = popen(cmd.c_str(), "r");
-    if (!fp) return 180;
-    char buf[64];
-    if (fgets(buf, sizeof(buf), fp)) {
-        pclose(fp);
-        double dur = atof(buf);
-        if (dur > 0.5 && dur < 36000) return (int)(dur + 0.5);
-    } else {
-        pclose(fp);
+    if (fp) {
+        char buf[64];
+        if (fgets(buf, sizeof(buf), fp)) {
+            pclose(fp);
+            double dur = atof(buf);
+            if (dur > 0.5 && dur < 360000) return (int)(dur + 0.5);
+        } else {
+            pclose(fp);
+        }
     }
-    return 180; /* fallback 3 minutes */
+
+    /* 2. Native C++ WAV Header Parser */
+    if (filepath.length() >= 4 && filepath.substr(filepath.length()-4) == ".wav") {
+        std::ifstream f(filepath, std::ios::binary);
+        if (f.is_open()) {
+            f.seekg(28);
+            uint32_t byte_rate = 0;
+            f.read((char*)&byte_rate, 4);
+            f.seekg(40);
+            uint32_t data_size = 0;
+            f.read((char*)&data_size, 4);
+            if (byte_rate > 0) {
+                return data_size / byte_rate;
+            }
+        }
+    }
+
+    /* 3. Fallback to 10 hours so the user is never interrupted */
+    return 36000;
 }
 
 /* ── Scan data/music/ directory for audio files ── */
@@ -358,16 +375,13 @@ static void on_activate(GtkApplication *app, gpointer) {
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
 
-    /* Initialize built-in demo playlist */
-    PLAYLIST.push_back({"Midnight Drive",   "Neon Pulse",      234, ""});
-    PLAYLIST.push_back({"Electric Dreams",  "Synthwave Radio", 198, ""});
-    PLAYLIST.push_back({"Starlight Sonata", "Luna Echo",       312, ""});
-    PLAYLIST.push_back({"Digital Rain",     "Cyber Horizon",   267, ""});
-    PLAYLIST.push_back({"Atomic Heartbeat", "AMS Band",        189, ""});
-    PLAYLIST.push_back({"Velvet Cascade",   "Dream Weaver",    256, ""});
-
     /* Scan for real audio files in data/music/ */
     scan_music_dir();
+    
+    if (PLAYLIST.empty()) {
+        PLAYLIST.push_back({"No music found", "Add songs to data/music/", 0, ""});
+    }
+    
     SONG_COUNT = (int)PLAYLIST.size();
 
     /* Handle command-line argument for initial song selection */

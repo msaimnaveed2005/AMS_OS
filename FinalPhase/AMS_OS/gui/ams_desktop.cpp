@@ -36,17 +36,17 @@ static const char* get_icon_for_app(const std::string& name) {
     if (name == "Calculator") return "accessories-calculator";
     if (name == "Digital Clock") return "preferences-system-time";
     if (name == "System Info") return "utilities-system-monitor";
-    if (name == "Snake Game") return "applications-games";
-    if (name == "Minesweeper") return "applications-games";
+    if (name == "Snake Game") return "face-cool";
+    if (name == "Minesweeper") return "dialog-warning";
     if (name == "Music Player") return "media-playback-start";
     if (name == "Downloads") return "emblem-downloads";
     if (name == "Task Manager") return "utilities-system-monitor";
     if (name == "Process Killer") return "process-stop";
     if (name == "Calendar") return "x-office-calendar";
     if (name == "AI Copilot") return "face-smile";
-    if (name == "Sudoku") return "applications-games";
-    if (name == "Chess") return "applications-games";
-    if (name == "Tic Tac Toe") return "applications-games";
+    if (name == "Sudoku") return "view-grid";
+    if (name == "Chess") return "system-users";
+    if (name == "Tic Tac Toe") return "format-justify-center";
     
     if (name.find(".") != std::string::npos) return "text-x-generic"; // For files
     return "application-x-executable";
@@ -808,9 +808,14 @@ static void show_desktop() {
     GtkWidget *bar = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     add_class(bar, "top-bar");
 
-    GtkWidget *logo = gtk_label_new("  ⚛  AMS OS");
-    add_class(logo, "top-logo");
-    gtk_box_pack_start(GTK_BOX(bar), logo, FALSE, FALSE, 0);
+    GtkWidget *logo_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+    gtk_widget_set_margin_start(logo_box, 16);
+    GtkWidget *logo_img = gtk_image_new_from_icon_name("start-here", GTK_ICON_SIZE_LARGE_TOOLBAR);
+    GtkWidget *logo_lbl = gtk_label_new("AMS OS");
+    add_class(logo_lbl, "top-logo");
+    gtk_box_pack_start(GTK_BOX(logo_box), logo_img, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(logo_box), logo_lbl, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(bar), logo_box, FALSE, FALSE, 0);
 
     /* Power button */
     GtkWidget *pwr = gtk_button_new_with_label("⏻  ");
