@@ -1,12 +1,18 @@
 /*
 AMS OS — Chess Game
 Two-player chess with move validation, check detection,
-valid move highlighting, and captured pieces display.
+valid move highlighting, captured pieces display, castling,
+and an integrated Vs Copilot AI mode.
 */
 
 #include "../gui_theme.h"
 #include <signal.h>
 #include <cctype>
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
 
 /* ══════════════════════════════════════════════════════════════
    Constants
@@ -41,6 +47,19 @@ static GtkWidget *turn_label     = NULL;
 static GtkWidget *cap_white_lbl  = NULL;
 static GtkWidget *cap_black_lbl  = NULL;
 static GtkWidget *win_ref        = NULL;
+
+/* Game Mode State */
+enum GameMode { MODE_PVP, MODE_VS_COPILOT_WHITE, MODE_VS_COPILOT_BLACK };
+static GameMode current_mode = MODE_PVP;
+static bool copilot_thinking = false;
+
+/* Castling Flags */
+static bool white_king_moved = false;
+static bool black_king_moved = false;
+static bool white_rook_k_moved = false; /* Column 7 */
+static bool white_rook_q_moved = false; /* Column 0 */
+static bool black_rook_k_moved = false;
+static bool black_rook_q_moved = false;
 
 /* ══════════════════════════════════════════════════════════════
    Additional CSS
@@ -230,6 +249,46 @@ static bool is_in_check(bool white_king) {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   Castling Logic
+   ══════════════════════════════════════════════════════════════ */
+
+static bool can_castle(int fr, int fc, int tr, int tc) {
+    if (game_over) return false;
+    char king = board[fr][fc];
+    if (tolower(king) != 'k') return false;
+    bool white = is_white_piece(king);
+    if (white ? white_king_moved : black_king_moved) return false;
+    if (fr != (white ? 7 : 0) || fc != 4) return false;
+    if (tr != fr) return false;
+
+    /* Kingside castling */
+    if (tc == 6) {
+        if (white ? white_rook_k_moved : black_rook_k_moved) return false;
+        if (board[fr][5] != '.' || board[fr][6] != '.') return false;
+        if (is_in_check(white)) return false;
+        /* Check if square passed through is under attack */
+        board[fr][5] = king; board[fr][4] = '.';
+        bool attacked = is_in_check(white);
+        board[fr][4] = king; board[fr][5] = '.';
+        if (attacked) return false;
+        return true;
+    }
+    /* Queenside castling */
+    if (tc == 2) {
+        if (white ? white_rook_q_moved : black_rook_q_moved) return false;
+        if (board[fr][1] != '.' || board[fr][2] != '.' || board[fr][3] != '.') return false;
+        if (is_in_check(white)) return false;
+        /* Check if square passed through is under attack */
+        board[fr][3] = king; board[fr][4] = '.';
+        bool attacked = is_in_check(white);
+        board[fr][4] = king; board[fr][3] = '.';
+        if (attacked) return false;
+        return true;
+    }
+    return false;
+}
+
+/* ══════════════════════════════════════════════════════════════
    Move Validation (full, including check safety)
    ══════════════════════════════════════════════════════════════ */
 
@@ -270,6 +329,9 @@ static bool is_valid_move(int fr, int fc, int tr, int tc) {
                     is_path_clear(fr, fc, tr, tc);
             break;
         case 'k':
+            if (adr == 0 && adc == 2) {
+                return can_castle(fr, fc, tr, tc);
+            }
             valid = adr <= 1 && adc <= 1;
             break;
     }
@@ -312,11 +374,30 @@ static void make_move(int fr, int fc, int tr, int tc) {
             piece = is_white_piece(piece) ? 'Q' : 'q';
     }
 
+    /* If castling, move the rook as well */
+    if (tolower(piece) == 'k' && abs(tc - fc) == 2) {
+        if (tc == 6) { /* Kingside */
+            board[tr][5] = board[tr][7];
+            board[tr][7] = '.';
+        } else if (tc == 2) { /* Queenside */
+            board[tr][3] = board[tr][0];
+            board[tr][0] = '.';
+        }
+    }
+
     board[tr][tc] = piece;
     board[fr][fc] = '.';
 
     last_fr = fr; last_fc = fc;
     last_tr = tr; last_tc = tc;
+
+    /* Track king/rook moves for castling */
+    if (fr == 7 && fc == 4) white_king_moved = true;
+    if (fr == 0 && fc == 4) black_king_moved = true;
+    if (fr == 7 && fc == 7) white_rook_k_moved = true;
+    if (fr == 7 && fc == 0) white_rook_q_moved = true;
+    if (fr == 0 && fc == 7) black_rook_k_moved = true;
+    if (fr == 0 && fc == 0) black_rook_q_moved = true;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -333,6 +414,155 @@ static bool has_any_legal_move(bool white) {
                     if (is_valid_move(fr, fc, tr, tc)) return true;
         }
     return false;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Chess AI — Minimax Depth-2 engine
+   ══════════════════════════════════════════════════════════════ */
+
+struct ChessMove {
+    int fr, fc, tr, tc;
+    int score;
+};
+
+static int get_piece_value(char p) {
+    switch (p) {
+        case 'P': return 100;   case 'p': return -100;
+        case 'N': return 320;   case 'n': return -320;
+        case 'B': return 330;   case 'b': return -330;
+        case 'R': return 500;   case 'r': return -500;
+        case 'Q': return 900;   case 'q': return -900;
+        case 'K': return 20000;  case 'k': return -20000;
+        default: return 0;
+    }
+}
+
+static int evaluate_board() {
+    int score = 0;
+    for (int r = 0; r < 8; r++) {
+        for (int c = 0; c < 8; c++) {
+            char p = board[r][c];
+            if (p == '.') continue;
+            score += get_piece_value(p);
+            
+            /* Positional bonus: control of center */
+            if (r >= 3 && r <= 4 && c >= 3 && c <= 4) {
+                score += (is_white_piece(p) ? 12 : -12);
+            } else if (r >= 2 && r <= 5 && c >= 2 && c <= 5) {
+                score += (is_white_piece(p) ? 5 : -5);
+            }
+        }
+    }
+    return score;
+}
+
+static std::vector<ChessMove> get_all_legal_moves(bool white) {
+    std::vector<ChessMove> moves;
+    for (int fr = 0; fr < 8; fr++) {
+        for (int fc = 0; fc < 8; fc++) {
+            char p = board[fr][fc];
+            if (p == '.' || is_white_piece(p) != white) continue;
+            for (int tr = 0; tr < 8; tr++) {
+                for (int tc = 0; tc < 8; tc++) {
+                    if (is_valid_move(fr, fc, tr, tc)) {
+                        moves.push_back({fr, fc, tr, tc, 0});
+                    }
+                }
+            }
+        }
+    }
+    return moves;
+}
+
+static int minimax(int depth, bool maximizing, int alpha, int beta) {
+    if (depth == 0) {
+        return evaluate_board();
+    }
+
+    std::vector<ChessMove> moves = get_all_legal_moves(maximizing);
+    if (moves.empty()) {
+        if (is_in_check(maximizing)) {
+            return maximizing ? -999999 + (2 - depth) : 999999 - (2 - depth);
+        }
+        return 0;
+    }
+
+    if (maximizing) {
+        int max_eval = -9999999;
+        for (auto &m : moves) {
+            char saved_src = board[m.fr][m.fc];
+            char saved_dst = board[m.tr][m.tc];
+            board[m.tr][m.tc] = saved_src;
+            board[m.fr][m.fc] = '.';
+            
+            int eval = minimax(depth - 1, false, alpha, beta);
+            
+            board[m.fr][m.fc] = saved_src;
+            board[m.tr][m.tc] = saved_dst;
+
+            max_eval = std::max(max_eval, eval);
+            alpha = std::max(alpha, eval);
+            if (beta <= alpha) break;
+        }
+        return max_eval;
+    } else {
+        int min_eval = 9999999;
+        for (auto &m : moves) {
+            char saved_src = board[m.fr][m.fc];
+            char saved_dst = board[m.tr][m.tc];
+            board[m.tr][m.tc] = saved_src;
+            board[m.fr][m.fc] = '.';
+
+            int eval = minimax(depth - 1, true, alpha, beta);
+
+            board[m.fr][m.fc] = saved_src;
+            board[m.tr][m.tc] = saved_dst;
+
+            min_eval = std::min(min_eval, eval);
+            beta = std::min(beta, eval);
+            if (beta <= alpha) break;
+        }
+        return min_eval;
+    }
+}
+
+static ChessMove get_best_move(bool white) {
+    std::vector<ChessMove> moves = get_all_legal_moves(white);
+    if (moves.empty()) return {-1, -1, -1, -1, 0};
+
+    /* Shuffle moves slightly */
+    for (size_t i = 0; i < moves.size(); i++) {
+        size_t j = i + rand() % (moves.size() - i);
+        std::swap(moves[i], moves[j]);
+    }
+
+    ChessMove best_move = moves[0];
+    int best_val = white ? -9999999 : 9999999;
+
+    for (auto &m : moves) {
+        char saved_src = board[m.fr][m.fc];
+        char saved_dst = board[m.tr][m.tc];
+        board[m.tr][m.tc] = saved_src;
+        board[m.fr][m.fc] = '.';
+
+        int eval = minimax(1, !white, -9999999, 9999999);
+
+        board[m.fr][m.fc] = saved_src;
+        board[m.tr][m.tc] = saved_dst;
+
+        if (white) {
+            if (eval > best_val) {
+                best_val = eval;
+                best_move = m;
+            }
+        } else {
+            if (eval < best_val) {
+                best_val = eval;
+                best_move = m;
+            }
+        }
+    }
+    return best_move;
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -362,7 +592,7 @@ static void refresh_ui() {
                 gtk_style_context_add_class(ctx, "chess-last-to");
 
             /* Selection & valid moves */
-            if (selected) {
+            if (selected && !copilot_thinking) {
                 if (r == sel_r && c == sel_c)
                     gtk_style_context_add_class(ctx, "chess-selected");
                 else if (is_valid_move(sel_r, sel_c, r, c))
@@ -381,9 +611,28 @@ static void refresh_ui() {
         if (game_over) {
             gtk_label_set_text(GTK_LABEL(turn_label), game_result.c_str());
             ams_css(turn_label, "chess-gameover");
+        } else if (copilot_thinking) {
+            gtk_label_set_text(GTK_LABEL(turn_label), "✦ Copilot is thinking...");
+            GtkStyleContext *ctx = gtk_widget_get_style_context(turn_label);
+            gtk_style_context_remove_class(ctx, "chess-turn-white");
+            gtk_style_context_remove_class(ctx, "chess-turn-black");
+            gtk_style_context_remove_class(ctx, "chess-gameover");
+            ams_css(turn_label, "chess-turn-black");
         } else {
-            gtk_label_set_text(GTK_LABEL(turn_label),
-                white_turn ? "⬜ White's Turn" : "⬛ Black's Turn");
+            bool cop_turn = (current_mode == MODE_VS_COPILOT_WHITE && !white_turn) ||
+                            (current_mode == MODE_VS_COPILOT_BLACK && white_turn);
+            
+            std::string status_text;
+            if (cop_turn) {
+                status_text = "✦ Copilot's Turn";
+            } else {
+                status_text = white_turn ? "⬜ White's Turn" : "⬛ Black's Turn";
+                if (current_mode != MODE_PVP) {
+                    status_text += " (You)";
+                }
+            }
+            gtk_label_set_text(GTK_LABEL(turn_label), status_text.c_str());
+
             GtkStyleContext *ctx = gtk_widget_get_style_context(turn_label);
             gtk_style_context_remove_class(ctx, "chess-turn-white");
             gtk_style_context_remove_class(ctx, "chess-turn-black");
@@ -408,13 +657,62 @@ static void refresh_ui() {
 }
 
 /* ══════════════════════════════════════════════════════════════
+   AI Move Trigger & Execution
+   ══════════════════════════════════════════════════════════════ */
+
+static gboolean do_copilot_move(gpointer) {
+    if (game_over) {
+        copilot_thinking = false;
+        return G_SOURCE_REMOVE;
+    }
+
+    ChessMove m = get_best_move(white_turn);
+    if (m.fr != -1) {
+        make_move(m.fr, m.fc, m.tr, m.tc);
+        white_turn = !white_turn;
+        
+        /* Check for checkmate / stalemate */
+        if (!has_any_legal_move(white_turn)) {
+            game_over = true;
+            if (is_in_check(white_turn))
+                game_result = white_turn
+                    ? "♚ Checkmate! Black wins! 🎉"
+                    : "♔ Checkmate! White wins! 🎉";
+            else
+                game_result = "Stalemate — Draw! 🤝";
+        }
+    }
+
+    copilot_thinking = false;
+    refresh_ui();
+    return G_SOURCE_REMOVE;
+}
+
+static void trigger_copilot_move() {
+    copilot_thinking = true;
+    if (turn_label) {
+        gtk_label_set_text(GTK_LABEL(turn_label), "✦ Copilot is thinking...");
+        GtkStyleContext *ctx = gtk_widget_get_style_context(turn_label);
+        gtk_style_context_remove_class(ctx, "chess-turn-white");
+        gtk_style_context_remove_class(ctx, "chess-turn-black");
+        ams_css(turn_label, "chess-turn-black");
+    }
+    g_timeout_add(600, do_copilot_move, NULL);
+}
+
+/* ══════════════════════════════════════════════════════════════
    Cell Click Handler
    ══════════════════════════════════════════════════════════════ */
 
 static void on_cell_click(GtkWidget *, gpointer data) {
-    if (game_over) return;
+    if (game_over || copilot_thinking) return;
     int pos = GPOINTER_TO_INT(data);
     int r = pos / 8, c = pos % 8;
+
+    /* Prevent clicking if it is Copilot's turn */
+    bool is_copilot_turn = (current_mode == MODE_VS_COPILOT_WHITE && !white_turn) ||
+                           (current_mode == MODE_VS_COPILOT_BLACK && white_turn);
+    if (is_copilot_turn) return;
 
     if (selected) {
         if (r == sel_r && c == sel_c) {
@@ -435,6 +733,13 @@ static void on_cell_click(GtkWidget *, gpointer data) {
                         : "♔ Checkmate! White wins! 🎉";
                 else
                     game_result = "Stalemate — Draw! 🤝";
+            } else {
+                /* Check if Copilot plays next */
+                bool next_is_copilot = (current_mode == MODE_VS_COPILOT_WHITE && !white_turn) ||
+                                       (current_mode == MODE_VS_COPILOT_BLACK && white_turn);
+                if (next_is_copilot) {
+                    trigger_copilot_move();
+                }
             }
         } else if (is_own(board[r][c], white_turn)) {
             /* Select different piece */
@@ -461,11 +766,31 @@ static void on_new_game(GtkWidget *, gpointer) {
     white_turn = true;
     selected = false;
     game_over = false;
+    copilot_thinking = false;
     game_result.clear();
     captured_white.clear();
     captured_black.clear();
     last_fr = last_fc = last_tr = last_tc = -1;
+
+    white_king_moved = black_king_moved = false;
+    white_rook_k_moved = white_rook_q_moved = false;
+    black_rook_k_moved = black_rook_q_moved = false;
+
     refresh_ui();
+
+    /* If Copilot plays White, trigger immediate first move! */
+    if (current_mode == MODE_VS_COPILOT_BLACK) {
+        trigger_copilot_move();
+    }
+}
+
+static void on_mode_changed(GtkComboBox *combo, gpointer) {
+    int active = gtk_combo_box_get_active(combo);
+    if (active == 0) current_mode = MODE_PVP;
+    else if (active == 1) current_mode = MODE_VS_COPILOT_WHITE;
+    else if (active == 2) current_mode = MODE_VS_COPILOT_BLACK;
+    
+    on_new_game(NULL, NULL);
 }
 
 /* ══════════════════════════════════════════════════════════════
@@ -484,7 +809,7 @@ static void on_activate(GtkApplication *app, gpointer) {
     g_object_unref(cp);
 
     /* ── Window ── */
-    GtkWidget *win = ams_window(app, "Chess", "applications-games", 540, 620);
+    GtkWidget *win = ams_window(app, "Chess", "applications-games", 540, 640);
     win_ref = win;
 
     /* Header bar extras */
@@ -493,6 +818,15 @@ static void on_activate(GtkApplication *app, gpointer) {
     GtkWidget *new_btn = gtk_button_new_with_label("New Game");
     gtk_header_bar_pack_start(GTK_HEADER_BAR(hbar), new_btn);
     g_signal_connect(new_btn, "clicked", G_CALLBACK(on_new_game), NULL);
+
+    /* Game Mode Combo Box */
+    GtkWidget *mode_combo = gtk_combo_box_text_new();
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(mode_combo), "Mode: 2 Players");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(mode_combo), "Vs Copilot (You: White)");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(mode_combo), "Vs Copilot (You: Black)");
+    gtk_combo_box_set_active(GTK_COMBO_BOX(mode_combo), 0);
+    gtk_header_bar_pack_start(GTK_HEADER_BAR(hbar), mode_combo);
+    g_signal_connect(mode_combo, "changed", G_CALLBACK(on_mode_changed), NULL);
 
     /* ── Main layout ── */
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
@@ -591,6 +925,8 @@ static void on_activate(GtkApplication *app, gpointer) {
 
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
+    srand(time(NULL));
+    
     GtkApplication *app = gtk_application_new("com.ams.task.chess", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
     int s = g_application_run(G_APPLICATION(app), argc, argv);
