@@ -410,7 +410,7 @@ static gpointer online_thread_func(gpointer data) {
 
     std::string cmd =
         "curl -s -m 30 -X POST "
-        "\"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+        "\"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=" +
         api_key + "\" "
         "-H \"Content-Type: application/json\" "
         "-d @" + tmp_path;
