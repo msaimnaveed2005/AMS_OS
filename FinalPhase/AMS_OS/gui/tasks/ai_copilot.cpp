@@ -413,7 +413,9 @@ static gpointer online_thread_func(gpointer data) {
         "\"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
         api_key + "\" "
         "-H \"Content-Type: application/json\" "
-        "-d @" + tmp_path + " 2>/dev/null";
+        "-d @" + tmp_path;
+
+    fprintf(stderr, "[AMS Copilot] Sending API request...\n");
 
     FILE *fp = popen(cmd.c_str(), "r");
     if (fp) {
@@ -421,10 +423,27 @@ static gpointer online_thread_func(gpointer data) {
         std::string raw;
         while (fgets(buf, sizeof(buf), fp))
             raw += buf;
-        pclose(fp);
+        int status = pclose(fp);
 
-        if (raw.find("\"error\"") != std::string::npos) {
-            req->response = "⚠️ API Error. Please check your GEMINI_API_KEY.";
+        fprintf(stderr, "[AMS Copilot] curl exit code: %d\n", WEXITSTATUS(status));
+        fprintf(stderr, "[AMS Copilot] Raw response (first 500 chars): %.500s\n", raw.c_str());
+
+        if (raw.empty()) {
+            req->response = "⚠️ No response from API. Check your internet connection.";
+        } else if (raw.find("\"error\"") != std::string::npos) {
+            /* Try to extract the error message */
+            std::string err_msg;
+            size_t msg_pos = raw.find("\"message\"");
+            if (msg_pos != std::string::npos) {
+                size_t q1 = raw.find('"', msg_pos + 10);
+                size_t q2 = raw.find('"', q1 + 1);
+                if (q1 != std::string::npos && q2 != std::string::npos)
+                    err_msg = raw.substr(q1 + 1, q2 - q1 - 1);
+            }
+            if (err_msg.empty())
+                req->response = "⚠️ API Error. Please check your GEMINI_API_KEY.";
+            else
+                req->response = "⚠️ API Error: " + err_msg;
         } else {
             req->response = extract_text(raw);
             if (req->response.empty())
