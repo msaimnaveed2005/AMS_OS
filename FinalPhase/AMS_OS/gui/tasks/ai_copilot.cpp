@@ -1,12 +1,14 @@
 /*
 AMS OS — AI Copilot
-Intelligent AI assistant powered by Google Gemini API (online)
-or a built-in rule engine (offline).  Can launch apps via natural language.
+Intelligent AI assistant powered by Groq/DeepSeek/Gemini API (online)
+or a built-in rule engine (offline).  Can launch apps via natural language
+and DYNAMICALLY CREATE new GUI applications on demand.
 */
 
 #include "../gui_theme.h"
 #include <signal.h>
 #include <map>
+#include <sys/wait.h>
 
 /* ══════════════════════════════════════════════════════════════
    Constants & Configuration
@@ -28,28 +30,123 @@ static const char *SYSTEM_PROMPT =
     "3. Be friendly and helpful. Use emojis occasionally.\n"
     "4. If asked about yourself, say you are AMS Copilot, built into AMS OS.\n"
     "5. If asked about OS concepts (scheduling, deadlock, memory, etc.), "
-    "give clear, educational explanations.\n";
+    "give clear, educational explanations.\n"
+    "6. If the user asks to play a specific song, you must launch the music player with the requested song title as a parameter. "
+    "The official playlist is:\n"
+    "   - 'Midnight Drive' by Neon Pulse\n"
+    "   - 'Electric Dreams' by Synthwave Radio\n"
+    "   - 'Starlight Sonata' by Luna Echo\n"
+    "   - 'Digital Rain' by Cyber Horizon\n"
+    "   - 'Atomic Heartbeat' by AMS Band\n"
+    "   - 'Velvet Cascade' by Dream Weaver\n"
+    "To play a specific song, append `<<LAUNCH:music_player:Song Title>>` to your reply (e.g. `<<LAUNCH:music_player:Midnight Drive>>`). "
+    "If they ask to 'play music' generally without specifying a song, play 'Midnight Drive' by default: `<<LAUNCH:music_player:Midnight Drive>>`.\n\n"
+    "7. **DYNAMIC APP CREATION** — You can CREATE brand-new GTK3 GUI applications!\n"
+    "When the user asks you to create a program, game, tool, or any application, "
+    "you MUST generate a complete, compilable C++ GTK3 source file and wrap it in a special XML block.\n\n"
+    "FORMAT:\n"
+    "```\n"
+    "<create_app id=\"app_id\" emoji=\"🎯\" name=\"My App\">\n"
+    "// COMPLETE C++ source code here\n"
+    "</create_app>\n"
+    "```\n\n"
+    "RULES FOR GENERATED CODE:\n"
+    "- `id` must be a lowercase_snake_case identifier (e.g. tic_tac_toe, paint_canvas, color_picker)\n"
+    "- The code MUST start with: `#include \"../gui_theme.h\"`\n"
+    "- The code MUST use `signal(SIGCHLD, SIG_IGN);` in main()\n"
+    "- The code MUST follow this exact pattern:\n"
+    "```cpp\n"
+    "#include \"../gui_theme.h\"\n"
+    "#include <signal.h>\n"
+    "// ... other standard includes as needed\n"
+    "\n"
+    "// Application state and logic here\n"
+    "\n"
+    "static void on_activate(GtkApplication *app, gpointer) {\n"
+    "    ams_apply_theme();\n"
+    "    GtkWidget *win = ams_window(app, \"Title\", \"icon-name\", WIDTH, HEIGHT);\n"
+    "    // Build the full UI here\n"
+    "    gtk_widget_show_all(win);\n"
+    "}\n"
+    "\n"
+    "int main(int argc, char *argv[]) {\n"
+    "    signal(SIGCHLD, SIG_IGN);\n"
+    "    GtkApplication *app = gtk_application_new(\"com.ams.task.APPID\", G_APPLICATION_FLAGS_NONE);\n"
+    "    g_signal_connect(app, \"activate\", G_CALLBACK(on_activate), NULL);\n"
+    "    int s = g_application_run(G_APPLICATION(app), argc, argv);\n"
+    "    g_object_unref(app);\n"
+    "    return s;\n"
+    "}\n"
+    "```\n"
+    "- Use the shared theme: ams_apply_theme(), ams_window(), ams_css(), ams_card(), ams_info_row()\n"
+    "- Available CSS classes: .card, .accent, .dim, .success, .error-text, .title-lg, .title-xl, .subtitle-lbl\n"
+    "- For games, use GtkDrawingArea with cairo for 2D rendering\n"
+    "- For forms/tools, use GtkEntry, GtkButton, GtkLabel, GtkTextView, etc.\n"
+    "- Make apps premium and polished — proper spacing, dark theme, great UX\n"
+    "- The code MUST be 100% complete and compilable. NO placeholders, NO TODOs.\n"
+    "- Always include ALL necessary #include headers\n"
+    "- BEFORE the <create_app> block, write a SHORT friendly message (1-2 sentences) about the app you're creating.\n"
+    "- AFTER the </create_app> closing tag, do NOT write anything else.\n\n"
+    "EXAMPLE — if user says 'create a color picker app':\n"
+    "Sure! I'm creating a Color Picker app for you! 🎨\n"
+    "<create_app id=\"color_picker\" emoji=\"🎨\" name=\"Color Picker\">\n"
+    "#include \"../gui_theme.h\"\n"
+    "#include <signal.h>\n"
+    "// ... complete code ...\n"
+    "</create_app>\n\n";
 
-static const std::map<std::string, std::string> APP_MAP = {
-    {"calculator",          "./build/gui_calculator"},
-    {"notepad",             "./build/gui_notepad"},
-    {"snake",               "./build/gui_snake"},
-    {"minesweeper",         "./build/gui_minesweeper"},
-    {"clock",               "./build/gui_clock"},
-    {"calendar",            "./build/gui_calendar"},
-    {"music_player",        "./build/gui_music_player"},
-    {"system_info",         "./build/gui_system_info"},
-    {"task_manager",        "./build/gui_task_manager"},
-    {"download_simulator",  "./build/gui_download_simulator"},
-    {"create_file",         "./build/gui_create_file"},
-    {"delete_file",         "./build/gui_delete_file"},
-    {"file_copy",           "./build/gui_file_copy"},
-    {"move_file",           "./build/gui_move_file"},
-    {"file_info",           "./build/gui_file_info"},
-    {"process_killer",      "./build/gui_process_killer"},
-    {"sudoku",              "./build/gui_sudoku"},
-    {"chess",               "./build/gui_chess"},
+/* ══════════════════════════════════════════════════════════════
+   Dynamic App Registry — loaded from data/desktop_apps.txt
+   ══════════════════════════════════════════════════════════════ */
+
+struct AppEntry {
+    std::string id;
+    std::string exec_path;
 };
+
+static std::vector<AppEntry> dynamic_apps;
+
+static void load_app_registry() {
+    dynamic_apps.clear();
+    std::ifstream f("data/desktop_apps.txt");
+    if (!f.is_open()) return;
+    std::string line;
+    while (std::getline(f, line)) {
+        if (line.empty()) continue;
+        /* Format: id|name|emoji|exec_path */
+        size_t p1 = line.find('|');
+        if (p1 == std::string::npos) continue;
+        size_t p2 = line.find('|', p1 + 1);
+        if (p2 == std::string::npos) continue;
+        size_t p3 = line.find('|', p2 + 1);
+        if (p3 == std::string::npos) continue;
+
+        std::string name = line.substr(p1 + 1, p2 - p1 - 1);
+        std::string exec_path = line.substr(p3 + 1);
+
+        /* Derive app_id from exec_path: ./build/gui_xxx → xxx */
+        std::string app_id;
+        size_t gui_pos = exec_path.find("gui_");
+        if (gui_pos != std::string::npos) {
+            app_id = exec_path.substr(gui_pos + 4);
+        } else {
+            /* Fallback: use name lowercased with spaces→underscores */
+            app_id = name;
+            std::transform(app_id.begin(), app_id.end(), app_id.begin(), ::tolower);
+            std::replace(app_id.begin(), app_id.end(), ' ', '_');
+        }
+
+        dynamic_apps.push_back({app_id, exec_path});
+    }
+}
+
+static std::map<std::string, std::string> get_app_map() {
+    std::map<std::string, std::string> m;
+    for (auto &a : dynamic_apps) {
+        m[a.id] = a.exec_path;
+    }
+    return m;
+}
 
 /* ══════════════════════════════════════════════════════════════
    Application State
@@ -144,8 +241,126 @@ static std::string extract_text_field(const std::string &json, const std::string
 }
 
 /* ══════════════════════════════════════════════════════════════
+   Dynamic App Creator Engine
+   ══════════════════════════════════════════════════════════════ */
+
+static std::string create_new_program(const std::string &id, const std::string &emoji,
+                                       const std::string &name, const std::string &code) {
+    /* 1. Write source file */
+    std::string src_path = "gui/tasks/" + id + ".cpp";
+    {
+        std::ofstream f(src_path);
+        if (!f.is_open()) {
+            return "❌ Failed to write source file: " + src_path;
+        }
+        f << code;
+    }
+    fprintf(stderr, "[AMS Copilot] Wrote source: %s\n", src_path.c_str());
+
+    /* 2. Check if already in makefile's GUI_TASK_NAMES, if not add it */
+    {
+        std::ifstream mf("makefile");
+        std::string makefile_content((std::istreambuf_iterator<char>(mf)),
+                                      std::istreambuf_iterator<char>());
+        mf.close();
+
+        /* Check if the id is already listed */
+        if (makefile_content.find("\t" + id) == std::string::npos &&
+            makefile_content.find(" " + id) == std::string::npos) {
+            /* Find the end of GUI_TASK_NAMES list (the line with just the last entry before blank line) */
+            size_t gui_pos = makefile_content.find("GUI_TASK_NAMES");
+            if (gui_pos != std::string::npos) {
+                /* Find the last continuation line: search for the last \\\n\t before a non-continuation line */
+                /* Strategy: find "chess" (last entry) and append after it */
+                size_t last_entry = makefile_content.find("\tchess", gui_pos);
+                if (last_entry == std::string::npos) {
+                    /* Try to find any last entry — look for the line that doesn't end with \ */
+                    last_entry = makefile_content.find("chess", gui_pos);
+                }
+                if (last_entry != std::string::npos) {
+                    /* Find end of "chess" line */
+                    size_t eol = makefile_content.find('\n', last_entry);
+                    if (eol == std::string::npos) eol = makefile_content.size();
+
+                    /* The "chess" line currently ends without a backslash continuation.
+                       We need to add " \" to chess line and then add our new entry */
+                    std::string chess_line = makefile_content.substr(last_entry, eol - last_entry);
+                    /* Remove trailing \r if present */
+                    std::string trimmed = chess_line;
+                    while (!trimmed.empty() && (trimmed.back() == '\r' || trimmed.back() == ' '))
+                        trimmed.pop_back();
+
+                    std::string new_content = makefile_content.substr(0, last_entry);
+                    new_content += trimmed + " \\\r\n\t" + id;
+                    new_content += makefile_content.substr(eol);
+
+                    std::ofstream out("makefile");
+                    out << new_content;
+                }
+            }
+        }
+    }
+    fprintf(stderr, "[AMS Copilot] Updated makefile for: %s\n", id.c_str());
+
+    /* 3. Compile the new app */
+    std::string build_cmd = "make build/gui_" + id + " 2>&1";
+    fprintf(stderr, "[AMS Copilot] Compiling: %s\n", build_cmd.c_str());
+    FILE *fp = popen(build_cmd.c_str(), "r");
+    std::string compile_output;
+    if (fp) {
+        char buf[1024];
+        while (fgets(buf, sizeof(buf), fp))
+            compile_output += buf;
+        int status = pclose(fp);
+        fprintf(stderr, "[AMS Copilot] Compile exit: %d\n", WEXITSTATUS(status));
+        fprintf(stderr, "[AMS Copilot] Compile output: %s\n", compile_output.c_str());
+
+        if (WEXITSTATUS(status) != 0) {
+            /* Compilation failed — remove the source file to keep things clean */
+            std::remove(src_path.c_str());
+            return "❌ Compilation failed:\n" + compile_output.substr(0, 300);
+        }
+    } else {
+        return "❌ Could not run make. Is it installed?";
+    }
+
+    /* 4. Compute next ID */
+    int next_id = 20;
+    {
+        std::ifstream rf("data/desktop_apps.txt");
+        std::string line;
+        while (std::getline(rf, line)) {
+            if (line.empty()) continue;
+            size_t p = line.find('|');
+            if (p != std::string::npos) {
+                try {
+                    int n = std::stoi(line.substr(0, p));
+                    if (n >= next_id) next_id = n + 1;
+                } catch (...) {}
+            }
+        }
+    }
+
+    /* 5. Register in desktop_apps.txt */
+    std::string exec_path = "./build/gui_" + id;
+    {
+        std::ofstream rf("data/desktop_apps.txt", std::ios::app);
+        rf << next_id << "|" << name << "|" << emoji << "|" << exec_path << "\n";
+    }
+    fprintf(stderr, "[AMS Copilot] Registered app: %s (#%d)\n", name.c_str(), next_id);
+
+    /* 6. Reload our own app registry */
+    load_app_registry();
+
+    return "✅ Successfully created **" + name + "** " + emoji + "!\n"
+           "The app has been compiled and added to your desktop.\n"
+           "Switch to the Desktop and it will appear automatically, or click the 🔄 Refresh button.\n"
+           "You can also say \"open " + id + "\" to launch it right now!";
+}
+
+/* ══════════════════════════════════════════════════════════════
    Offline Rule Engine
-   ══════════════════════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════ */
 
 static std::string to_lower(const std::string &s) {
     std::string r = s;
@@ -155,6 +370,29 @@ static std::string to_lower(const std::string &s) {
 
 static std::string offline_respond(const std::string &input) {
     std::string q = to_lower(input);
+
+    /* ── Play specific song offline (check first!) ── */
+    if (q.find("play") != std::string::npos || q.find("song") != std::string::npos || q.find("music") != std::string::npos) {
+        struct SongAlias { const char *pattern; const char *title; };
+        static const SongAlias songs[] = {
+            {"midnight drive",   "Midnight Drive"},
+            {"electric dreams",  "Electric Dreams"},
+            {"starlight sonata", "Starlight Sonata"},
+            {"digital rain",     "Digital Rain"},
+            {"atomic heartbeat", "Atomic Heartbeat"},
+            {"velvet cascade",   "Velvet Cascade"},
+        };
+        for (auto &s : songs) {
+            if (q.find(s.pattern) != std::string::npos) {
+                return std::string("Sure! Playing \"") + s.title + "\" in the Music Player! 🎵 <<LAUNCH:music_player:" + s.title + ">>";
+            }
+        }
+        
+        if (q.find("play music") != std::string::npos || q.find("play song") != std::string::npos || 
+            q.find("play a song") != std::string::npos || q.find("play some music") != std::string::npos) {
+            return "Playing Midnight Drive by Neon Pulse in the Music Player! 🎵 <<LAUNCH:music_player:Midnight Drive>>";
+        }
+    }
 
     /* ── App launch ── */
     struct AppAlias { const char *pattern; const char *app; const char *name; };
@@ -195,6 +433,12 @@ static std::string offline_respond(const std::string &input) {
                 return std::string("Sure! Launching ") + a.name + " for you! 🚀 <<LAUNCH:" + a.app + ">>";
             }
         }
+        /* Also check dynamic apps */
+        for (auto &da : dynamic_apps) {
+            if (q.find(da.id) != std::string::npos) {
+                return std::string("Sure! Launching ") + da.id + " for you! 🚀 <<LAUNCH:" + da.id + ">>";
+            }
+        }
     }
     /* Also handle "play chess/snake/sudoku" */
     if (q.find("play") != std::string::npos) {
@@ -203,6 +447,18 @@ static std::string offline_respond(const std::string &input) {
                 return std::string("Let's play! Opening ") + a.name + " 🎮 <<LAUNCH:" + a.app + ">>";
             }
         }
+    }
+
+    /* ── Create app offline ── */
+    if (q.find("create") != std::string::npos && (q.find("app") != std::string::npos ||
+        q.find("program") != std::string::npos || q.find("game") != std::string::npos ||
+        q.find("tool") != std::string::npos || q.find("application") != std::string::npos)) {
+        return "I can create custom applications for you, but I need to be in online mode 🌐 to generate the code.\n"
+               "Please set one of these environment variables:\n"
+               "• `export GROQ_API_KEY=your_key`\n"
+               "• `export DEEPSEEK_API_KEY=your_key`\n"
+               "• `export GEMINI_API_KEY=your_key`\n"
+               "Then restart AI Copilot to enable app creation! 🚀";
     }
 
     /* ── Identity ── */
@@ -214,6 +470,7 @@ static std::string offline_respond(const std::string &input) {
         return "I can help you with:\n"
                "• Launch any app (try \"open calculator\")\n"
                "• Answer OS concepts (scheduling, deadlock, memory)\n"
+               "• Create new apps (online mode) → \"create a tic-tac-toe game\"\n"
                "• General questions and chat\n"
                "• File operations and system info";
 
@@ -272,16 +529,83 @@ static std::string offline_respond(const std::string &input) {
     return "I'm currently running in offline mode 🔴 so I can help with:\n"
            "• Launching apps (e.g., \"open calculator\")\n"
            "• OS concepts (e.g., \"explain deadlock\")\n"
-           "Set the GEMINI_API_KEY environment variable to enable full AI mode! 🚀";
+           "Set the GROQ_API_KEY, DEEPSEEK_API_KEY, or GEMINI_API_KEY environment variable to enable full AI mode! 🚀";
 }
 
 /* ══════════════════════════════════════════════════════════════
    Action Parser — extract and execute <<LAUNCH:xxx>> tags
+                   and <create_app> blocks
    ══════════════════════════════════════════════════════════════ */
 
 static std::string parse_and_execute_actions(const std::string &text) {
     std::string display = text;
+
+    /* ── Handle <create_app> blocks first ── */
+    {
+        size_t ca_start = display.find("<create_app");
+        if (ca_start != std::string::npos) {
+            size_t ca_end = display.find("</create_app>");
+            if (ca_end != std::string::npos) {
+                size_t tag_end = display.find('>', ca_start);
+                if (tag_end != std::string::npos && tag_end < ca_end) {
+                    /* Parse attributes from the opening tag */
+                    std::string tag = display.substr(ca_start, tag_end - ca_start + 1);
+                    std::string code = display.substr(tag_end + 1, ca_end - tag_end - 1);
+
+                    /* Extract id="..." */
+                    std::string app_id, app_emoji, app_name;
+                    auto extract_attr = [&tag](const std::string &attr) -> std::string {
+                        std::string search = attr + "=\"";
+                        size_t p = tag.find(search);
+                        if (p == std::string::npos) return "";
+                        p += search.size();
+                        size_t q = tag.find('"', p);
+                        if (q == std::string::npos) return "";
+                        return tag.substr(p, q - p);
+                    };
+
+                    app_id = extract_attr("id");
+                    app_emoji = extract_attr("emoji");
+                    app_name = extract_attr("name");
+
+                    if (app_id.empty()) app_id = "custom_app";
+                    if (app_emoji.empty()) app_emoji = "🆕";
+                    if (app_name.empty()) app_name = "Custom App";
+
+                    /* Trim leading/trailing whitespace from code */
+                    size_t code_start = code.find_first_not_of(" \t\n\r");
+                    size_t code_end_pos = code.find_last_not_of(" \t\n\r");
+                    if (code_start != std::string::npos && code_end_pos != std::string::npos) {
+                        code = code.substr(code_start, code_end_pos - code_start + 1);
+                    }
+
+                    /* Remove the <create_app>...</create_app> block from display */
+                    std::string before = display.substr(0, ca_start);
+                    std::string after = (ca_end + 13 < display.size()) ? display.substr(ca_end + 13) : "";
+
+                    /* Trim before text */
+                    while (!before.empty() && (before.back() == ' ' || before.back() == '\n'))
+                        before.pop_back();
+
+                    /* Execute the creation */
+                    std::string result = create_new_program(app_id, app_emoji, app_name, code);
+
+                    display = before;
+                    if (!display.empty()) display += "\n\n";
+                    display += result;
+
+                    /* Trim after text */
+                    while (!after.empty() && (after.front() == ' ' || after.front() == '\n'))
+                        after.erase(after.begin());
+                    if (!after.empty()) display += "\n" + after;
+                }
+            }
+        }
+    }
+
+    /* ── Handle <<LAUNCH:xxx>> tags ── */
     size_t pos = 0;
+    auto app_map = get_app_map();
 
     while ((pos = display.find("<<LAUNCH:", pos)) != std::string::npos) {
         size_t end = display.find(">>", pos);
@@ -290,12 +614,24 @@ static std::string parse_and_execute_actions(const std::string &text) {
         std::string app = display.substr(pos + 9, end - pos - 9);
         display.erase(pos, end - pos + 2);  /* remove the tag */
 
-        auto it = APP_MAP.find(app);
-        if (it != APP_MAP.end()) {
+        std::string app_name = app;
+        std::string app_arg = "";
+        size_t colon = app.find(':');
+        if (colon != std::string::npos) {
+            app_name = app.substr(0, colon);
+            app_arg = app.substr(colon + 1);
+        }
+
+        auto it = app_map.find(app_name);
+        if (it != app_map.end()) {
             pid_t pid = fork();
             if (pid == 0) {
                 setsid();
-                execlp(it->second.c_str(), it->second.c_str(), (char *)NULL);
+                if (!app_arg.empty()) {
+                    execlp(it->second.c_str(), it->second.c_str(), app_arg.c_str(), (char *)NULL);
+                } else {
+                    execlp(it->second.c_str(), it->second.c_str(), (char *)NULL);
+                }
                 _exit(1);
             }
         }
@@ -332,7 +668,7 @@ static std::string build_gemini_json() {
 
     json += "],\"systemInstruction\":{\"parts\":[{\"text\":\"";
     json += json_escape(SYSTEM_PROMPT);
-    json += "\"}]},\"generationConfig\":{\"maxOutputTokens\":512,\"temperature\":0.7}}";
+    json += "\"}]},\"generationConfig\":{\"maxOutputTokens\":4096,\"temperature\":0.7}}";
 
     return json;
 }
@@ -350,12 +686,10 @@ static std::string build_openai_compatible_json(const std::string &model) {
         json += "{\"role\":\"" + role + "\",\"content\":\"" + json_escape(history[i].text) + "\"}";
     }
 
-    json += "],\"stream\":false,\"max_tokens\":512,\"temperature\":0.7}";
+    json += "],\"stream\":false,\"max_tokens\":4096,\"temperature\":0.7}";
 
     return json;
 }
-
-/* (Gemini API call logic is in online_thread_func below) */
 
 /* ══════════════════════════════════════════════════════════════
    UI Helpers
@@ -459,17 +793,17 @@ static gpointer online_thread_func(gpointer data) {
 
     std::string cmd;
     if (current_provider == PROVIDER_DEEPSEEK) {
-        cmd = "curl -s -m 30 -X POST \"https://api.deepseek.com/chat/completions\" "
+        cmd = "curl -s -m 60 -X POST \"https://api.deepseek.com/chat/completions\" "
               "-H \"Content-Type: application/json\" "
               "-H \"Authorization: Bearer " + api_key + "\" "
               "-d @" + tmp_path;
     } else if (current_provider == PROVIDER_GROQ) {
-        cmd = "curl -s -m 30 -X POST \"https://api.groq.com/openai/v1/chat/completions\" "
+        cmd = "curl -s -m 60 -X POST \"https://api.groq.com/openai/v1/chat/completions\" "
               "-H \"Content-Type: application/json\" "
               "-H \"Authorization: Bearer " + api_key + "\" "
               "-d @" + tmp_path;
     } else {
-        cmd = "curl -s -m 30 -X POST \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+        cmd = "curl -s -m 60 -X POST \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
               api_key + "\" "
               "-H \"Content-Type: application/json\" "
               "-d @" + tmp_path;
@@ -659,6 +993,9 @@ static const char *CHAT_CSS = R"CSS(
 static void on_activate(GtkApplication *app, gpointer) {
     ams_apply_theme();
 
+    /* Load dynamic app registry */
+    load_app_registry();
+
     /* Load chat-specific CSS */
     GtkCssProvider *cp = gtk_css_provider_new();
     gtk_css_provider_load_from_data(cp, CHAT_CSS, -1, NULL);
@@ -667,21 +1004,21 @@ static void on_activate(GtkApplication *app, gpointer) {
         GTK_STYLE_PROVIDER_PRIORITY_APPLICATION + 1);
     g_object_unref(cp);
 
-    /* Check API key */
-    const char *deepseek_key = getenv("DEEPSEEK_API_KEY");
+    /* Check API key — priority: GROQ > DEEPSEEK > GEMINI */
     const char *groq_key = getenv("GROQ_API_KEY");
+    const char *deepseek_key = getenv("DEEPSEEK_API_KEY");
     const char *gemini_key = getenv("GEMINI_API_KEY");
 
-    if (deepseek_key && strlen(deepseek_key) > 0) {
-        api_key = deepseek_key;
-        current_provider = PROVIDER_DEEPSEEK;
-        online_mode = true;
-        fprintf(stderr, "[AMS Copilot] DeepSeek API key found, online mode enabled.\n");
-    } else if (groq_key && strlen(groq_key) > 0) {
+    if (groq_key && strlen(groq_key) > 0) {
         api_key = groq_key;
         current_provider = PROVIDER_GROQ;
         online_mode = true;
         fprintf(stderr, "[AMS Copilot] Groq API key found, online mode enabled.\n");
+    } else if (deepseek_key && strlen(deepseek_key) > 0) {
+        api_key = deepseek_key;
+        current_provider = PROVIDER_DEEPSEEK;
+        online_mode = true;
+        fprintf(stderr, "[AMS Copilot] DeepSeek API key found, online mode enabled.\n");
     } else if (gemini_key && strlen(gemini_key) > 0) {
         api_key = gemini_key;
         current_provider = PROVIDER_GEMINI;
@@ -690,7 +1027,7 @@ static void on_activate(GtkApplication *app, gpointer) {
     } else {
         current_provider = PROVIDER_NONE;
         online_mode = false;
-        fprintf(stderr, "[AMS Copilot] No API key set (GEMINI_API_KEY, DEEPSEEK_API_KEY, or GROQ_API_KEY), running in offline mode.\n");
+        fprintf(stderr, "[AMS Copilot] No API key set (GROQ_API_KEY, DEEPSEEK_API_KEY, or GEMINI_API_KEY), running in offline mode.\n");
     }
 
     /* Verify curl is available for online mode */
@@ -797,7 +1134,8 @@ static void on_activate(GtkApplication *app, gpointer) {
         "• Launch apps → \"open calculator\"\n"
         "• OS concepts → \"explain deadlock\"\n"
         "• Play games → \"play chess\"\n"
-        "• General chat → ask me anything!\n\n";
+        "• Play music → \"play Midnight Drive\"\n"
+        "• Create apps → \"create a tic-tac-toe game\" (online mode)\n\n";
     if (online_mode) {
         if (current_provider == PROVIDER_DEEPSEEK)
             welcome += "Status: 🟢 Online — powered by DeepSeek AI";
@@ -806,7 +1144,7 @@ static void on_activate(GtkApplication *app, gpointer) {
         else
             welcome += "Status: 🟢 Online — powered by Gemini AI";
     } else {
-        welcome += "Status: 🔴 Offline — set GEMINI_API_KEY, DEEPSEEK_API_KEY, or GROQ_API_KEY for full AI mode";
+        welcome += "Status: 🔴 Offline — set GROQ_API_KEY, DEEPSEEK_API_KEY, or GEMINI_API_KEY for full AI mode";
     }
 
     add_bubble("✦ AMS Copilot", welcome, false);

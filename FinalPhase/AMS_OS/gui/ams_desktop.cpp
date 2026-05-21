@@ -2,6 +2,7 @@
 AMS OS Desktop — Graphical Operating System Interface
 GTK3 desktop with login screen, boot splash, app launcher, taskbar, and shutdown animation.
 All tasks launch as native GTK3 GUI apps (not in terminals).
+Dynamic app registry loaded from data/desktop_apps.txt.
 */
 
 #include <gtk/gtk.h>
@@ -17,40 +18,87 @@ All tasks launch as native GTK3 GUI apps (not in terminals).
 #include <string>
 #include <algorithm>
 #include <cctype>
+#include <vector>
+#include <fstream>
+#include <sstream>
 
 /* ═══════════════════════════════════════════════════════
-   Task Registry — GUI task executables
+   Task Registry — Dynamic, loaded from data/desktop_apps.txt
    ═══════════════════════════════════════════════════════ */
 
 struct TaskEntry {
     int         id;
-    const char *name;
-    const char *emoji;
-    const char *exec_path;
+    std::string name;
+    std::string emoji;
+    std::string exec_path;
 };
 
-static const TaskEntry TASKS[] = {
-    { 1, "Create File",      "📄", "./build/gui_create_file"},
-    { 2, "Delete File",      "🗑️",  "./build/gui_delete_file"},
-    { 3, "Copy File",        "📋", "./build/gui_file_copy"},
-    { 4, "Move File",        "📦", "./build/gui_move_file"},
-    { 5, "File Info",        "ℹ️",  "./build/gui_file_info"},
-    { 6, "Notepad",          "📝", "./build/gui_notepad"},
-    { 7, "Calculator",       "🧮", "./build/gui_calculator"},
-    { 8, "Digital Clock",    "🕐", "./build/gui_clock"},
-    { 9, "System Info",      "💻", "./build/gui_system_info"},
-    {10, "Snake Game",       "🐍", "./build/gui_snake"},
-    {11, "Minesweeper",      "💣", "./build/gui_minesweeper"},
-    {12, "Music Player",     "🎵", "./build/gui_music_player"},
-    {13, "Downloads",        "⬇️",  "./build/gui_download_simulator"},
-    {14, "Task Manager",     "📊", "./build/gui_task_manager"},
-    {15, "Process Killer",   "⚡", "./build/gui_process_killer"},
-    {16, "Calendar",         "📅", "./build/gui_calendar"},
-    {17, "AI Copilot",       "✦",  "./build/gui_ai_copilot"},
-    {18, "Sudoku",           "🔢", "./build/gui_sudoku"},
-    {19, "Chess",            "♟️",  "./build/gui_chess"},
-};
-static const int TASK_COUNT = sizeof(TASKS) / sizeof(TASKS[0]);
+static std::vector<TaskEntry> TASKS;
+static int TASK_COUNT = 0;
+
+/* ── Default app definitions (written if registry file missing) ── */
+static void write_default_tasks() {
+    std::ofstream f("data/desktop_apps.txt");
+    if (!f.is_open()) return;
+    f << "1|Create File|📄|./build/gui_create_file\n";
+    f << "2|Delete File|🗑️|./build/gui_delete_file\n";
+    f << "3|Copy File|📋|./build/gui_file_copy\n";
+    f << "4|Move File|📦|./build/gui_move_file\n";
+    f << "5|File Info|ℹ️|./build/gui_file_info\n";
+    f << "6|Notepad|📝|./build/gui_notepad\n";
+    f << "7|Calculator|🧮|./build/gui_calculator\n";
+    f << "8|Digital Clock|🕐|./build/gui_clock\n";
+    f << "9|System Info|💻|./build/gui_system_info\n";
+    f << "10|Snake Game|🐍|./build/gui_snake\n";
+    f << "11|Minesweeper|💣|./build/gui_minesweeper\n";
+    f << "12|Music Player|🎵|./build/gui_music_player\n";
+    f << "13|Downloads|⬇️|./build/gui_download_simulator\n";
+    f << "14|Task Manager|📊|./build/gui_task_manager\n";
+    f << "15|Process Killer|⚡|./build/gui_process_killer\n";
+    f << "16|Calendar|📅|./build/gui_calendar\n";
+    f << "17|AI Copilot|✦|./build/gui_ai_copilot\n";
+    f << "18|Sudoku|🔢|./build/gui_sudoku\n";
+    f << "19|Chess|♟️|./build/gui_chess\n";
+}
+
+static void load_tasks() {
+    TASKS.clear();
+
+    /* Ensure data directory exists */
+    system("mkdir -p data 2>/dev/null");
+
+    std::ifstream f("data/desktop_apps.txt");
+    if (!f.is_open()) {
+        write_default_tasks();
+        f.open("data/desktop_apps.txt");
+        if (!f.is_open()) return;
+    }
+
+    std::string line;
+    while (std::getline(f, line)) {
+        if (line.empty()) continue;
+        /* Remove trailing \r if present (Windows line endings) */
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        if (line.empty()) continue;
+
+        /* Format: id|name|emoji|exec_path */
+        size_t p1 = line.find('|');
+        if (p1 == std::string::npos) continue;
+        size_t p2 = line.find('|', p1 + 1);
+        if (p2 == std::string::npos) continue;
+        size_t p3 = line.find('|', p2 + 1);
+        if (p3 == std::string::npos) continue;
+
+        TaskEntry t;
+        try { t.id = std::stoi(line.substr(0, p1)); } catch (...) { continue; }
+        t.name      = line.substr(p1 + 1, p2 - p1 - 1);
+        t.emoji     = line.substr(p2 + 1, p3 - p2 - 1);
+        t.exec_path = line.substr(p3 + 1);
+
+        TASKS.push_back(t);
+    }
+    TASK_COUNT = (int)TASKS.size();
+}
 
 /* ═══════════════════════════════════════════════════════
    Application State
@@ -64,6 +112,8 @@ struct AppState {
     GtkWidget      *search_entry;
     GtkWidget      *flow_box;
     GtkWidget      *login_error;
+    GtkWidget      *desktop_win;
+    GtkWidget      *desktop_content;
     int             splash_step;
     int             shutdown_step;
     int             argc;
@@ -77,6 +127,7 @@ static void show_login();
 static void show_splash();
 static void show_desktop();
 static void show_mode_selector();
+static void populate_grid();
 
 /* ═══════════════════════════════════════════════════════
    CSS Theme — Premium dark desktop aesthetic
@@ -174,58 +225,190 @@ window.shutdown { background-color: #06060f; }
 progressbar.shutdown-bar trough   { background-color: rgba(255,255,255,0.06); border-radius: 3px; min-height: 3px; }
 progressbar.shutdown-bar progress { background-image: linear-gradient(to right, #6366f1, #a855f7); border-radius: 3px; min-height: 3px; }
 
-/* ── Desktop Wallpaper ── */
+/* ── Desktop Wallpaper — Ultra-dark cosmic gradient ── */
 window.desktop {
     background-image: linear-gradient(
-        160deg, #0f0c29 0%, #1a1050 12%, #302b63 30%,
-        #24243e 48%, #4a1942 62%, #b91c1c 78%,
-        #ea580c 88%, #f59e0b 100%
+        145deg,
+        #030014 0%,
+        #0a0520 15%,
+        #10082e 30%,
+        #0d0628 45%,
+        #120a35 55%,
+        #1a0e3a 65%,
+        #140830 80%,
+        #0a0418 100%
     );
 }
 
-/* ── Top Bar ── */
-.top-bar { background-color: rgba(0,0,0,0.6); padding: 3px 16px; min-height: 26px; }
-.top-logo { color: rgba(255,255,255,0.92); font-size: 13px; font-weight: 700; }
-.top-clock { color: rgba(255,255,255,0.88); font-size: 13px; font-weight: 500; }
-.top-user  { color: rgba(255,255,255,0.6); font-size: 12px; }
+/* ── Top Bar — Frosted glass panel ── */
+.top-bar {
+    background-color: rgba(6, 3, 18, 0.82);
+    border-bottom: 1px solid rgba(139, 92, 246, 0.12);
+    padding: 4px 20px;
+    min-height: 30px;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+}
+.top-logo {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+.top-clock {
+    color: rgba(200, 180, 255, 0.9);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.top-user {
+    color: rgba(167, 139, 250, 0.7);
+    font-size: 12px;
+    font-weight: 500;
+}
 
-/* ── Search ── */
+/* ── Search — Glassmorphic pill ── */
 .search-box {
-    background-color: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 10px; color: white; padding: 8px 18px; font-size: 14px;
-    min-width: 300px; margin-top: 24px; margin-bottom: 20px; caret-color: white;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 22px;
+    color: white;
+    padding: 10px 24px;
+    font-size: 14px;
+    min-width: 340px;
+    margin-top: 28px;
+    margin-bottom: 24px;
+    caret-color: #a78bfa;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    transition: all 200ms ease-in-out;
 }
-.search-box:focus { background-color: rgba(255,255,255,0.18); border-color: rgba(139,92,246,0.5); }
+.search-box:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(139, 92, 246, 0.45);
+    box-shadow: 0 4px 30px rgba(139, 92, 246, 0.15),
+                0 0 0 3px rgba(139, 92, 246, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
 
-/* ── App Icons ── */
+/* ── App Icons — Glassmorphic hover with glow ── */
 .app-btn {
-    background-color: transparent; border: none; border-radius: 18px;
-    padding: 12px; min-width: 100px; min-height: 100px;
-    transition: all 150ms ease-in-out; box-shadow: none;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 14px;
+    min-width: 108px;
+    min-height: 108px;
+    transition: all 200ms ease-in-out;
+    box-shadow: none;
 }
-.app-btn:hover  { background-color: rgba(255,255,255,0.12); }
-.app-btn:active { background-color: rgba(255,255,255,0.22); }
-.app-icon-emoji { font-size: 46px; }
-.app-icon-name  { color: white; font-size: 11px; font-weight: 500; margin-top: 5px; text-shadow: 0 1px 3px rgba(0,0,0,0.6); }
+.app-btn:hover {
+    background-color: rgba(139, 92, 246, 0.1);
+    border-color: rgba(139, 92, 246, 0.2);
+    box-shadow: 0 8px 32px rgba(139, 92, 246, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.app-btn:active {
+    background-color: rgba(139, 92, 246, 0.2);
+    border-color: rgba(139, 92, 246, 0.35);
+}
+.app-icon-emoji {
+    font-size: 48px;
+}
+.app-icon-name {
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 6px;
+    letter-spacing: 0.3px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
 
-/* ── Bottom Dock ── */
-.dock-outer { margin: 0px 0px 12px 0px; }
-.dock { background-color: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; padding: 5px 12px; }
-.dock-btn { background-color: transparent; border: none; border-radius: 14px; padding: 5px 10px; min-width: 50px; min-height: 50px; transition: all 150ms ease-in-out; }
-.dock-btn:hover { background-color: rgba(255,255,255,0.15); }
-.dock-emoji { font-size: 28px; }
+/* ── Bottom Dock — Frosted glass bar ── */
+.dock-outer {
+    margin: 0px 0px 14px 0px;
+}
+.dock {
+    background-color: rgba(8, 4, 22, 0.75);
+    border: 1px solid rgba(139, 92, 246, 0.15);
+    border-radius: 22px;
+    padding: 6px 16px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+.dock-btn {
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    padding: 6px 12px;
+    min-width: 54px;
+    min-height: 54px;
+    transition: all 180ms ease-in-out;
+}
+.dock-btn:hover {
+    background-color: rgba(139, 92, 246, 0.18);
+    border-color: rgba(139, 92, 246, 0.25);
+    box-shadow: 0 4px 16px rgba(139, 92, 246, 0.15);
+}
+.dock-emoji {
+    font-size: 28px;
+}
 
-/* ── Power/Shutdown button ── */
-.power-btn { background-color: transparent; border: none; padding: 2px 8px; border-radius: 6px; color: rgba(255,255,255,0.7); font-size: 14px; }
-.power-btn:hover { background-color: rgba(255,60,60,0.3); color: white; }
+/* ── Power / Refresh — Pill buttons ── */
+.power-btn {
+    background-color: rgba(255, 60, 60, 0.08);
+    border: 1px solid rgba(255, 60, 60, 0.12);
+    padding: 3px 12px;
+    border-radius: 10px;
+    color: rgba(255, 120, 120, 0.8);
+    font-size: 13px;
+    transition: all 180ms ease-in-out;
+}
+.power-btn:hover {
+    background-color: rgba(255, 60, 60, 0.25);
+    border-color: rgba(255, 60, 60, 0.4);
+    color: #ff9999;
+    box-shadow: 0 2px 12px rgba(255, 60, 60, 0.2);
+}
+.refresh-btn {
+    background-color: rgba(52, 211, 153, 0.06);
+    border: 1px solid rgba(52, 211, 153, 0.1);
+    padding: 3px 12px;
+    border-radius: 10px;
+    color: rgba(52, 211, 153, 0.7);
+    font-size: 13px;
+    transition: all 180ms ease-in-out;
+}
+.refresh-btn:hover {
+    background-color: rgba(52, 211, 153, 0.2);
+    border-color: rgba(52, 211, 153, 0.35);
+    color: #6ee7b7;
+    box-shadow: 0 2px 12px rgba(52, 211, 153, 0.15);
+}
+
+/* ── Shutdown / Power Menu Cards ── */
 .shutdown-card {
-    background-color: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 16px; padding: 20px 32px; margin: 6px;
-    min-width: 100px; transition: all 150ms ease-in-out;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(139, 92, 246, 0.1);
+    border-radius: 18px;
+    padding: 22px 36px;
+    margin: 8px;
+    min-width: 110px;
+    transition: all 200ms ease-in-out;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
-.shutdown-card:hover { background-color: rgba(139,92,246,0.15); border-color: rgba(139,92,246,0.4); }
-.shutdown-card-emoji { font-size: 32px; }
-.shutdown-card-label { font-size: 12px; color: rgba(255,255,255,0.7); margin-top: 6px; }
+.shutdown-card:hover {
+    background-color: rgba(139, 92, 246, 0.12);
+    border-color: rgba(139, 92, 246, 0.4);
+    box-shadow: 0 8px 36px rgba(139, 92, 246, 0.2);
+}
+.shutdown-card-emoji { font-size: 34px; }
+.shutdown-card-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 500;
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+}
 
 )CSS";
 
@@ -276,9 +459,10 @@ static gboolean filter_func(GtkFlowBoxChild *child, gpointer) {
     const char *query = gtk_entry_get_text(GTK_ENTRY(S.search_entry));
     if (!query || strlen(query) == 0) return TRUE;
     GtkWidget *btn = gtk_bin_get_child(GTK_BIN(child));
-    const TaskEntry *task = (const TaskEntry *)g_object_get_data(G_OBJECT(btn), "task");
-    if (!task) return TRUE;
-    std::string n(task->name), q(query);
+    int idx = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(btn), "task_idx"));
+    if (idx < 0 || idx >= TASK_COUNT) return TRUE;
+    std::string n = TASKS[idx].name;
+    std::string q(query);
     std::transform(n.begin(), n.end(), n.begin(), ::tolower);
     std::transform(q.begin(), q.end(), q.begin(), ::tolower);
     return n.find(q) != std::string::npos ? TRUE : FALSE;
@@ -292,9 +476,74 @@ static void on_search_changed(GtkEntry *, gpointer) {
    Task click — direct launch (no terminal)
    ═══════════════════════════════════════════════════════ */
 
-static void on_app_click(GtkWidget *, gpointer data) {
-    const TaskEntry *t = (const TaskEntry *)data;
-    launch_gui_task(t->exec_path);
+static void on_app_click(GtkWidget *btn, gpointer) {
+    int idx = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(btn), "task_idx"));
+    if (idx >= 0 && idx < TASK_COUNT)
+        launch_gui_task(TASKS[idx].exec_path.c_str());
+}
+
+/* ═══════════════════════════════════════════════════════
+   Refresh Desktop — reload registry and rebuild grid
+   ═══════════════════════════════════════════════════════ */
+
+static void refresh_desktop() {
+    if (!S.flow_box) return;
+
+    /* Reload tasks from file */
+    load_tasks();
+
+    /* Remove all children from the flow box */
+    GList *children = gtk_container_get_children(GTK_CONTAINER(S.flow_box));
+    for (GList *l = children; l != NULL; l = l->next) {
+        gtk_widget_destroy(GTK_WIDGET(l->data));
+    }
+    g_list_free(children);
+
+    /* Re-populate the grid */
+    populate_grid();
+
+    /* Re-apply the filter */
+    gtk_flow_box_invalidate_filter(GTK_FLOW_BOX(S.flow_box));
+}
+
+static void on_refresh_clicked(GtkWidget *, gpointer) {
+    refresh_desktop();
+}
+
+static gboolean on_desktop_focus(GtkWidget *, GdkEventFocus *, gpointer) {
+    refresh_desktop();
+    return FALSE;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Populate Icon Grid
+   ═══════════════════════════════════════════════════════ */
+
+static void populate_grid() {
+    if (!S.flow_box) return;
+    for (int i = 0; i < TASK_COUNT; i++) {
+        GtkWidget *btn = gtk_button_new();
+        add_class(btn, "app-btn");
+        g_object_set_data(G_OBJECT(btn), "task_idx", GINT_TO_POINTER(i));
+
+        GtkWidget *inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+        gtk_widget_set_halign(inner, GTK_ALIGN_CENTER);
+
+        GtkWidget *emoji = gtk_label_new(TASKS[i].emoji.c_str());
+        add_class(emoji, "app-icon-emoji");
+        gtk_box_pack_start(GTK_BOX(inner), emoji, FALSE, FALSE, 0);
+
+        GtkWidget *name = gtk_label_new(TASKS[i].name.c_str());
+        add_class(name, "app-icon-name");
+        gtk_label_set_max_width_chars(GTK_LABEL(name), 14);
+        gtk_label_set_ellipsize(GTK_LABEL(name), PANGO_ELLIPSIZE_END);
+        gtk_box_pack_start(GTK_BOX(inner), name, FALSE, FALSE, 0);
+
+        gtk_container_add(GTK_CONTAINER(btn), inner);
+        g_signal_connect(btn, "clicked", G_CALLBACK(on_app_click), NULL);
+        gtk_container_add(GTK_CONTAINER(S.flow_box), btn);
+    }
+    gtk_widget_show_all(S.flow_box);
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -317,6 +566,7 @@ static gboolean shutdown_tick(gpointer) {
 
 static void do_shutdown(GtkWidget *desktop) {
     gtk_widget_destroy(desktop);
+    S.desktop_win = NULL;
     S.shutdown_step = 0;
 
     shutdown_win = gtk_application_window_new(S.app);
@@ -432,6 +682,7 @@ static void on_power_clicked(GtkWidget *, gpointer desktop_win) {
             GTK_WIDGET(gtk_window_get_transient_for(GTK_WINDOW(dlg))));
         gtk_widget_destroy(dlg);
         gtk_widget_destroy(desktop);
+        S.desktop_win = NULL;
         show_login();
     }), dlg);
 }
@@ -441,11 +692,15 @@ static void on_power_clicked(GtkWidget *, gpointer desktop_win) {
    ═══════════════════════════════════════════════════════ */
 
 static void show_desktop() {
+    /* Reload tasks fresh */
+    load_tasks();
+
     GtkWidget *win = gtk_application_window_new(S.app);
     gtk_window_set_title(GTK_WINDOW(win), "AMS OS");
     gtk_window_set_default_size(GTK_WINDOW(win), 1280, 800);
     gtk_window_maximize(GTK_WINDOW(win));
     add_class(win, "desktop");
+    S.desktop_win = win;
 
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(win), vbox);
@@ -463,6 +718,13 @@ static void show_desktop() {
     add_class(pwr, "power-btn");
     g_signal_connect(pwr, "clicked", G_CALLBACK(on_power_clicked), win);
     gtk_box_pack_end(GTK_BOX(bar), pwr, FALSE, FALSE, 0);
+
+    /* Refresh button */
+    GtkWidget *ref = gtk_button_new_with_label("🔄 ");
+    add_class(ref, "refresh-btn");
+    gtk_widget_set_tooltip_text(ref, "Refresh desktop apps");
+    g_signal_connect(ref, "clicked", G_CALLBACK(on_refresh_clicked), NULL);
+    gtk_box_pack_end(GTK_BOX(bar), ref, FALSE, FALSE, 0);
 
     /* Clock */
     S.clock_label = gtk_label_new(get_clock_text().c_str());
@@ -485,6 +747,7 @@ static void show_desktop() {
     gtk_widget_set_halign(content, GTK_ALIGN_CENTER);
     gtk_widget_set_valign(content, GTK_ALIGN_START);
     gtk_container_add(GTK_CONTAINER(scroll), content);
+    S.desktop_content = content;
 
     /* ── Search ── */
     GtkWidget *search_wrap = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -509,28 +772,7 @@ static void show_desktop() {
     gtk_flow_box_set_filter_func(GTK_FLOW_BOX(S.flow_box), filter_func, NULL, NULL);
     g_signal_connect(S.search_entry, "changed", G_CALLBACK(on_search_changed), NULL);
 
-    for (int i = 0; i < TASK_COUNT; i++) {
-        GtkWidget *btn = gtk_button_new();
-        add_class(btn, "app-btn");
-        g_object_set_data(G_OBJECT(btn), "task", (gpointer)&TASKS[i]);
-
-        GtkWidget *inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-        gtk_widget_set_halign(inner, GTK_ALIGN_CENTER);
-
-        GtkWidget *emoji = gtk_label_new(TASKS[i].emoji);
-        add_class(emoji, "app-icon-emoji");
-        gtk_box_pack_start(GTK_BOX(inner), emoji, FALSE, FALSE, 0);
-
-        GtkWidget *name = gtk_label_new(TASKS[i].name);
-        add_class(name, "app-icon-name");
-        gtk_label_set_max_width_chars(GTK_LABEL(name), 14);
-        gtk_label_set_ellipsize(GTK_LABEL(name), PANGO_ELLIPSIZE_END);
-        gtk_box_pack_start(GTK_BOX(inner), name, FALSE, FALSE, 0);
-
-        gtk_container_add(GTK_CONTAINER(btn), inner);
-        g_signal_connect(btn, "clicked", G_CALLBACK(on_app_click), (gpointer)&TASKS[i]);
-        gtk_container_add(GTK_CONTAINER(S.flow_box), btn);
-    }
+    populate_grid();
     gtk_box_pack_start(GTK_BOX(content), S.flow_box, FALSE, FALSE, 0);
 
     /* ── Bottom Dock ── */
@@ -547,11 +789,12 @@ static void show_desktop() {
             if (TASKS[i].id != p) continue;
             GtkWidget *dbtn = gtk_button_new();
             add_class(dbtn, "dock-btn");
-            gtk_widget_set_tooltip_text(dbtn, TASKS[i].name);
-            GtkWidget *de = gtk_label_new(TASKS[i].emoji);
+            gtk_widget_set_tooltip_text(dbtn, TASKS[i].name.c_str());
+            g_object_set_data(G_OBJECT(dbtn), "task_idx", GINT_TO_POINTER(i));
+            GtkWidget *de = gtk_label_new(TASKS[i].emoji.c_str());
             add_class(de, "dock-emoji");
             gtk_container_add(GTK_CONTAINER(dbtn), de);
-            g_signal_connect(dbtn, "clicked", G_CALLBACK(on_app_click), (gpointer)&TASKS[i]);
+            g_signal_connect(dbtn, "clicked", G_CALLBACK(on_app_click), NULL);
             gtk_box_pack_start(GTK_BOX(dock), dbtn, FALSE, FALSE, 2);
             break;
         }
@@ -559,6 +802,9 @@ static void show_desktop() {
 
     gtk_box_pack_start(GTK_BOX(dock_outer), dock, FALSE, FALSE, 0);
     gtk_box_pack_end(GTK_BOX(vbox), dock_outer, FALSE, FALSE, 0);
+
+    /* Auto-refresh when window gains focus */
+    g_signal_connect(win, "focus-in-event", G_CALLBACK(on_desktop_focus), NULL);
 
     g_timeout_add_seconds(1, tick_clock, NULL);
     gtk_widget_show_all(win);
@@ -759,6 +1005,7 @@ static void show_mode_selector() {
    ═══════════════════════════════════════════════════════ */
 
 static void on_activate(GtkApplication *, gpointer) {
+    load_tasks();
     apply_css();
     show_mode_selector();
 }
