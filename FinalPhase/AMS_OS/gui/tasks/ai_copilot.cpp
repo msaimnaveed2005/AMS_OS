@@ -91,14 +91,10 @@ static std::string json_escape(const std::string &s) {
 }
 
 static std::string extract_text(const std::string &json) {
-    /* Find "content" field inside choices[0].message for OpenAI-compatible response */
-    size_t choices_pos = json.find("\"choices\"");
-    if (choices_pos == std::string::npos) return "";
-
-    size_t content_pos = json.find("\"content\"", choices_pos);
-    if (content_pos == std::string::npos) return "";
-
-    size_t pos = json.find('"', content_pos + 10);
+    /* Find first "text" field value in Gemini response JSON */
+    size_t pos = json.find("\"text\"");
+    if (pos == std::string::npos) return "";
+    pos = json.find('"', pos + 6);
     if (pos == std::string::npos) return "";
     pos++; /* skip opening quote */
 
@@ -298,33 +294,27 @@ struct ApiRequest {
 };
 
 static std::string build_request_json() {
-    /* OpenAI-compatible chat completions format (used by DeepSeek) */
-    std::string json = "{\"model\":\"deepseek-chat\",\"messages\":[";
-
-    /* System prompt */
-    json += "{\"role\":\"system\",\"content\":\"";
-    json += json_escape(SYSTEM_PROMPT);
-    json += "\"}";
+    std::string json = "{\"contents\":[";
 
     /* Include last 10 exchanges from history */
     int start = (int)history.size() - 20;
     if (start < 0) start = 0;
 
     for (int i = start; i < (int)history.size(); i++) {
-        json += ",";
-        /* DeepSeek uses "assistant" instead of "model" */
-        std::string role = (history[i].role == "model") ? "assistant" : history[i].role;
-        json += "{\"role\":\"" + role + "\",\"content\":\"";
+        if (i > start) json += ",";
+        json += "{\"role\":\"" + history[i].role + "\",\"parts\":[{\"text\":\"";
         json += json_escape(history[i].text);
-        json += "\"}";
+        json += "\"}]}";
     }
 
-    json += "],\"max_tokens\":512,\"temperature\":0.7}";
+    json += "],\"systemInstruction\":{\"parts\":[{\"text\":\"";
+    json += json_escape(SYSTEM_PROMPT);
+    json += "\"}]},\"generationConfig\":{\"maxOutputTokens\":512,\"temperature\":0.7}}";
 
     return json;
 }
 
-/* (DeepSeek API call logic is in online_thread_func below) */
+/* (Gemini API call logic is in online_thread_func below) */
 
 /* ══════════════════════════════════════════════════════════════
    UI Helpers
@@ -420,9 +410,9 @@ static gpointer online_thread_func(gpointer data) {
 
     std::string cmd =
         "curl -s -m 30 -X POST "
-        "\"https://api.deepseek.com/chat/completions\" "
+        "\"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+        api_key + "\" "
         "-H \"Content-Type: application/json\" "
-        "-H \"Authorization: Bearer " + api_key + "\" "
         "-d @" + tmp_path;
 
     fprintf(stderr, "[AMS Copilot] Sending API request...\n");
@@ -608,13 +598,13 @@ static void on_activate(GtkApplication *app, gpointer) {
     g_object_unref(cp);
 
     /* Check API key */
-    const char *key_env = getenv("DEEPSEEK_API_KEY");
+    const char *key_env = getenv("GEMINI_API_KEY");
     if (key_env && strlen(key_env) > 0) {
         api_key = key_env;
         online_mode = true;
-        fprintf(stderr, "[AMS Copilot] DeepSeek API key found, online mode enabled.\n");
+        fprintf(stderr, "[AMS Copilot] Gemini API key found, online mode enabled.\n");
     } else {
-        fprintf(stderr, "[AMS Copilot] No DEEPSEEK_API_KEY set, running in offline mode.\n");
+        fprintf(stderr, "[AMS Copilot] No GEMINI_API_KEY set, running in offline mode.\n");
     }
 
     /* Verify curl is available for online mode */
@@ -642,7 +632,7 @@ static void on_activate(GtkApplication *app, gpointer) {
     /* Update subtitle with status */
     GtkWidget *hbar = gtk_window_get_titlebar(GTK_WINDOW(win));
     gtk_header_bar_set_subtitle(GTK_HEADER_BAR(hbar),
-        online_mode ? "🟢  Online — DeepSeek AI" : "🔴  Offline — Local Engine");
+        online_mode ? "🟢  Online — Gemini API" : "🔴  Offline — Local Engine");
 
     /* ── Main layout ── */
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -713,8 +703,8 @@ static void on_activate(GtkApplication *app, gpointer) {
         "• Play games → \"play chess\"\n"
         "• General chat → ask me anything!\n\n";
     welcome += online_mode
-        ? "Status: 🟢 Online — powered by DeepSeek AI"
-        : "Status: 🔴 Offline — set DEEPSEEK_API_KEY for full AI mode";
+        ? "Status: 🟢 Online — powered by Gemini AI"
+        : "Status: 🔴 Offline — set GEMINI_API_KEY for full AI mode";
 
     add_bubble("✦ AMS Copilot", welcome, false);
 }
