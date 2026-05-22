@@ -65,7 +65,7 @@ static void play_audio(const std::string &filepath) {
     }
 }
 
-/* ── Get real duration using ffprobe or WAV header ── */
+/* ── Get real duration using ffprobe, WAV header, or file size fallback ── */
 static int get_audio_duration(const std::string &filepath) {
     /* 1. Try ffprobe (if installed) */
     std::string cmd = "ffprobe -v quiet -show_entries format=duration -of csv=p=0 \"" + filepath + "\" 2>/dev/null";
@@ -91,14 +91,29 @@ static int get_audio_duration(const std::string &filepath) {
             f.seekg(40);
             uint32_t data_size = 0;
             f.read((char*)&data_size, 4);
-            if (byte_rate > 0) {
+            if (byte_rate > 0 && data_size > 0 && (data_size / byte_rate) > 0) {
                 return data_size / byte_rate;
             }
         }
     }
 
-    /* 3. Fallback to 10 hours so the user is never interrupted */
-    return 36000;
+    /* 3. Smart Fallback via File Size (Estimate based on bitrate) */
+    struct stat st;
+    if (stat(filepath.c_str(), &st) == 0 && st.st_size > 0) {
+        size_t dot = filepath.rfind('.');
+        if (dot != std::string::npos) {
+            std::string ext = filepath.substr(dot);
+            std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+            if (ext == ".mp3") return st.st_size / 16000; /* Assume ~128kbps */
+            if (ext == ".ogg") return st.st_size / 16000; /* Assume ~128kbps */
+            if (ext == ".wav") return st.st_size / 176400; /* Assume 44.1kHz 16-bit Stereo */
+        }
+        /* Generic fallback based on 128kbps MP3 */
+        return st.st_size / 16000;
+    }
+
+    /* 4. Absolute Fallback to prevent 0 */
+    return 180; /* 3 minutes */
 }
 /* ── Scan data/music/ directory for audio files ── */
 static void scan_music_dir() {
