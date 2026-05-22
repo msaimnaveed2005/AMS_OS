@@ -33,14 +33,15 @@ static void on_save_apply(GtkWidget*, gpointer) {
     g_free(text);
     
     /* Trigger OS Desktop to reload the theme instantly! */
-    system("pkill -x -USR1 ams_desktop 2>/dev/null");
+    int r = system("pkill -x -USR1 ams_desktop 2>/dev/null");
+    (void)r;
     
     GtkWidget *dialog = gtk_message_dialog_new(NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "Theme applied successfully!");
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);
 }
 
-static void on_preset_clicked(GtkWidget *btn, gpointer css_code) {
+static void on_preset_clicked(GtkWidget* /*btn*/, gpointer css_code) {
     GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(css_view));
     gtk_text_buffer_set_text(buffer, (const char*)css_code, -1);
 }
@@ -86,9 +87,10 @@ static void on_activate(GtkApplication *app, gpointer) {
     gtk_widget_set_margin_start(css_view, 8); gtk_widget_set_margin_end(css_view, 8);
     gtk_widget_set_margin_top(css_view, 8); gtk_widget_set_margin_bottom(css_view, 8);
     
-    PangoFontDescription *font_desc = pango_font_description_from_string("Monospace 10");
-    gtk_widget_override_font(css_view, font_desc);
-    pango_font_description_free(font_desc);
+    GtkCssProvider *cp = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(cp, "textview { font-family: Monospace; font-size: 10pt; }", -1, NULL);
+    gtk_style_context_add_provider(gtk_widget_get_style_context(css_view), GTK_STYLE_PROVIDER(cp), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    g_object_unref(cp);
     
     gtk_container_add(GTK_CONTAINER(scroll), css_view);
     

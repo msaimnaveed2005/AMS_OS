@@ -1018,8 +1018,8 @@ static std::string parse_and_execute_actions(const std::string &text) {
                 if (pid == 0) {
                     setsid();
                     /* Redirect output so it doesn't clutter terminal */
-                    freopen("/dev/null", "w", stdout);
-                    freopen("/dev/null", "w", stderr);
+                    if (freopen("/dev/null", "w", stdout) == NULL) { /* Ignore */ }
+                    if (freopen("/dev/null", "w", stderr) == NULL) { /* Ignore */ }
                     
                     /* Execute xdg-open on Linux, or PowerShell Start-Process on Windows/WSL */
                     execlp("xdg-open", "xdg-open", app_arg.c_str(), (char *)NULL);

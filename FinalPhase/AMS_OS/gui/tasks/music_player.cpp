@@ -322,12 +322,14 @@ static void on_activate(GtkApplication *app, gpointer) {
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
 
+    PLAYLIST.push_back({"Neon Drift", "CyberSynth", 234, ""});
+    PLAYLIST.push_back({"Midnight Run", "The Outrunners", 198, ""});
+    PLAYLIST.push_back({"Ocean Breeze", "Chillwave OS", 275, ""});
+    PLAYLIST.push_back({"Quantum Core", "AI Generated", 182, ""});
+    PLAYLIST.push_back({"Sunset Boulevard", "Synthwave 1984", 250, ""});
+
     /* Scan for real audio files in data/music/ */
     scan_music_dir();
-    
-    if (PLAYLIST.empty()) {
-        PLAYLIST.push_back({"No music found", "Add songs to data/music/", 0, ""});
-    }
     
     SONG_COUNT = (int)PLAYLIST.size();
 

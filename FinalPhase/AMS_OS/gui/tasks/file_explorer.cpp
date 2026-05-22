@@ -79,7 +79,7 @@ static void load_directory(const std::string& path) {
     }
 }
 
-static void on_row_activated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data) {
+static void on_row_activated(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn* /*column*/, gpointer /*user_data*/) {
     GtkTreeIter iter;
     GtkTreeModel *model = gtk_tree_view_get_model(tree_view);
     if (gtk_tree_model_get_iter(model, &iter, path)) {
@@ -132,7 +132,7 @@ static void on_path_activate(GtkEntry *entry, gpointer) {
     if (p && strlen(p) > 0) load_directory(p);
 }
 
-static void on_shortcut_clicked(GtkButton *btn, gpointer path) {
+static void on_shortcut_clicked(GtkButton* /*btn*/, gpointer path) {
     load_directory((const char*)path);
 }
 

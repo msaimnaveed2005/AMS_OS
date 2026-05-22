@@ -100,7 +100,8 @@ static void load_tasks() {
     TASKS.clear();
 
     /* Ensure data directory exists */
-    system("mkdir -p data 2>/dev/null");
+    int r1 = system("mkdir -p data 2>/dev/null");
+    (void)r1;
 
     std::ifstream f("data/desktop_apps.txt");
     if (!f.is_open()) {
@@ -134,7 +135,8 @@ static void load_tasks() {
     }
     
     /* Ensure desktop directory exists and load files from it */
-    system("mkdir -p data/desktop 2>/dev/null");
+    int r2 = system("mkdir -p data/desktop 2>/dev/null");
+    (void)r2;
     DIR *dir = opendir("data/desktop");
     if (dir) {
         struct dirent *ent;
@@ -961,7 +963,7 @@ static void on_terminal_open(GtkWidget*, gpointer) {
     if (fork() == 0) { setsid(); execlp("./build/gui_terminal", "./build/gui_terminal", (char*)NULL); _exit(1); }
 }
 
-static gboolean on_desktop_click(GtkWidget *widget, GdkEventButton *event, gpointer) {
+static gboolean on_desktop_click(GtkWidget* /*widget*/, GdkEventButton *event, gpointer) {
     if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
         GtkWidget *menu = gtk_menu_new();
         

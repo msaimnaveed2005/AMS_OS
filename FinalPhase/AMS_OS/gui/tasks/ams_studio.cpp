@@ -115,7 +115,8 @@ static void on_compile_clicked(GtkWidget*, gpointer) {
             if (status == 0) {
                 append_console("\n✅ Build Completed Successfully!\n");
                 /* Tell Desktop to refresh to show any new apps */
-                system("pkill -x -USR1 ams_os 2>/dev/null");
+                int r = system("pkill -USR1 ams_desktop 2>/dev/null");
+                (void)r;
             } else {
                 append_console("\n❌ Build Failed with errors.\n");
             }
