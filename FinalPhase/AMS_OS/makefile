@@ -3,8 +3,8 @@
 
 CXX ?= g++
 CPPFLAGS ?= -I.
-CXXFLAGS ?= -std=c++17 -Wall -Wextra -pedantic -pthread
-LDFLAGS ?= -pthread
+CXXFLAGS ?= -std=c++17 -Wall -Wextra -pedantic -pthread -O3 -flto -march=native
+LDFLAGS ?= -pthread -O3 -flto
 .DEFAULT_GOAL := all
 
 PREFIX ?= /usr/local
@@ -95,7 +95,12 @@ GUI_TASK_NAMES := \
 	ai_copilot \
 	sudoku \
 	chess \
-	tic_tac_toe
+	tic_tac_toe \
+	terminal \
+	file_explorer \
+	settings \
+	ams_studio \
+	photo_viewer
 
 # Strip \r carriage returns to handle Windows CRLF line endings on Linux
 GUI_TASK_NAMES := $(subst $(CR),,$(GUI_TASK_NAMES))
@@ -199,4 +204,3 @@ help:
 	@echo "  make distclean Remove generated build and virtual disk directories"
 	@echo "  make uninstall Remove installed files"
 	@echo "  make help     Show this message"
-

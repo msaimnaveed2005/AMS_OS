@@ -89,6 +89,11 @@ static void write_default_tasks() {
     f << "17|AI Copilot|✦|./build/gui_ai_copilot\n";
     f << "18|Sudoku|🔢|./build/gui_sudoku\n";
     f << "19|Chess|♟️|./build/gui_chess\n";
+    f << "20|Terminal|💻|./build/gui_terminal\n";
+    f << "21|File Explorer|📁|./build/gui_file_explorer\n";
+    f << "22|Settings|⚙️|./build/gui_settings\n";
+    f << "23|AMS Studio|💻|./build/gui_ams_studio\n";
+    f << "24|Photo Viewer|🖼️|./build/gui_photo_viewer\n";
 }
 
 static void load_tasks() {
@@ -175,6 +180,8 @@ struct AppState {
     int             shutdown_step;
     int             argc;
     char          **argv;
+    GtkWidget      *cpu_label;
+    GtkWidget      *ram_label;
 };
 
 static AppState S = {};
@@ -185,6 +192,19 @@ static void show_splash();
 static void show_desktop();
 static void show_mode_selector();
 static void populate_grid();
+static void refresh_desktop();
+
+/* Real-time Refresh via SIGUSR1 */
+static volatile sig_atomic_t g_needs_refresh = 0;
+static void handle_sigusr1(int) { g_needs_refresh = 1; }
+
+static gboolean check_refresh_flag(gpointer) {
+    if (g_needs_refresh) {
+        g_needs_refresh = 0;
+        refresh_desktop();
+    }
+    return G_SOURCE_CONTINUE;
+}
 
 /* ═══════════════════════════════════════════════════════
    CSS Theme — Premium dark desktop aesthetic
@@ -268,16 +288,34 @@ window.mode-select { background-color: #08081a; }
 .mode-desc  { font-size: 11px; color: rgba(255,255,255,0.45); margin-top: 2px; }
 
 /* ── Splash Screen ── */
-window.splash { background-color: #06060f; }
-.splash-logo { font-size: 72px; margin-top: 50px; }
+window.splash {
+    background-color: #06060f;
+    animation: fade-in 1s ease-out;
+}
+.splash-logo {
+    margin-top: 50px;
+    animation: pulse-logo 2.5s infinite ease-in-out;
+}
+@keyframes pulse-logo {
+    0% { opacity: 0.7; }
+    50% { opacity: 1.0; }
+    100% { opacity: 0.7; }
+}
+@keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 .splash-name { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.75); letter-spacing: 8px; margin-top: 10px; }
 .splash-ver  { font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 20px; }
 progressbar.splash-bar trough   { background-color: rgba(255,255,255,0.06); border-radius: 3px; min-height: 4px; }
 progressbar.splash-bar progress { background-image: linear-gradient(to right, #6366f1, #a855f7, #ec4899); border-radius: 3px; min-height: 4px; }
 
 /* ── Shutdown Screen ── */
-window.shutdown { background-color: #06060f; }
-.shutdown-icon { font-size: 56px; margin-bottom: 16px; }
+window.shutdown {
+    background-color: #06060f;
+    animation: fade-in 0.8s ease-out;
+}
+.shutdown-icon { font-size: 56px; margin-bottom: 16px; opacity: 0.6; }
 .shutdown-text { font-size: 16px; color: rgba(255,255,255,0.6); font-weight: 500; }
 progressbar.shutdown-bar trough   { background-color: rgba(255,255,255,0.06); border-radius: 3px; min-height: 3px; }
 progressbar.shutdown-bar progress { background-image: linear-gradient(to right, #6366f1, #a855f7); border-radius: 3px; min-height: 3px; }
@@ -517,12 +555,30 @@ static void launch_gui_task(const char *path) {
     if (pid == 0) { setsid(); execlp(path, path, (char *)NULL); _exit(1); }
 }
 
+static GtkCssProvider *global_provider = NULL;
+
 static void apply_css() {
-    GtkCssProvider *p = gtk_css_provider_new();
-    gtk_css_provider_load_from_data(p, APP_CSS, -1, NULL);
-    gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
-        GTK_STYLE_PROVIDER(p), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    g_object_unref(p);
+    if (!global_provider) {
+        global_provider = gtk_css_provider_new();
+        gtk_style_context_add_provider_for_screen(gdk_screen_get_default(),
+            GTK_STYLE_PROVIDER(global_provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    }
+
+    std::ifstream in("data/theme.css");
+    if (in.is_open()) {
+        std::string css_str((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        gtk_css_provider_load_from_data(global_provider, css_str.c_str(), -1, NULL);
+        in.close();
+    } else {
+        std::string dir_cmd = "mkdir -p data";
+        int ret = system(dir_cmd.c_str());
+        (void)ret;
+
+        std::ofstream out("data/theme.css");
+        out << APP_CSS;
+        out.close();
+        gtk_css_provider_load_from_data(global_provider, APP_CSS, -1, NULL);
+    }
 }
 
 static void add_class(GtkWidget *w, const char *cls) {
@@ -536,6 +592,67 @@ static void add_class(GtkWidget *w, const char *cls) {
 static gboolean tick_clock(gpointer) {
     if (S.clock_label && GTK_IS_LABEL(S.clock_label))
         gtk_label_set_text(GTK_LABEL(S.clock_label), get_clock_text().c_str());
+    return G_SOURCE_CONTINUE;
+}
+
+/* ═══════════════════════════════════════════════════════
+   Real-Time Hardware Telemetry
+   ═══════════════════════════════════════════════════════ */
+
+static unsigned long long prev_total = 0, prev_idle = 0;
+
+static double get_cpu_usage() {
+    std::ifstream stat_file("/proc/stat");
+    std::string line;
+    if (std::getline(stat_file, line)) {
+        if (line.compare(0, 3, "cpu") == 0) {
+            std::istringstream iss(line);
+            std::string cpu;
+            unsigned long long user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+            if (iss >> cpu >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice) {
+                unsigned long long total = user + nice + system + idle + iowait + irq + softirq + steal + guest + guest_nice;
+                unsigned long long idle_all = idle + iowait;
+                double usage = 0.0;
+                if (prev_total != 0) {
+                    unsigned long long total_d = total - prev_total;
+                    unsigned long long idle_d = idle_all - prev_idle;
+                    if (total_d > 0) usage = (1.0 - ((double)idle_d / total_d)) * 100.0;
+                }
+                prev_total = total;
+                prev_idle = idle_all;
+                return usage;
+            }
+        }
+    }
+    return 0.0;
+}
+
+static double get_ram_usage() {
+    std::ifstream mem_file("/proc/meminfo");
+    std::string line;
+    double total = 0, avail = 0;
+    while (std::getline(mem_file, line)) {
+        if (line.compare(0, 8, "MemTotal") == 0) {
+            sscanf(line.c_str(), "MemTotal: %lf kB", &total);
+        } else if (line.compare(0, 12, "MemAvailable") == 0) {
+            sscanf(line.c_str(), "MemAvailable: %lf kB", &avail);
+        }
+    }
+    if (total > 0) return ((total - avail) / total) * 100.0;
+    return 0.0;
+}
+
+static gboolean tick_telemetry(gpointer) {
+    if (S.cpu_label && GTK_IS_LABEL(S.cpu_label)) {
+        double cpu = get_cpu_usage();
+        char buf[32]; snprintf(buf, sizeof(buf), "⚙ CPU: %.1f%%  ", cpu);
+        gtk_label_set_text(GTK_LABEL(S.cpu_label), buf);
+    }
+    if (S.ram_label && GTK_IS_LABEL(S.ram_label)) {
+        double ram = get_ram_usage();
+        char buf[32]; snprintf(buf, sizeof(buf), "💾 RAM: %.1f%%  ", ram);
+        gtk_label_set_text(GTK_LABEL(S.ram_label), buf);
+    }
     return G_SOURCE_CONTINUE;
 }
 
@@ -580,6 +697,9 @@ static void refresh_desktop() {
 
     /* Reload tasks from file */
     load_tasks();
+
+    /* Hot-reload CSS Theme */
+    apply_css();
 
     /* Remove all children from the flow box */
     GList *children = gtk_container_get_children(GTK_CONTAINER(S.flow_box));
@@ -790,6 +910,80 @@ static void on_power_clicked(GtkWidget *, gpointer desktop_win) {
    Desktop Window
    ═══════════════════════════════════════════════════════ */
 
+static void on_lock_clicked(GtkWidget *, gpointer win) {
+    gtk_widget_hide(GTK_WIDGET(win));
+    show_login();
+}
+
+static void on_wallpaper_change(GtkWidget*, gpointer) {
+    GtkWidget *dialog = gtk_file_chooser_dialog_new("Choose Wallpaper",
+        GTK_WINDOW(S.desktop_win), GTK_FILE_CHOOSER_ACTION_OPEN,
+        "Cancel", GTK_RESPONSE_CANCEL, "Apply", GTK_RESPONSE_ACCEPT, NULL);
+    
+    GtkFileFilter *filter = gtk_file_filter_new();
+    gtk_file_filter_set_name(filter, "Images");
+    gtk_file_filter_add_pattern(filter, "*.png");
+    gtk_file_filter_add_pattern(filter, "*.jpg");
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
+    
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
+        char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
+        
+        /* Rewrite CSS file to include wallpaper */
+        std::ifstream in("data/theme.css");
+        std::string css_str;
+        if (in.is_open()) {
+            css_str.assign((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+            in.close();
+            
+            size_t pos = css_str.find("window.desktop { background-image:");
+            if (pos != std::string::npos) {
+                size_t end = css_str.find("}", pos);
+                if (end != std::string::npos) css_str.erase(pos, end - pos + 1);
+            }
+            
+            std::string fpath(filename);
+            for(char& c : fpath) { if(c == '\\') c = '/'; }
+            
+            css_str += "\nwindow.desktop { background-image: url('file:///" + fpath + "'); background-size: cover; background-position: center; }\n";
+            
+            std::ofstream out("data/theme.css");
+            out << css_str;
+            out.close();
+            apply_css(); /* Hot reload */
+        }
+        g_free(filename);
+    }
+    gtk_widget_destroy(dialog);
+}
+
+static void on_terminal_open(GtkWidget*, gpointer) {
+    if (fork() == 0) { setsid(); execlp("./build/gui_terminal", "./build/gui_terminal", (char*)NULL); _exit(1); }
+}
+
+static gboolean on_desktop_click(GtkWidget *widget, GdkEventButton *event, gpointer) {
+    if (event->type == GDK_BUTTON_PRESS && event->button == 3) {
+        GtkWidget *menu = gtk_menu_new();
+        
+        GtkWidget *item1 = gtk_menu_item_new_with_label("🖼️ Change Wallpaper...");
+        g_signal_connect(item1, "activate", G_CALLBACK(on_wallpaper_change), NULL);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), item1);
+        
+        GtkWidget *item2 = gtk_menu_item_new_with_label("💻 Open Terminal");
+        g_signal_connect(item2, "activate", G_CALLBACK(on_terminal_open), NULL);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), item2);
+        
+        GtkWidget *item3 = gtk_menu_item_new_with_label("🔄 Refresh Desktop");
+        g_signal_connect(item3, "activate", G_CALLBACK(on_refresh_clicked), NULL);
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), item3);
+        
+        gtk_widget_show_all(menu);
+        gtk_menu_popup_at_pointer(GTK_MENU(menu), (GdkEvent*)event);
+        return TRUE;
+    }
+    return FALSE;
+}
+
 static void show_desktop() {
     /* Reload tasks fresh */
     load_tasks();
@@ -801,6 +995,9 @@ static void show_desktop() {
     add_class(win, "desktop");
     S.desktop_win = win;
 
+    gtk_widget_add_events(win, GDK_BUTTON_PRESS_MASK);
+    g_signal_connect(win, "button-press-event", G_CALLBACK(on_desktop_click), NULL);
+
     GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     gtk_container_add(GTK_CONTAINER(win), vbox);
 
@@ -810,7 +1007,11 @@ static void show_desktop() {
 
     GtkWidget *logo_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_widget_set_margin_start(logo_box, 16);
-    GtkWidget *logo_img = gtk_image_new_from_icon_name("start-here", GTK_ICON_SIZE_LARGE_TOOLBAR);
+    
+    GdkPixbuf *pixbuf_tb = gdk_pixbuf_new_from_file_at_scale("data/logo.png", 24, 24, TRUE, NULL);
+    GtkWidget *logo_img = pixbuf_tb ? gtk_image_new_from_pixbuf(pixbuf_tb) : gtk_image_new_from_icon_name("start-here", GTK_ICON_SIZE_LARGE_TOOLBAR);
+    if (pixbuf_tb) g_object_unref(pixbuf_tb);
+    
     GtkWidget *logo_lbl = gtk_label_new("AMS OS");
     add_class(logo_lbl, "top-logo");
     gtk_box_pack_start(GTK_BOX(logo_box), logo_img, FALSE, FALSE, 0);
@@ -823,6 +1024,13 @@ static void show_desktop() {
     g_signal_connect(pwr, "clicked", G_CALLBACK(on_power_clicked), win);
     gtk_box_pack_end(GTK_BOX(bar), pwr, FALSE, FALSE, 0);
 
+    /* Lock button */
+    GtkWidget *lck = gtk_button_new_with_label("🔒 ");
+    add_class(lck, "refresh-btn"); /* Reuse refresh styling for the lock button */
+    gtk_widget_set_tooltip_text(lck, "Lock OS");
+    g_signal_connect(lck, "clicked", G_CALLBACK(on_lock_clicked), win);
+    gtk_box_pack_end(GTK_BOX(bar), lck, FALSE, FALSE, 6);
+
     /* Refresh button */
     GtkWidget *ref = gtk_button_new_with_label("🔄 ");
     add_class(ref, "refresh-btn");
@@ -834,6 +1042,15 @@ static void show_desktop() {
     S.clock_label = gtk_label_new(get_clock_text().c_str());
     add_class(S.clock_label, "top-clock");
     gtk_box_pack_end(GTK_BOX(bar), S.clock_label, FALSE, FALSE, 10);
+
+    /* Telemetry */
+    S.ram_label = gtk_label_new("💾 RAM: --.-%  ");
+    add_class(S.ram_label, "top-clock");
+    gtk_box_pack_end(GTK_BOX(bar), S.ram_label, FALSE, FALSE, 0);
+
+    S.cpu_label = gtk_label_new("⚙ CPU: --.-%  ");
+    add_class(S.cpu_label, "top-clock");
+    gtk_box_pack_end(GTK_BOX(bar), S.cpu_label, FALSE, FALSE, 0);
 
     /* User label */
     GtkWidget *user = gtk_label_new("👤 admin  ");
@@ -920,6 +1137,7 @@ static void show_desktop() {
     g_signal_connect(win, "focus-in-event", G_CALLBACK(on_desktop_focus), NULL);
 
     g_timeout_add_seconds(1, tick_clock, NULL);
+    g_timeout_add_seconds(1, tick_telemetry, NULL); /* Ultra-smooth 1s updates */
     gtk_widget_show_all(win);
 }
 
@@ -953,7 +1171,11 @@ static void show_splash() {
     gtk_widget_set_valign(box, GTK_ALIGN_CENTER);
     gtk_container_add(GTK_CONTAINER(win), box);
 
-    GtkWidget *icon = gtk_label_new("⚛️"); add_class(icon, "splash-logo");
+    GdkPixbuf *pixbuf_sp = gdk_pixbuf_new_from_file_at_scale("data/logo.png", 128, 128, TRUE, NULL);
+    GtkWidget *icon = pixbuf_sp ? gtk_image_new_from_pixbuf(pixbuf_sp) : gtk_label_new("⚛️");
+    if (pixbuf_sp) g_object_unref(pixbuf_sp);
+    
+    add_class(icon, "splash-logo");
     gtk_box_pack_start(GTK_BOX(box), icon, FALSE, FALSE, 0);
     GtkWidget *name = gtk_label_new("AMS  OS"); add_class(name, "splash-name");
     gtk_box_pack_start(GTK_BOX(box), name, FALSE, FALSE, 0);
@@ -985,7 +1207,11 @@ static void on_login_clicked(GtkWidget *, gpointer win) {
         (strcmp(user, "mohsin") == 0 && strcmp(pass, "1234") == 0) ||
         (strcmp(user, "ahmed") == 0 && strcmp(pass, "1234") == 0)) {
         gtk_widget_destroy(GTK_WIDGET(win));
-        show_splash();
+        if (S.desktop_win) {
+            gtk_widget_show_all(S.desktop_win);
+        } else {
+            show_splash();
+        }
     } else {
         gtk_label_set_text(GTK_LABEL(S.login_error), "❌ Incorrect username or password");
     }
@@ -1125,6 +1351,9 @@ static void on_activate(GtkApplication *, gpointer) {
 
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
+    signal(SIGUSR1, handle_sigusr1); /* Listen for Copilot app-creation triggers */
+    g_timeout_add(500, check_refresh_flag, NULL);
+
     S.argc = argc; S.argv = argv;
     S.app = gtk_application_new("com.ams.os.desktop", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(S.app, "activate", G_CALLBACK(on_activate), NULL);

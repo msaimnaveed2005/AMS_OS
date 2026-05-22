@@ -20,6 +20,22 @@ static bool is_safe_path(const std::string& path) {
     if (path[0] == '/' || path[0] == '\\' || path.find(":\\") != std::string::npos) return false;
     /* Block directory traversal */
     if (path.find("..") != std::string::npos) return false;
+    /* Block shell metacharacters to prevent Command Injection */
+    const std::string bad_chars = "\";&|><$`!*?[]{}()";
+    for (char c : bad_chars) {
+        if (path.find(c) != std::string::npos) return false;
+    }
+    return true;
+}
+
+static bool is_safe_url(const std::string& url) {
+    if (url.empty()) return false;
+    if (url.substr(0, 4) != "http") return false;
+    /* Block shell metacharacters inside double quotes */
+    const std::string bad_chars = "$`\\\"";
+    for (char c : bad_chars) {
+        if (url.find(c) != std::string::npos) return false;
+    }
     return true;
 }
 
@@ -38,22 +54,16 @@ static const char *SYSTEM_PROMPT =
     "Use ONLY these exact app names: calculator, notepad, snake, minesweeper, "
     "clock, calendar, music_player, system_info, task_manager, "
     "download_simulator, create_file, delete_file, file_copy, move_file, "
-    "file_info, process_killer, sudoku, chess, ai_copilot\n"
+    "file_info, process_killer, sudoku, chess, ai_copilot, browser\n"
     "2. Keep responses concise (2-4 sentences max).\n"
     "3. Be friendly and helpful. Use emojis occasionally.\n"
     "4. If asked about yourself, say you are AMS Copilot, built into AMS OS.\n"
     "5. If asked about OS concepts (scheduling, deadlock, memory, etc.), "
     "give clear, educational explanations.\n"
     "6. If the user asks to play a specific song, you must launch the music player with the requested song title as a parameter. "
-    "The official playlist is:\n"
-    "   - 'Midnight Drive' by Neon Pulse\n"
-    "   - 'Electric Dreams' by Synthwave Radio\n"
-    "   - 'Starlight Sonata' by Luna Echo\n"
-    "   - 'Digital Rain' by Cyber Horizon\n"
-    "   - 'Atomic Heartbeat' by AMS Band\n"
-    "   - 'Velvet Cascade' by Dream Weaver\n"
-    "To play a specific song, append `<<LAUNCH:music_player:Song Title>>` to your reply (e.g. `<<LAUNCH:music_player:Midnight Drive>>`). "
-    "If they ask to 'play music' generally without specifying a song, play 'Midnight Drive' by default: `<<LAUNCH:music_player:Midnight Drive>>`.\n\n"
+    "The user's local music folder contains their own songs (for example: 'billie jeans').\n"
+    "To play a specific song, append `<<LAUNCH:music_player:Song Title>>` to your reply (e.g. `<<LAUNCH:music_player:billie jeans>>`). "
+    "If they ask to 'play music' generally without specifying a song, pick one of their songs like 'billie jeans': `<<LAUNCH:music_player:billie jeans>>`.\n\n"
     "7. **DYNAMIC APP CREATION** — You can CREATE brand-new GTK3 GUI applications!\n"
     "When the user asks you to create a program, game, tool, or any application, "
     "you MUST generate a complete, compilable C++ GTK3 source file and wrap it in a special XML block.\n\n"
@@ -124,6 +134,8 @@ static const char *SYSTEM_PROMPT =
     "CRITICAL: If the user wants a file or folder to appear on their GUI Desktop, you MUST use the `data/desktop/` prefix!\n"
     "To create a folder on desktop: `<create_folder path=\"data/desktop/FolderName\"></create_folder>`\n"
     "To create a file on desktop: `<create_file path=\"data/desktop/file.txt\">file content here</create_file>`\n"
+    "To delete a file or folder: `<delete path=\"path/to/target\"></delete>`\n"
+    "To move a file or folder: `<move path=\"path/to/src\" dest=\"path/to/dest\"></move>`\n"
     "To update a file: \n"
     "`<update_file path=\"path/to/file.ext\">\n"
     "===SEARCH===\n"
@@ -134,8 +146,23 @@ static const char *SYSTEM_PROMPT =
     "For updates, you MUST match the SEARCH block exactly with the file's current contents (including whitespace).\n"
     "You can chain multiple operations together in your response.\n\n"
     "9. **INTERNET DOWNLOADS** — You can download files or images from the internet directly to the user's system.\n"
-    "CRITICAL: To make a downloaded file/image appear on the GUI Desktop, use `data/desktop/filename.ext` as the path!\n"
-    "To download a file: `<download_file url=\"https://example.com/logo.png\" path=\"data/desktop/logo.png\"></download_file>`\n\n";
+    "To download a file: `<download_file url=\"https://example.com/logo.png\" path=\"data/desktop/logo.png\"></download_file>`\n\n"
+    "10. **INTERNET APP DOWNLOADS** — You can download C++ GTK3 source code from the internet and compile it as a new app.\n"
+    "To download and install an app from a URL: `<download_app url=\"https://example.com/app.cpp\" id=\"my_app\" name=\"My App\" emoji=\"🚀\"></download_app>`\n"
+    "This works exactly like `<create_app>`, but fetches the code from the web automatically.\n"
+    "- `<<LAUNCH:music_player>>` (opens Music Player)\n"
+    "- `<<LAUNCH:task_manager>>` (opens Task Manager)\n"
+    "- `<<LAUNCH:terminal>>` (opens AMS OS Terminal)\n\n"
+    "11. **WEB BROWSER** — You can open internet websites in the host machine's native web browser.\n"
+    "To open a website (like ChatGPT, GitHub, etc.), append `<<LAUNCH:browser:https://chatgpt.com>>` to your response.\n\n"
+    "12. **SELF-MODIFICATION & OS UPDATES** — You have full read/write access to the AMS OS source code!\n"
+    "If the user asks you to modify the OS, fix a bug, or change a feature, you can use the `<update_file>` tag to directly edit the C++ code files (e.g., `gui/ams_desktop.cpp`, `gui/tasks/music_player.cpp`).\n"
+    "CRITICAL: Whenever you modify an existing OS C++ file, you MUST explicitly tell the user to close the OS and run `make` again in their terminal for the core OS changes to take effect.\n\n"
+    "13. **REAL-TIME OS THEMING** — You can instantly morph the OS's visual design!\n"
+    "The OS dynamically loads its styling from `data/theme.css`. If the user asks you to change the desktop color, background, or theme (e.g., 'make it green', 'hacker theme'), simply use the `<update_file path=\"data/theme.css\">` tag to inject new GTK CSS rules (like `.desktop { background-color: #053b05; }`). The OS will hot-reload the theme automatically and instantly!\n\n"
+    "14. **AUTONOMOUS SYSTEM AGENT** — You have the ability to run system commands and fix issues autonomously!\n"
+    "To run a bash/shell command on the host OS, output `<run_command>your command here</run_command>`.\n"
+    "When you do this, I will automatically execute it in the background, pause, and feed the terminal output back to you so you can read it and continue thinking. You can loop this up to 3 times to explore the filesystem, run `make`, or debug code autonomously!\n\n";
 
 /* ══════════════════════════════════════════════════════════════
    Dynamic App Registry — loaded from data/desktop_apps.txt
@@ -288,6 +315,14 @@ static std::string extract_text_field(const std::string &json, const std::string
 
 static std::string create_new_program(const std::string &id, const std::string &emoji,
                                        const std::string &name, const std::string &code) {
+    /* Validate ID to prevent command injection and makefile corruption */
+    if (id.empty()) return "❌ App ID cannot be empty.";
+    for (char c : id) {
+        if (!isalnum(c) && c != '_') {
+            return "❌ App creation failed: Invalid app ID (must be alphanumeric/underscores only).";
+        }
+    }
+
     /* 1. Write source file */
     std::string src_path = "gui/tasks/" + id + ".cpp";
     {
@@ -373,12 +408,13 @@ static std::string create_new_program(const std::string &id, const std::string &
     }
     fprintf(stderr, "[AMS Copilot] Registered app: %s (#%d)\n", name.c_str(), next_id);
 
-    /* 6. Reload our own app registry */
+    /* 6. Reload our own app registry and trigger desktop refresh */
     load_app_registry();
+    int ret_sig = system("pkill -x -USR1 ams_os");
+    (void)ret_sig;
 
     return "✅ Successfully created **" + name + "** " + emoji + "!\n"
-           "The app has been compiled and added to your desktop.\n"
-           "Switch to the Desktop and it will appear automatically, or click the 🔄 Refresh button.\n"
+           "The app has been compiled and instantly synced to your desktop!\n"
            "You can also say \"open " + id + "\" to launch it right now!";
 }
 
@@ -397,22 +433,7 @@ static std::string offline_respond(const std::string &input) {
 
     /* ── Play specific song offline (check first!) ── */
     if (q.find("play") != std::string::npos || q.find("song") != std::string::npos || q.find("music") != std::string::npos) {
-        struct SongAlias { const char *pattern; const char *title; };
-        static const SongAlias songs[] = {
-            {"midnight drive",   "Midnight Drive"},
-            {"electric dreams",  "Electric Dreams"},
-            {"starlight sonata", "Starlight Sonata"},
-            {"digital rain",     "Digital Rain"},
-            {"atomic heartbeat", "Atomic Heartbeat"},
-            {"velvet cascade",   "Velvet Cascade"},
-        };
-        for (auto &s : songs) {
-            if (q.find(s.pattern) != std::string::npos) {
-                return std::string("Sure! Playing \"") + s.title + "\" in the Music Player! 🎵 <<LAUNCH:music_player:" + s.title + ">>";
-            }
-        }
-
-        /* ── Also scan data/music/ folder for matching real audio files ── */
+        /* ── Scan data/music/ folder for matching real audio files ── */
         {
             DIR *dir = opendir("data/music");
             if (dir) {
@@ -442,7 +463,7 @@ static std::string offline_respond(const std::string &input) {
         
         if (q.find("play music") != std::string::npos || q.find("play song") != std::string::npos || 
             q.find("play a song") != std::string::npos || q.find("play some music") != std::string::npos) {
-            return "Playing Midnight Drive by Neon Pulse in the Music Player! 🎵 <<LAUNCH:music_player:Midnight Drive>>";
+            return "Sure! Launching the Music Player! 🎵 <<LAUNCH:music_player>>";
         }
     }
 
@@ -476,6 +497,9 @@ static std::string offline_respond(const std::string &input) {
         {"kill process","process_killer",     "Process Killer"},
         {"sudoku",      "sudoku",             "Sudoku"},
         {"chess",       "chess",              "Chess"},
+        {"browser",     "browser",            "Web Browser"},
+        {"chatgpt",     "browser",            "Web Browser"},
+        {"chrome",      "browser",            "Web Browser"}
     };
 
     if (q.find("open") != std::string::npos || q.find("launch") != std::string::npos ||
@@ -591,6 +615,7 @@ static std::string offline_respond(const std::string &input) {
 
 static std::string parse_and_execute_actions(const std::string &text) {
     std::string display = text;
+    bool fs_modified = false;
 
     /* ── Handle <create_app> blocks first ── */
     {
@@ -655,7 +680,74 @@ static std::string parse_and_execute_actions(const std::string &text) {
         }
     }
 
+    /* ── Handle <download_app> blocks ── */
+    {
+        size_t da_pos = 0;
+        while ((da_pos = display.find("<download_app")) != std::string::npos) {
+            size_t da_end = display.find("</download_app>", da_pos);
+            if (da_end == std::string::npos) break;
+            
+            size_t tag_end = display.find('>', da_pos);
+            if (tag_end == std::string::npos || tag_end > da_end) break;
+            
+            std::string tag = display.substr(da_pos, tag_end - da_pos + 1);
+            
+            auto extract_attr = [&tag](const std::string &attr) -> std::string {
+                std::string search = attr + "=\"";
+                size_t p = tag.find(search);
+                if (p == std::string::npos) return "";
+                p += search.size();
+                size_t q = tag.find('"', p);
+                if (q == std::string::npos) return "";
+                return tag.substr(p, q - p);
+            };
+
+            std::string url = extract_attr("url");
+            std::string app_id = extract_attr("id");
+            std::string app_emoji = extract_attr("emoji");
+            std::string app_name = extract_attr("name");
+
+            if (app_id.empty()) app_id = "downloaded_app";
+            if (app_emoji.empty()) app_emoji = "📦";
+            if (app_name.empty()) app_name = "Downloaded App";
+
+            std::string result;
+            if (!url.empty() && is_safe_url(url)) {
+                fprintf(stderr, "[AMS Copilot] Downloading app code from: %s\n", url.c_str());
+                std::string cmd = "curl -sfL \"" + url + "\"";
+                FILE *fp = popen(cmd.c_str(), "r");
+                if (fp) {
+                    std::string code;
+                    char buf[4096];
+                    while (fgets(buf, sizeof(buf), fp)) code += buf;
+                    pclose(fp);
+                    
+                    if (!code.empty()) {
+                        result = create_new_program(app_id, app_emoji, app_name, code);
+                    } else {
+                        result = "❌ Failed to download app code (empty response): " + url;
+                    }
+                } else {
+                    result = "❌ Failed to execute download command.";
+                }
+            } else {
+                result = "❌ Blocked unsafe download URL.";
+            }
+
+            display.replace(da_pos, da_end - da_pos + 15, "⬇️ Downloading App: " + app_name + "...\n" + result);
+        }
+    }
+
     /* ── Handle Advanced Filesystem Actions ── */
+
+    // <run_command>
+    size_t rc_pos = 0;
+    while ((rc_pos = display.find("<run_command>")) != std::string::npos) {
+        size_t rc_end = display.find("</run_command>", rc_pos);
+        if (rc_end == std::string::npos) break;
+        std::string sys_cmd = display.substr(rc_pos + 13, rc_end - rc_pos - 13);
+        display.replace(rc_pos, rc_end - rc_pos + 14, "⚙️ Executed System Command: `" + sys_cmd + "`");
+    }
     
     // <create_folder>
     size_t cf_pos = 0;
@@ -678,6 +770,7 @@ static std::string parse_and_execute_actions(const std::string &text) {
             (void)ret; // Ignore return value warning
             fprintf(stderr, "[AMS Copilot] Created folder: %s\n", path.c_str());
             display.replace(cf_pos, cf_end - cf_pos + 16, "📁 Created folder: " + path);
+            fs_modified = true;
         } else {
             fprintf(stderr, "[AMS Copilot] Blocked unsafe or empty folder path: %s\n", path.c_str());
             display.erase(cf_pos, cf_end - cf_pos + 16);
@@ -708,11 +801,17 @@ static std::string parse_and_execute_actions(const std::string &text) {
         }
         
         if (!path.empty() && is_safe_path(path)) {
+            /* Auto-create parent directory to prevent silent failures */
+            std::string cmd = "mkdir -p \"$(dirname \\\"" + path + "\\\")\"";
+            int ret = system(cmd.c_str());
+            (void)ret;
+
             std::ofstream out(path);
             out << content;
             out.close();
             fprintf(stderr, "[AMS Copilot] Created file: %s\n", path.c_str());
             display.replace(file_pos, file_end - file_pos + 14, "📄 Created file: " + path);
+            fs_modified = true;
         } else {
             fprintf(stderr, "[AMS Copilot] Blocked unsafe or empty file path: %s\n", path.c_str());
             display.erase(file_pos, file_end - file_pos + 14);
@@ -770,6 +869,7 @@ static std::string parse_and_execute_actions(const std::string &text) {
                     out.close();
                     fprintf(stderr, "[AMS Copilot] Updated file: %s\n", path.c_str());
                     display.replace(up_pos, up_end - up_pos + 14, "✏️ Updated file: " + path);
+                    fs_modified = true;
                 } else {
                     fprintf(stderr, "[AMS Copilot] Update failed (search text not found): %s\n", path.c_str());
                     display.replace(up_pos, up_end - up_pos + 14, "❌ Update failed for " + path + ": search text not found in file.");
@@ -804,17 +904,92 @@ static std::string parse_and_execute_actions(const std::string &text) {
             if (q != std::string::npos) path = tag.substr(p, q - p);
         }
         
-        if (!url.empty() && !path.empty() && is_safe_path(path)) {
-            std::string cmd = "wget -qO \"" + path + "\" \"" + url + "\"";
+        if (!url.empty() && !path.empty() && is_safe_path(path) && is_safe_url(url)) {
+            std::string cmd_dir = "mkdir -p \"$(dirname \\\"" + path + "\\\")\"";
+            int ret1 = system(cmd_dir.c_str());
+            (void)ret1;
+
+            std::string cmd = "curl -sfL -o \"" + path + "\" \"" + url + "\"";
             int ret = system(cmd.c_str());
             (void)ret;
-            fprintf(stderr, "[AMS Copilot] Downloaded file: %s from %s\n", path.c_str(), url.c_str());
-            display.replace(dl_pos, dl_end - dl_pos + 16, "⬇️ Downloaded file: " + path);
-        } else if (!is_safe_path(path)) {
-            fprintf(stderr, "[AMS Copilot] Blocked unsafe download path: %s\n", path.c_str());
+            
+            if (WEXITSTATUS(ret) == 0) {
+                fprintf(stderr, "[AMS Copilot] Downloaded file: %s from %s\n", path.c_str(), url.c_str());
+                display.replace(dl_pos, dl_end - dl_pos + 16, "⬇️ Downloaded file: " + path);
+                fs_modified = true;
+            } else {
+                fprintf(stderr, "[AMS Copilot] Failed to download file (HTTP Error/404): %s\n", url.c_str());
+                display.replace(dl_pos, dl_end - dl_pos + 16, "❌ Failed to download file (Invalid URL or 404).");
+            }
+        } else if (!is_safe_path(path) || !is_safe_url(url)) {
+            fprintf(stderr, "[AMS Copilot] Blocked unsafe download path or url.\n");
             display.erase(dl_pos, dl_end - dl_pos + 16);
         } else {
             display.erase(dl_pos, dl_end - dl_pos + 16);
+        }
+    }
+
+    // <delete>
+    size_t del_pos = 0;
+    while ((del_pos = display.find("<delete")) != std::string::npos) {
+        size_t del_end = display.find("</delete>", del_pos);
+        if (del_end == std::string::npos) break;
+        
+        std::string tag = display.substr(del_pos, display.find('>', del_pos) - del_pos + 1);
+        std::string path;
+        size_t p = tag.find("path=\"");
+        if (p != std::string::npos) {
+            p += 6;
+            size_t q = tag.find('"', p);
+            if (q != std::string::npos) path = tag.substr(p, q - p);
+        }
+        
+        if (!path.empty() && is_safe_path(path)) {
+            std::string cmd = "rm -rf \"" + path + "\"";
+            int ret = system(cmd.c_str());
+            (void)ret;
+            fprintf(stderr, "[AMS Copilot] Deleted: %s\n", path.c_str());
+            display.replace(del_pos, del_end - del_pos + 9, "🗑️ Deleted: " + path);
+            fs_modified = true;
+        } else {
+            display.erase(del_pos, del_end - del_pos + 9);
+        }
+    }
+
+    // <move>
+    size_t mv_pos = 0;
+    while ((mv_pos = display.find("<move")) != std::string::npos) {
+        size_t mv_end = display.find("</move>", mv_pos);
+        if (mv_end == std::string::npos) break;
+        
+        std::string tag = display.substr(mv_pos, display.find('>', mv_pos) - mv_pos + 1);
+        std::string path, dest;
+        size_t p = tag.find("path=\"");
+        if (p != std::string::npos) {
+            p += 6;
+            size_t q = tag.find('"', p);
+            if (q != std::string::npos) path = tag.substr(p, q - p);
+        }
+        size_t d = tag.find("dest=\"");
+        if (d != std::string::npos) {
+            d += 6;
+            size_t q = tag.find('"', d);
+            if (q != std::string::npos) dest = tag.substr(d, q - d);
+        }
+        
+        if (!path.empty() && !dest.empty() && is_safe_path(path) && is_safe_path(dest)) {
+            std::string cmd_dir = "mkdir -p \"$(dirname \\\"" + dest + "\\\")\"";
+            int ret1 = system(cmd_dir.c_str());
+            (void)ret1;
+
+            std::string cmd = "mv \"" + path + "\" \"" + dest + "\"";
+            int ret = system(cmd.c_str());
+            (void)ret;
+            fprintf(stderr, "[AMS Copilot] Moved: %s -> %s\n", path.c_str(), dest.c_str());
+            display.replace(mv_pos, mv_end - mv_pos + 7, "📦 Moved: " + path + " -> " + dest);
+            fs_modified = true;
+        } else {
+            display.erase(mv_pos, mv_end - mv_pos + 7);
         }
     }
 
@@ -837,6 +1012,26 @@ static std::string parse_and_execute_actions(const std::string &text) {
             app_arg = app.substr(colon + 1);
         }
 
+        if (app_name == "browser" || app_name == "xdg-open") {
+            if (!app_arg.empty() && is_safe_url(app_arg)) {
+                pid_t pid = fork();
+                if (pid == 0) {
+                    setsid();
+                    /* Redirect output so it doesn't clutter terminal */
+                    freopen("/dev/null", "w", stdout);
+                    freopen("/dev/null", "w", stderr);
+                    
+                    /* Execute xdg-open on Linux, or PowerShell Start-Process on Windows/WSL */
+                    execlp("xdg-open", "xdg-open", app_arg.c_str(), (char *)NULL);
+                    
+                    /* Fallback for Windows WSL environments if xdg-open fails */
+                    execlp("powershell.exe", "powershell.exe", "-c", ("Start-Process '" + app_arg + "'").c_str(), (char *)NULL);
+                    _exit(1);
+                }
+            }
+            continue;
+        }
+
         auto it = app_map.find(app_name);
         if (it != app_map.end()) {
             pid_t pid = fork();
@@ -855,6 +1050,11 @@ static std::string parse_and_execute_actions(const std::string &text) {
     /* Trim trailing whitespace */
     while (!display.empty() && (display.back() == ' ' || display.back() == '\n'))
         display.pop_back();
+
+    if (fs_modified) {
+        int ret_sig = system("pkill -x -USR1 ams_os");
+        (void)ret_sig;
+    }
 
     return display;
 }
@@ -989,90 +1189,115 @@ static gboolean on_api_response(gpointer data) {
    ══════════════════════════════════════════════════════════════ */
 static gpointer online_thread_func(gpointer data) {
     ApiRequest *req = (ApiRequest *)data;
+    int loops = 0;
 
-    /* Write JSON body to temp file */
-    std::string json_body;
-    if (current_provider == PROVIDER_DEEPSEEK) {
-        json_body = build_openai_compatible_json("deepseek-chat");
-    } else if (current_provider == PROVIDER_GROQ) {
-        json_body = build_openai_compatible_json("llama-3.3-70b-versatile");
-    } else {
-        json_body = build_gemini_json();
-    }
-    
-    std::string tmp_path = "/tmp/ams_copilot_req.json";
-    {
-        std::ofstream tmp(tmp_path);
-        tmp << json_body;
-    }
+    while (loops < 3) {
+        /* Write JSON body to temp file */
+        std::string json_body;
+        if (current_provider == PROVIDER_DEEPSEEK) {
+            json_body = build_openai_compatible_json("deepseek-chat");
+        } else if (current_provider == PROVIDER_GROQ) {
+            json_body = build_openai_compatible_json("llama-3.3-70b-versatile");
+        } else {
+            json_body = build_gemini_json();
+        }
+        
+        std::string tmp_path = "/tmp/ams_copilot_req.json";
+        {
+            std::ofstream tmp(tmp_path);
+            tmp << json_body;
+        }
 
-    std::string cmd;
-    if (current_provider == PROVIDER_DEEPSEEK) {
-        cmd = "curl -s -m 60 -X POST \"https://api.deepseek.com/chat/completions\" "
-              "-H \"Content-Type: application/json\" "
-              "-H \"Authorization: Bearer " + api_key + "\" "
-              "-d @" + tmp_path;
-    } else if (current_provider == PROVIDER_GROQ) {
-        cmd = "curl -s -m 60 -X POST \"https://api.groq.com/openai/v1/chat/completions\" "
-              "-H \"Content-Type: application/json\" "
-              "-H \"Authorization: Bearer " + api_key + "\" "
-              "-d @" + tmp_path;
-    } else {
-        cmd = "curl -s -m 60 -X POST \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
-              api_key + "\" "
-              "-H \"Content-Type: application/json\" "
-              "-d @" + tmp_path;
-    }
+        std::string cmd;
+        if (current_provider == PROVIDER_DEEPSEEK) {
+            cmd = "curl -s -m 60 -X POST \"https://api.deepseek.com/chat/completions\" "
+                  "-H \"Content-Type: application/json\" "
+                  "-H \"Authorization: Bearer " + api_key + "\" "
+                  "-d @" + tmp_path;
+        } else if (current_provider == PROVIDER_GROQ) {
+            cmd = "curl -s -m 60 -X POST \"https://api.groq.com/openai/v1/chat/completions\" "
+                  "-H \"Content-Type: application/json\" "
+                  "-H \"Authorization: Bearer " + api_key + "\" "
+                  "-d @" + tmp_path;
+        } else {
+            cmd = "curl -s -m 60 -X POST \"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+                  api_key + "\" "
+                  "-H \"Content-Type: application/json\" "
+                  "-d @" + tmp_path;
+        }
 
-    fprintf(stderr, "[AMS Copilot] Sending API request...\n");
+        fprintf(stderr, "[AMS Copilot] Sending API request (loop %d)...\n", loops);
 
-    FILE *fp = popen(cmd.c_str(), "r");
-    if (fp) {
-        char buf[4096];
-        std::string raw;
-        while (fgets(buf, sizeof(buf), fp))
-            raw += buf;
-        int status = pclose(fp);
+        FILE *fp = popen(cmd.c_str(), "r");
+        if (fp) {
+            char buf[4096];
+            std::string raw;
+            while (fgets(buf, sizeof(buf), fp))
+                raw += buf;
+            int status = pclose(fp);
 
-        fprintf(stderr, "[AMS Copilot] curl exit code: %d\n", WEXITSTATUS(status));
-        fprintf(stderr, "[AMS Copilot] Raw response (first 500 chars): %.500s\n", raw.c_str());
+            fprintf(stderr, "[AMS Copilot] curl exit code: %d\n", WEXITSTATUS(status));
 
-        if (raw.empty()) {
-            req->response = "⚠️ No response from API. Check your internet connection.";
-        } else if (raw.find("\"error\"") != std::string::npos) {
-            /* Try to extract the error message */
-            std::string err_msg;
-            size_t msg_pos = raw.find("\"message\"");
-            if (msg_pos != std::string::npos) {
-                size_t q1 = raw.find('"', msg_pos + 10);
-                size_t q2 = raw.find('"', q1 + 1);
-                if (q1 != std::string::npos && q2 != std::string::npos)
-                    err_msg = raw.substr(q1 + 1, q2 - q1 - 1);
-            }
-            if (err_msg.empty()) {
-                if (current_provider == PROVIDER_DEEPSEEK)
-                    req->response = "⚠️ API Error. Please check your DEEPSEEK_API_KEY.";
-                else if (current_provider == PROVIDER_GROQ)
-                    req->response = "⚠️ API Error. Please check your GROQ_API_KEY.";
-                else
-                    req->response = "⚠️ API Error. Please check your GEMINI_API_KEY.";
+            if (raw.empty()) {
+                req->response = "⚠️ No response from API. Check your internet connection.";
+            } else if (raw.find("\"error\"") != std::string::npos) {
+                std::string err_msg;
+                size_t msg_pos = raw.find("\"message\"");
+                if (msg_pos != std::string::npos) {
+                    size_t q1 = raw.find('"', msg_pos + 10);
+                    size_t q2 = raw.find('"', q1 + 1);
+                    if (q1 != std::string::npos && q2 != std::string::npos)
+                        err_msg = raw.substr(q1 + 1, q2 - q1 - 1);
+                }
+                if (err_msg.empty()) {
+                    req->response = "⚠️ API Error.";
+                } else {
+                    req->response = "⚠️ API Error: " + err_msg;
+                }
             } else {
-                req->response = "⚠️ API Error: " + err_msg;
+                if (current_provider == PROVIDER_DEEPSEEK || current_provider == PROVIDER_GROQ) {
+                    req->response = extract_text_field(raw, "\"content\"");
+                } else {
+                    req->response = extract_text_field(raw, "\"text\"");
+                }
+                if (req->response.empty())
+                    req->response = "🤔 I received an empty response. Please try again.";
             }
         } else {
-            if (current_provider == PROVIDER_DEEPSEEK || current_provider == PROVIDER_GROQ) {
-                req->response = extract_text_field(raw, "\"content\"");
-            } else {
-                req->response = extract_text_field(raw, "\"text\"");
-            }
-            if (req->response.empty())
-                req->response = "🤔 I received an empty response. Please try again.";
+            req->response = "⚠️ Could not run curl. Make sure it's installed.";
         }
-    } else {
-        req->response = "⚠️ Could not run curl. Make sure it's installed.";
+
+        std::remove(tmp_path.c_str());
+
+        /* AUTONOMOUS AGENT LOOP: Check for <run_command> */
+        size_t rc_start = req->response.find("<run_command>");
+        if (rc_start != std::string::npos) {
+            size_t rc_end = req->response.find("</run_command>", rc_start);
+            if (rc_end != std::string::npos) {
+                std::string sys_cmd = req->response.substr(rc_start + 13, rc_end - rc_start - 13);
+                fprintf(stderr, "[AMS Auto-Copilot] Executing autonomous command: %s\n", sys_cmd.c_str());
+                
+                std::string output = "";
+                FILE *sys_fp = popen((sys_cmd + " 2>&1").c_str(), "r");
+                if (sys_fp) {
+                    char sys_buf[1024];
+                    while (fgets(sys_buf, sizeof(sys_buf), sys_fp)) output += sys_buf;
+                    pclose(sys_fp);
+                }
+                if (output.empty()) output = "[Command completed with no output]";
+                
+                /* Feed output back to history and loop again! */
+                history.push_back({"model", req->response});
+                history.push_back({"user", "System execution output:\n```\n" + output + "\n```\nAnalyze the output and continue your task."});
+                
+                loops++;
+                continue; /* Trigger the next AI API call autonomously! */
+            }
+        }
+        
+        break; /* No <run_command> found, or max loops reached. Exit loop and show GUI bubble. */
     }
 
-    std::remove(tmp_path.c_str());
     g_idle_add(on_api_response, req);
     return NULL;
 }
