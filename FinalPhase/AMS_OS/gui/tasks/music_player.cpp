@@ -39,8 +39,8 @@ static void play_audio(const std::string &filepath) {
     if (audio_pid == 0) {
         setsid();
         /* Redirect stdout/stderr to /dev/null for clean output */
-        freopen("/dev/null", "w", stdout);
-        freopen("/dev/null", "w", stderr);
+        if (freopen("/dev/null", "w", stdout) == NULL) { /* Ignore */ }
+        if (freopen("/dev/null", "w", stderr) == NULL) { /* Ignore */ }
 
         /* Determine player based on extension */
         std::string ext = "";
