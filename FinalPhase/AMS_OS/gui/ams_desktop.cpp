@@ -47,6 +47,7 @@ static const char* get_icon_for_app(const std::string& name) {
     if (name == "Sudoku") return "view-grid";
     if (name == "Chess") return "system-users";
     if (name == "Tic Tac Toe") return "format-justify-center";
+    if (name == "Flappy Bird") return "applications-games";
     
     if (name.find(".") != std::string::npos) return "text-x-generic"; // For files
     return "application-x-executable";
@@ -94,6 +95,7 @@ static void write_default_tasks() {
     f << "22|Settings|⚙️|./build/gui_settings\n";
     f << "23|AMS Studio|💻|./build/gui_ams_studio\n";
     f << "24|Photo Viewer|🖼️|./build/gui_photo_viewer\n";
+    f << "25|Flappy Bird|🐦|./build/gui_flappy_bird\n";
 }
 
 static void load_tasks() {

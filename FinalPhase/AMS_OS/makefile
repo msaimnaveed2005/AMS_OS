@@ -100,7 +100,8 @@ GUI_TASK_NAMES := \
 	file_explorer \
 	settings \
 	ams_studio \
-	photo_viewer
+	photo_viewer \
+	flappy_bird
 
 # Strip \r carriage returns to handle Windows CRLF line endings on Linux
 GUI_TASK_NAMES := $(subst $(CR),,$(GUI_TASK_NAMES))
