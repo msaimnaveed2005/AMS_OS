@@ -164,6 +164,35 @@ spinner { color: #a78bfa; }
 .info-key   { color: rgba(255,255,255,0.5); font-size: 12px; font-weight: 600; }
 .info-value { color: white; font-size: 14px; }
 
+/* ═══ Terminal Emulator ═══ */
+.terminal-win { background-color: #0c0d14; }
+.terminal-view, .terminal-view text {
+    background-color: #0c0d14;
+    color: #34d399;
+    font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Monospace', monospace;
+    font-size: 13px;
+}
+.terminal-prompt {
+    color: #34d399;
+    font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Monospace', monospace;
+    font-weight: 700;
+    font-size: 13px;
+}
+.terminal-entry {
+    background-color: #0c0d14;
+    color: #34d399;
+    font-family: 'JetBrains Mono', 'Fira Code', 'DejaVu Sans Mono', 'Monospace', monospace;
+    font-size: 13px;
+    border: 1px solid rgba(52, 211, 153, 0.3);
+    border-radius: 6px;
+    caret-color: #34d399;
+    padding: 6px 10px;
+}
+.terminal-entry:focus {
+    border-color: rgba(52, 211, 153, 0.7);
+    box-shadow: 0 0 0 2px rgba(52, 211, 153, 0.15);
+}
+
 )CSS";
 
 /* ══════════════════════════════════════════════════════════════

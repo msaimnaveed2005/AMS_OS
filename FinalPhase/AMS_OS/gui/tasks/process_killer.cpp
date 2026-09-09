@@ -73,7 +73,7 @@ static void on_activate(GtkApplication *app, gpointer) {
 
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
-    GtkApplication *app = gtk_application_new("com.ams.task.processkiller", G_APPLICATION_FLAGS_NONE);
+    GtkApplication *app = gtk_application_new("com.ams.task.processkiller", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
     int s = g_application_run(G_APPLICATION(app), argc, argv); g_object_unref(app); return s;
 }

@@ -94,7 +94,7 @@ static const char *SYSTEM_PROMPT =
     "\n"
     "int main(int argc, char *argv[]) {\n"
     "    signal(SIGCHLD, SIG_IGN);\n"
-    "    GtkApplication *app = gtk_application_new(\"com.ams.task.APPID\", G_APPLICATION_FLAGS_NONE);\n"
+    "    GtkApplication *app = gtk_application_new(\"com.ams.task.APPID\", G_APPLICATION_DEFAULT_FLAGS);\n"
     "    g_signal_connect(app, \"activate\", G_CALLBACK(on_activate), NULL);\n"
     "    int s = g_application_run(G_APPLICATION(app), argc, argv);\n"
     "    g_object_unref(app);\n"
@@ -115,7 +115,7 @@ static const char *SYSTEM_PROMPT =
     "  * When setting labels: gtk_label_set_text(GTK_LABEL(lbl), str.c_str()) — always use .c_str()\n"
     "  * Use g_signal_connect with G_CALLBACK() wrapper for all signal handlers\n"
     "  * Use GINT_TO_POINTER/GPOINTER_TO_INT for passing integer data through gpointer\n"
-    "  * Always use G_APPLICATION_NON_UNIQUE instead of G_APPLICATION_FLAGS_NONE\n"
+    "  * Always use G_APPLICATION_NON_UNIQUE instead of G_APPLICATION_DEFAULT_FLAGS\n"
     "  * For Tic-Tac-Toe and grid games: use a static char array for game state, NOT button labels\n"
     "  * For drawing games: use gtk_widget_queue_draw() to trigger redraws\n"
     "  * For key events: use key-press-event signal on the window widget\n"
@@ -497,6 +497,20 @@ static std::string offline_respond(const std::string &input) {
         {"kill process","process_killer",     "Process Killer"},
         {"sudoku",      "sudoku",             "Sudoku"},
         {"chess",       "chess",              "Chess"},
+        {"tic tac toe", "tic_tac_toe",        "Tic Tac Toe"},
+        {"tictactoe",   "tic_tac_toe",        "Tic Tac Toe"},
+        {"flappy",      "flappy_bird",        "Flappy Bird"},
+        {"flappy bird", "flappy_bird",        "Flappy Bird"},
+        {"terminal",    "terminal",           "Terminal"},
+        {"shell",       "terminal",           "Terminal"},
+        {"cmd",         "terminal",           "Terminal"},
+        {"explorer",    "file_explorer",      "File Explorer"},
+        {"files",       "file_explorer",      "File Explorer"},
+        {"settings",    "settings",           "Settings"},
+        {"photo",       "photo_viewer",       "Photo Viewer"},
+        {"image",       "photo_viewer",       "Photo Viewer"},
+        {"studio",      "ams_studio",         "AMS Studio"},
+        {"code editor", "ams_studio",         "AMS Studio"},
         {"browser",     "browser",            "Web Browser"},
         {"chatgpt",     "browser",            "Web Browser"},
         {"chrome",      "browser",            "Web Browser"}
@@ -516,7 +530,7 @@ static std::string offline_respond(const std::string &input) {
             }
         }
     }
-    /* Also handle "play chess/snake/sudoku" */
+    /* Also handle "play chess/snake/sudoku/tic tac toe/flappy" */
     if (q.find("play") != std::string::npos) {
         /* "play chess with me" or "play chess" → launch chess in Vs Copilot mode */
         if (q.find("chess") != std::string::npos) {
@@ -525,6 +539,12 @@ static std::string offline_respond(const std::string &input) {
                 return "Let's play Chess! ♟️ I'll open it in Vs Copilot mode. Select 'Vs Copilot' from the dropdown! 🎮 <<LAUNCH:chess>>";
             }
             return "Let's play Chess! ♟️ Opening the board now 🎮 <<LAUNCH:chess>>";
+        }
+        if (q.find("tic tac toe") != std::string::npos || q.find("tictactoe") != std::string::npos) {
+            return "Let's play Tic Tac Toe! 🎮 Opening in Vs Copilot mode! <<LAUNCH:tic_tac_toe>>";
+        }
+        if (q.find("flappy") != std::string::npos) {
+            return "Let's play Flappy Bird! 🐦 Flap through the pipes! <<LAUNCH:flappy_bird>>";
         }
         for (auto &a : aliases) {
             if (q.find(a.pattern) != std::string::npos) {
@@ -537,8 +557,12 @@ static std::string offline_respond(const std::string &input) {
     if (q.find("create") != std::string::npos && (q.find("app") != std::string::npos ||
         q.find("program") != std::string::npos || q.find("game") != std::string::npos ||
         q.find("tool") != std::string::npos || q.find("application") != std::string::npos)) {
+        if (!api_key.empty()) {
+            return "I have an API key configured, but could not connect to the cloud service (curl check failed or network unreachable).\n"
+                   "Please ensure `curl` is installed (`sudo apt install curl`) and internet is connected! 🌐";
+        }
         return "I can create custom applications for you, but I need to be in online mode 🌐 to generate the code.\n"
-               "Please set one of these environment variables:\n"
+               "Please connect to the internet, or set one of these environment variables:\n"
                "• `export GROQ_API_KEY=your_key`\n"
                "• `export DEEPSEEK_API_KEY=your_key`\n"
                "• `export GEMINI_API_KEY=your_key`\n"
@@ -1698,7 +1722,10 @@ static void on_activate(GtkApplication *app, gpointer) {
         else
             welcome += "Status: 🟢 Online — powered by Gemini AI";
     } else {
-        welcome += "Status: 🔴 Offline — set GROQ_API_KEY, DEEPSEEK_API_KEY, or GEMINI_API_KEY for full AI mode";
+        if (!api_key.empty())
+            welcome += "Status: 🔴 Offline — API key loaded, but check internet / curl connection";
+        else
+            welcome += "Status: 🔴 Offline — local engine active (set API key for cloud AI)";
     }
 
     add_bubble("✦ AMS Copilot", welcome, false);
@@ -1710,7 +1737,7 @@ static void on_activate(GtkApplication *app, gpointer) {
 
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
-    GtkApplication *app = gtk_application_new("com.ams.task.ai_copilot", G_APPLICATION_FLAGS_NONE);
+    GtkApplication *app = gtk_application_new("com.ams.task.ai_copilot", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
     int s = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);

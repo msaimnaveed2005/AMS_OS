@@ -94,6 +94,18 @@ static gboolean on_draw(GtkWidget *, cairo_t *cr, gpointer) {
         char msg[64]; snprintf(msg, sizeof(msg), "Score: %d  —  Press R to restart", G.score);
         cairo_move_to(cr, COLS*CELL/2 - 110, ROWS*CELL/2 + 20);
         cairo_show_text(cr, msg);
+    } else if (G.paused) {
+        cairo_set_source_rgba(cr, 0, 0, 0, 0.55);
+        cairo_paint(cr);
+        cairo_set_source_rgb(cr, 0.65, 0.55, 0.98);
+        cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_set_font_size(cr, 30);
+        cairo_move_to(cr, COLS*CELL/2 - 60, ROWS*CELL/2 - 10);
+        cairo_show_text(cr, "PAUSED");
+        cairo_set_source_rgba(cr, 1, 1, 1, 0.6);
+        cairo_set_font_size(cr, 13);
+        cairo_move_to(cr, COLS*CELL/2 - 95, ROWS*CELL/2 + 20);
+        cairo_show_text(cr, "Press Space to resume");
     }
     return FALSE;
 }
@@ -130,23 +142,32 @@ static gboolean on_key(GtkWidget *, GdkEventKey *ev, gpointer) {
         return TRUE;
     }
     switch (ev->keyval) {
-        case GDK_KEY_Up:    if (G.dy != 1)  { G.dx = 0; G.dy = -1; } break;
-        case GDK_KEY_Down:  if (G.dy != -1) { G.dx = 0; G.dy = 1;  } break;
-        case GDK_KEY_Left:  if (G.dx != 1)  { G.dx = -1; G.dy = 0; } break;
-        case GDK_KEY_Right: if (G.dx != -1) { G.dx = 1; G.dy = 0;  } break;
-        case GDK_KEY_space: G.paused = !G.paused; break;
+        case GDK_KEY_Up:    case GDK_KEY_w: case GDK_KEY_W: if (G.dy != 1)  { G.dx = 0; G.dy = -1; } break;
+        case GDK_KEY_Down:  case GDK_KEY_s: case GDK_KEY_S: if (G.dy != -1) { G.dx = 0; G.dy = 1;  } break;
+        case GDK_KEY_Left:  case GDK_KEY_a: case GDK_KEY_A: if (G.dx != 1)  { G.dx = -1; G.dy = 0; } break;
+        case GDK_KEY_Right: case GDK_KEY_d: case GDK_KEY_D: if (G.dx != -1) { G.dx = 1; G.dy = 0;  } break;
+        case GDK_KEY_space:
+            G.paused = !G.paused;
+            if (G.drawing_area) gtk_widget_queue_draw(G.drawing_area);
+            break;
         default: break;
     }
     return TRUE;
 }
 
+static void on_win_destroy(GtkWidget *, gpointer) {
+    if (G.timer_id) {
+        g_source_remove(G.timer_id);
+        G.timer_id = 0;
+    }
+}
+
 static void on_activate(GtkApplication *app, gpointer) {
     ams_apply_theme();
     GtkWidget *win = gtk_application_window_new(app);
-    gtk_window_set_title(GTK_WINDOW(win), "Snake");
-    gtk_window_set_default_size(GTK_WINDOW(win), COLS*CELL + 20, ROWS*CELL + 20);
+    gtk_window_set_title(GTK_WINDOW(win), "Snake Game");
+    gtk_window_set_default_size(GTK_WINDOW(win), COLS*CELL + 20, ROWS*CELL + 80);
     gtk_window_set_position(GTK_WINDOW(win), GTK_WIN_POS_CENTER);
-    gtk_window_set_resizable(GTK_WINDOW(win), FALSE);
     gtk_window_set_icon_name(GTK_WINDOW(win), "applications-games");
 
     G.header = gtk_header_bar_new();
@@ -171,6 +192,7 @@ static void on_activate(GtkApplication *app, gpointer) {
     gtk_box_pack_start(GTK_BOX(frame), G.drawing_area, TRUE, TRUE, 0);
 
     g_signal_connect(win, "key-press-event", G_CALLBACK(on_key), NULL);
+    g_signal_connect(win, "destroy", G_CALLBACK(on_win_destroy), NULL);
     G.timer_id = g_timeout_add(150, game_tick, NULL);
 
     gtk_widget_show_all(win);
@@ -178,7 +200,7 @@ static void on_activate(GtkApplication *app, gpointer) {
 
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
-    GtkApplication *app = gtk_application_new("com.ams.task.snake", G_APPLICATION_FLAGS_NONE);
+    GtkApplication *app = gtk_application_new("com.ams.task.snake", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
     int s = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app);

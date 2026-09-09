@@ -57,7 +57,7 @@ static void on_activate(GtkApplication *app, gpointer) {
     
     /* Title */
     GtkWidget *title = gtk_label_new("Theme Engine Control");
-    ams_css(title, "title-xl");
+    ams_css(title, "title-lg");
     gtk_box_pack_start(GTK_BOX(vbox), title, FALSE, FALSE, 0);
     
     GtkWidget *desc = gtk_label_new("Edit the raw GTK CSS below to instantly morph the OS interface. Click 'Apply' to hot-reload the entire OS desktop!");
@@ -113,7 +113,7 @@ static void on_activate(GtkApplication *app, gpointer) {
 
 int main(int argc, char *argv[]) {
     signal(SIGCHLD, SIG_IGN);
-    GtkApplication *app = gtk_application_new("com.ams.task.settings", G_APPLICATION_FLAGS_NONE);
+    GtkApplication *app = gtk_application_new("com.ams.task.settings", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(app, "activate", G_CALLBACK(on_activate), NULL);
     int s = g_application_run(G_APPLICATION(app), argc, argv);
     g_object_unref(app); return s;
