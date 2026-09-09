@@ -66,10 +66,10 @@ static bool black_rook_q_moved = false;
 static const char *CHESS_CSS = R"CSS(
 
 .chess-light {
-    background-color: rgba(255,255,255,0.12) !important;
+    background-color: #f0d9b5 !important;
     background-image: none !important;
     border: none;
-    border-radius: 2px;
+    border-radius: 0px;
     min-width: 56px;
     min-height: 56px;
     font-size: 34px;
@@ -78,10 +78,10 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .chess-dark {
-    background-color: rgba(139,92,246,0.15) !important;
+    background-color: #b58863 !important;
     background-image: none !important;
     border: none;
-    border-radius: 2px;
+    border-radius: 0px;
     min-width: 56px;
     min-height: 56px;
     font-size: 34px;
@@ -90,43 +90,44 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .chess-selected {
-    background-color: rgba(99,102,241,0.45) !important;
+    background-color: rgba(65,105,225,0.55) !important;
     background-image: none !important;
-    box-shadow: inset 0 0 12px rgba(99,102,241,0.5) !important;
+    box-shadow: inset 0 0 14px rgba(65,105,225,0.6) !important;
 }
 
 .chess-valid {
-    background-color: rgba(52,211,153,0.3) !important;
+    background-color: rgba(40,167,69,0.40) !important;
     background-image: none !important;
-    box-shadow: inset 0 0 8px rgba(52,211,153,0.3) !important;
+    box-shadow: inset 0 0 10px rgba(40,167,69,0.35) !important;
 }
 
 .chess-valid:hover {
-    background-color: rgba(52,211,153,0.5) !important;
+    background-color: rgba(40,167,69,0.60) !important;
     background-image: none !important;
 }
 
 .chess-check {
-    background-color: rgba(220,38,38,0.35) !important;
+    background-color: rgba(220,38,38,0.50) !important;
     background-image: none !important;
-    box-shadow: inset 0 0 12px rgba(220,38,38,0.4) !important;
+    box-shadow: inset 0 0 14px rgba(220,38,38,0.5) !important;
 }
 
 .chess-last-from {
-    background-color: rgba(234,179,8,0.15) !important;
+    background-color: rgba(234,179,8,0.30) !important;
     background-image: none !important;
 }
 
 .chess-last-to {
-    background-color: rgba(234,179,8,0.25) !important;
+    background-color: rgba(234,179,8,0.45) !important;
     background-image: none !important;
 }
 
 .chess-board {
-    background-color: rgba(0,0,0,0.3);
-    border: 2px solid rgba(255,255,255,0.12);
-    border-radius: 8px;
-    padding: 4px;
+    background-color: #5d3a1a;
+    border: 3px solid #3e2210;
+    border-radius: 6px;
+    padding: 6px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
 }
 
 .chess-turn-white { color: white;   font-size: 14px; font-weight: 700; }
@@ -160,12 +161,13 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .piece-white, .piece-white label {
-    color: #f3f4f6 !important;
+    color: #ffffff !important;
+    text-shadow: 0px 1px 3px rgba(0, 0, 0, 0.7), 0px 0px 1px rgba(0, 0, 0, 0.9);
 }
 
 .piece-black, .piece-black label {
-    color: #000000 !important;
-    text-shadow: 0px 0px 4px rgba(255, 255, 255, 0.6);
+    color: #1a1a1a !important;
+    text-shadow: 0px 1px 2px rgba(255, 255, 255, 0.25);
 }
 
 )CSS";

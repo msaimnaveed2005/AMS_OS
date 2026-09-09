@@ -5,9 +5,12 @@
 # Runtime data
 /data/system_log.txt
 /data/virtual_disk/*
+/data/api_key.txt
+/data/gemini_key.txt
 
 # Local editor and OS metadata
 *.swp
 *.swo
 *~
 .DS_Store
+

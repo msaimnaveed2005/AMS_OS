@@ -24,33 +24,869 @@ Dynamic app registry loaded from data/desktop_apps.txt.
 #include <dirent.h>
 
 /* ═══════════════════════════════════════════════════════
-   Icon Mapping Helper
+   Custom Cairo Icon Renderer — Professional desktop icons
    ═══════════════════════════════════════════════════════ */
-static const char* get_icon_for_app(const std::string& name) {
-    if (name == "Create File") return "document-new";
-    if (name == "Delete File") return "edit-delete";
-    if (name == "Copy File") return "edit-copy";
-    if (name == "Move File") return "go-next";
-    if (name == "File Info") return "dialog-information";
-    if (name == "Notepad") return "text-editor";
-    if (name == "Calculator") return "accessories-calculator";
-    if (name == "Digital Clock") return "preferences-system-time";
-    if (name == "System Info") return "utilities-system-monitor";
-    if (name == "Snake Game") return "face-cool";
-    if (name == "Minesweeper") return "dialog-warning";
-    if (name == "Music Player") return "media-playback-start";
-    if (name == "Downloads") return "emblem-downloads";
-    if (name == "Task Manager") return "utilities-system-monitor";
-    if (name == "Process Killer") return "process-stop";
-    if (name == "Calendar") return "x-office-calendar";
-    if (name == "AI Copilot") return "face-smile";
-    if (name == "Sudoku") return "view-grid";
-    if (name == "Chess") return "system-users";
-    if (name == "Tic Tac Toe") return "format-justify-center";
-    if (name == "Flappy Bird") return "applications-games";
-    
-    if (name.find(".") != std::string::npos) return "text-x-generic"; // For files
-    return "application-x-executable";
+
+#include <cairo.h>
+#include <math.h>
+
+/* Draw a rounded rectangle path */
+static void cairo_rounded_rect(cairo_t *cr, double x, double y, double w, double h, double r) {
+    cairo_new_sub_path(cr);
+    cairo_arc(cr, x + w - r, y + r,     r, -M_PI/2, 0);
+    cairo_arc(cr, x + w - r, y + h - r, r, 0,        M_PI/2);
+    cairo_arc(cr, x + r,     y + h - r, r, M_PI/2,   M_PI);
+    cairo_arc(cr, x + r,     y + r,     r, M_PI,      3*M_PI/2);
+    cairo_close_path(cr);
+}
+
+/* Create a GdkPixbuf from a cairo surface */
+static GdkPixbuf* pixbuf_from_surface(cairo_surface_t *surface) {
+    return gdk_pixbuf_get_from_surface(surface, 0, 0,
+        cairo_image_surface_get_width(surface),
+        cairo_image_surface_get_height(surface));
+}
+
+/* ── Individual icon draw functions ── */
+
+static GdkPixbuf* draw_icon_calculator() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Blue gradient background */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.24, 0.36, 0.96);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.38, 0.52, 1.0);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Display */
+    cairo_set_source_rgba(cr, 0, 0, 0, 0.3);
+    cairo_rounded_rect(cr, 8, 8, sz-16, 12, 3);
+    cairo_fill(cr);
+    /* "=" symbol */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_line_width(cr, 2.5);
+    cairo_move_to(cr, 15, 28); cairo_line_to(cr, 33, 28); cairo_stroke(cr);
+    cairo_move_to(cr, 15, 34); cairo_line_to(cr, 33, 34); cairo_stroke(cr);
+    /* Small dots for buttons */
+    for (int r = 0; r < 2; r++) for (int c = 0; c < 3; c++) {
+        cairo_arc(cr, 14 + c*9, 24 + r*10, 1.5, 0, 2*M_PI);
+        cairo_fill(cr);
+    }
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_notepad() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Yellow page */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.98, 0.88, 0.4);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.95, 0.78, 0.28);
+    cairo_rounded_rect(cr, 6, 4, sz-12, sz-8, 4);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Folded corner */
+    cairo_set_source_rgba(cr, 0.8, 0.68, 0.2, 0.6);
+    cairo_move_to(cr, sz-10, 4); cairo_line_to(cr, sz-6, 4);
+    cairo_line_to(cr, sz-6, 12); cairo_close_path(cr); cairo_fill(cr);
+    /* Lines */
+    cairo_set_source_rgba(cr, 0.6, 0.5, 0.15, 0.5);
+    cairo_set_line_width(cr, 1.2);
+    for (int y = 16; y < sz-8; y += 6) {
+        cairo_move_to(cr, 12, y); cairo_line_to(cr, sz-12, y); cairo_stroke(cr);
+    }
+    /* Pencil accent */
+    cairo_set_source_rgba(cr, 0.4, 0.3, 0.1, 0.7);
+    cairo_set_line_width(cr, 2);
+    cairo_move_to(cr, 14, 15); cairo_line_to(cr, 28, 15); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_snake() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Dark green background */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.1, 0.55, 0.2);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.05, 0.4, 0.12);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Snake body (S-curve) */
+    cairo_set_source_rgb(cr, 0.3, 0.9, 0.4);
+    cairo_set_line_width(cr, 5);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_move_to(cr, 12, 14);
+    cairo_curve_to(cr, 36, 14, 12, 34, 36, 34);
+    cairo_stroke(cr);
+    /* Eye */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_arc(cr, 14, 12, 3, 0, 2*M_PI); cairo_fill(cr);
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_arc(cr, 14.5, 11.5, 1.5, 0, 2*M_PI); cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_chess() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Checkered board background */
+    int cell = 6;
+    for (int r = 0; r < 8; r++) for (int c = 0; c < 8; c++) {
+        if ((r+c)%2==0) cairo_set_source_rgb(cr, 0.94, 0.85, 0.71);
+        else            cairo_set_source_rgb(cr, 0.71, 0.53, 0.39);
+        cairo_rectangle(cr, r*cell, c*cell, cell, cell);
+        cairo_fill(cr);
+    }
+    /* Dark overlay for vignette */
+    cairo_rounded_rect(cr, 0, 0, sz, sz, 8);
+    cairo_clip(cr);
+    /* Knight symbol - white */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_font_size(cr, 28);
+    cairo_move_to(cr, 12, 34);
+    cairo_show_text(cr, "♞");
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_music() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Purple gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.55, 0.22, 0.92);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.72, 0.36, 1.0);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Music note */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_line_width(cr, 2.5);
+    /* Note stem */
+    cairo_move_to(cr, 30, 10); cairo_line_to(cr, 30, 32); cairo_stroke(cr);
+    /* Note head */
+    cairo_arc(cr, 26, 33, 5, 0, 2*M_PI); cairo_fill(cr);
+    /* Flag */
+    cairo_move_to(cr, 30, 10);
+    cairo_curve_to(cr, 36, 14, 36, 20, 30, 22);
+    cairo_set_line_width(cr, 2);
+    cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_calendar() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* White card */
+    cairo_set_source_rgb(cr, 0.95, 0.95, 0.97);
+    cairo_rounded_rect(cr, 4, 6, sz-8, sz-10, 6);
+    cairo_fill(cr);
+    /* Red header */
+    cairo_set_source_rgb(cr, 0.9, 0.2, 0.2);
+    cairo_rounded_rect(cr, 4, 6, sz-8, 14, 6);
+    cairo_fill(cr);
+    cairo_rectangle(cr, 4, 14, sz-8, 6); cairo_fill(cr);
+    /* Date number */
+    cairo_set_source_rgb(cr, 0.2, 0.2, 0.2);
+    cairo_set_font_size(cr, 18);
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    char day[4]; snprintf(day, sizeof(day), "%d", t->tm_mday);
+    cairo_move_to(cr, t->tm_mday >= 10 ? 13 : 18, 40);
+    cairo_show_text(cr, day);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_copilot() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Purple-cyan gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.45, 0.15, 0.90);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.1, 0.8, 0.85);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Star/sparkle */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    double cx = sz/2.0, cy = sz/2.0;
+    /* 4-point star */
+    cairo_move_to(cr, cx, cy-12);
+    cairo_line_to(cr, cx+3, cy-3);
+    cairo_line_to(cr, cx+12, cy);
+    cairo_line_to(cr, cx+3, cy+3);
+    cairo_line_to(cr, cx, cy+12);
+    cairo_line_to(cr, cx-3, cy+3);
+    cairo_line_to(cr, cx-12, cy);
+    cairo_line_to(cr, cx-3, cy-3);
+    cairo_close_path(cr);
+    cairo_fill(cr);
+    /* Small sparkle dots */
+    cairo_arc(cr, cx+10, cy-10, 2, 0, 2*M_PI); cairo_fill(cr);
+    cairo_arc(cr, cx-8, cy+10, 1.5, 0, 2*M_PI); cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_terminal() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Dark background */
+    cairo_set_source_rgb(cr, 0.12, 0.12, 0.15);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 8);
+    cairo_fill(cr);
+    /* Border */
+    cairo_set_source_rgba(cr, 0.4, 0.4, 0.45, 0.5);
+    cairo_set_line_width(cr, 1.5);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 8);
+    cairo_stroke(cr);
+    /* Green prompt > */
+    cairo_set_source_rgb(cr, 0.2, 0.9, 0.3);
+    cairo_set_font_size(cr, 20);
+    cairo_move_to(cr, 10, 30);
+    cairo_show_text(cr, ">_");
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_folder() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Folder tab */
+    cairo_set_source_rgb(cr, 0.95, 0.75, 0.2);
+    cairo_move_to(cr, 6, 14);
+    cairo_line_to(cr, 6, 10);
+    cairo_curve_to(cr, 6, 8, 8, 8, 10, 8);
+    cairo_line_to(cr, 20, 8);
+    cairo_line_to(cr, 23, 14);
+    cairo_close_path(cr);
+    cairo_fill(cr);
+    /* Folder body */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 14, 0, sz-6);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.95, 0.78, 0.25);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.85, 0.65, 0.15);
+    cairo_rounded_rect(cr, 4, 14, sz-8, sz-20, 4);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_settings() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Gray gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.45, 0.45, 0.5);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.3, 0.3, 0.35);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Gear: outer ring with teeth */
+    double cx = sz/2.0, cy = sz/2.0;
+    cairo_set_source_rgb(cr, 0.9, 0.9, 0.92);
+    int teeth = 8;
+    double outer_r = 14, inner_r = 10;
+    for (int i = 0; i < teeth; i++) {
+        double a = i * 2 * M_PI / teeth;
+        double a2 = a + M_PI / teeth;
+        cairo_move_to(cr, cx + outer_r * cos(a-0.15), cy + outer_r * sin(a-0.15));
+        cairo_line_to(cr, cx + (outer_r+3) * cos(a), cy + (outer_r+3) * sin(a));
+        cairo_line_to(cr, cx + outer_r * cos(a+0.15), cy + outer_r * sin(a+0.15));
+    }
+    cairo_arc(cr, cx, cy, outer_r, 0, 2*M_PI);
+    cairo_fill(cr);
+    /* Inner hole */
+    cairo_set_source_rgb(cr, 0.35, 0.35, 0.4);
+    cairo_arc(cr, cx, cy, 6, 0, 2*M_PI);
+    cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_minesweeper() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Red gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.85, 0.2, 0.2);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.65, 0.1, 0.1);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Bomb circle */
+    double cx = sz/2.0, cy = sz/2.0;
+    cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+    cairo_arc(cr, cx, cy, 10, 0, 2*M_PI); cairo_fill(cr);
+    /* Spikes */
+    cairo_set_line_width(cr, 2.5);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    for (int i = 0; i < 4; i++) {
+        double a = i * M_PI / 4;
+        cairo_move_to(cr, cx + 10 * cos(a), cy + 10 * sin(a));
+        cairo_line_to(cr, cx + 15 * cos(a), cy + 15 * sin(a));
+        cairo_stroke(cr);
+    }
+    /* Highlight */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.6);
+    cairo_arc(cr, cx-3, cy-3, 3, 0, 2*M_PI); cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_sudoku() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Blue gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.2, 0.4, 0.9);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.15, 0.3, 0.75);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Grid */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.3);
+    cairo_set_line_width(cr, 1);
+    for (int i = 1; i < 3; i++) {
+        cairo_move_to(cr, 8 + i*11, 8);  cairo_line_to(cr, 8 + i*11, sz-8); cairo_stroke(cr);
+        cairo_move_to(cr, 8, 8 + i*11);  cairo_line_to(cr, sz-8, 8 + i*11); cairo_stroke(cr);
+    }
+    /* Numbers */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_font_size(cr, 12);
+    cairo_move_to(cr, 12, 22); cairo_show_text(cr, "9");
+    cairo_move_to(cr, 23, 33); cairo_show_text(cr, "5");
+    cairo_move_to(cr, 34, 22); cairo_show_text(cr, "1");
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_downloads() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Teal gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.1, 0.6, 0.75);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.08, 0.45, 0.6);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Down arrow */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_line_width(cr, 3);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_move_to(cr, sz/2, 10); cairo_line_to(cr, sz/2, 30); cairo_stroke(cr);
+    cairo_move_to(cr, sz/2-8, 24); cairo_line_to(cr, sz/2, 32); cairo_line_to(cr, sz/2+8, 24); cairo_stroke(cr);
+    /* Tray */
+    cairo_move_to(cr, 10, 36); cairo_line_to(cr, sz-10, 36); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_task_manager() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Dark indigo gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.22, 0.18, 0.55);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.15, 0.12, 0.4);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Bar chart */
+    double bars[] = {20, 28, 16, 32, 22};
+    double colors[][3] = {{0.4,0.8,0.95},{0.5,0.9,0.5},{0.95,0.7,0.3},{0.9,0.4,0.5},{0.7,0.5,0.9}};
+    for (int i = 0; i < 5; i++) {
+        cairo_set_source_rgb(cr, colors[i][0], colors[i][1], colors[i][2]);
+        cairo_rounded_rect(cr, 8 + i*7, sz-6-bars[i], 5, bars[i], 2);
+        cairo_fill(cr);
+    }
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_system_info() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Cool gray gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.28, 0.32, 0.45);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.18, 0.2, 0.32);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* CPU chip */
+    cairo_set_source_rgb(cr, 0.7, 0.75, 0.85);
+    cairo_rounded_rect(cr, 12, 12, 24, 24, 4);
+    cairo_fill(cr);
+    /* Pins */
+    cairo_set_line_width(cr, 2);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    for (int i = 0; i < 3; i++) {
+        double p = 18 + i*6;
+        cairo_move_to(cr, p, 12); cairo_line_to(cr, p, 6);  cairo_stroke(cr);
+        cairo_move_to(cr, p, 36); cairo_line_to(cr, p, 42); cairo_stroke(cr);
+        cairo_move_to(cr, 12, p); cairo_line_to(cr, 6, p);  cairo_stroke(cr);
+        cairo_move_to(cr, 36, p); cairo_line_to(cr, 42, p); cairo_stroke(cr);
+    }
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_clock() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Orange gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.95, 0.55, 0.15);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.85, 0.4, 0.1);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Clock face */
+    double cx = sz/2.0, cy = sz/2.0;
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.2);
+    cairo_arc(cr, cx, cy, 14, 0, 2*M_PI); cairo_fill(cr);
+    /* Hands */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_line_width(cr, 2.5);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_move_to(cr, cx, cy); cairo_line_to(cr, cx, cy-10); cairo_stroke(cr);
+    cairo_move_to(cr, cx, cy); cairo_line_to(cr, cx+7, cy+3); cairo_stroke(cr);
+    /* Center dot */
+    cairo_arc(cr, cx, cy, 2, 0, 2*M_PI); cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_process_killer() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Red-orange gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.9, 0.25, 0.15);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.75, 0.15, 0.1);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Lightning bolt */
+    cairo_set_source_rgb(cr, 1, 0.95, 0.3);
+    cairo_move_to(cr, 26, 6);
+    cairo_line_to(cr, 16, 24);
+    cairo_line_to(cr, 24, 24);
+    cairo_line_to(cr, 20, 42);
+    cairo_line_to(cr, 34, 20);
+    cairo_line_to(cr, 26, 20);
+    cairo_close_path(cr);
+    cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_flappy_bird() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Sky gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, 0, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.4, 0.75, 0.95);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.3, 0.6, 0.85);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Green pipe */
+    cairo_set_source_rgb(cr, 0.3, 0.75, 0.25);
+    cairo_rectangle(cr, 32, 0, 10, 18); cairo_fill(cr);
+    cairo_rectangle(cr, 30, 16, 14, 6); cairo_fill(cr);
+    cairo_rectangle(cr, 32, 34, 10, 14); cairo_fill(cr);
+    cairo_rectangle(cr, 30, 32, 14, 6); cairo_fill(cr);
+    /* Bird body */
+    cairo_set_source_rgb(cr, 1, 0.85, 0.1);
+    cairo_arc(cr, 18, 24, 8, 0, 2*M_PI); cairo_fill(cr);
+    /* Wing */
+    cairo_set_source_rgb(cr, 0.95, 0.7, 0.05);
+    cairo_arc(cr, 14, 26, 5, 0, M_PI); cairo_fill(cr);
+    /* Eye */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_arc(cr, 22, 22, 3, 0, 2*M_PI); cairo_fill(cr);
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_arc(cr, 23, 21.5, 1.5, 0, 2*M_PI); cairo_fill(cr);
+    /* Beak */
+    cairo_set_source_rgb(cr, 1, 0.4, 0.15);
+    cairo_move_to(cr, 25, 24);
+    cairo_line_to(cr, 30, 25);
+    cairo_line_to(cr, 25, 27);
+    cairo_close_path(cr); cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_photo_viewer() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Teal gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.1, 0.65, 0.65);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.08, 0.5, 0.52);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Photo frame */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.9);
+    cairo_rounded_rect(cr, 8, 10, 32, 26, 3);
+    cairo_set_line_width(cr, 2); cairo_stroke(cr);
+    /* Mountain landscape */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.4);
+    cairo_move_to(cr, 10, 34);
+    cairo_line_to(cr, 20, 20);
+    cairo_line_to(cr, 26, 26);
+    cairo_line_to(cr, 32, 16);
+    cairo_line_to(cr, 38, 34);
+    cairo_close_path(cr); cairo_fill(cr);
+    /* Sun */
+    cairo_arc(cr, 14, 16, 3, 0, 2*M_PI); cairo_fill(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_ams_studio() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Blue-indigo gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.2, 0.35, 0.9);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.35, 0.2, 0.8);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Code brackets < /> */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_font_size(cr, 18);
+    cairo_move_to(cr, 7, 32);
+    cairo_show_text(cr, "</>");
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_create_file() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Green gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.15, 0.7, 0.45);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.1, 0.55, 0.35);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* File page */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.9);
+    cairo_rounded_rect(cr, 13, 8, 22, 28, 3);
+    cairo_set_line_width(cr, 2); cairo_stroke(cr);
+    /* Plus sign */
+    cairo_set_line_width(cr, 3);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_move_to(cr, 24, 16); cairo_line_to(cr, 24, 30); cairo_stroke(cr);
+    cairo_move_to(cr, 17, 23); cairo_line_to(cr, 31, 23); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_delete_file() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Red gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.85, 0.2, 0.22);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.7, 0.12, 0.15);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Trash can */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_line_width(cr, 2);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    /* Lid */
+    cairo_move_to(cr, 14, 16); cairo_line_to(cr, 34, 16); cairo_stroke(cr);
+    cairo_move_to(cr, 20, 16); cairo_line_to(cr, 20, 12); cairo_line_to(cr, 28, 12); cairo_line_to(cr, 28, 16); cairo_stroke(cr);
+    /* Body */
+    cairo_move_to(cr, 15, 16); cairo_line_to(cr, 17, 38); cairo_line_to(cr, 31, 38); cairo_line_to(cr, 33, 16); cairo_stroke(cr);
+    /* Lines */
+    cairo_move_to(cr, 21, 20); cairo_line_to(cr, 21, 34); cairo_stroke(cr);
+    cairo_move_to(cr, 27, 20); cairo_line_to(cr, 27, 34); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_copy_file() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Blue gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.25, 0.5, 0.9);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.18, 0.38, 0.75);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Two stacked pages */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
+    cairo_rounded_rect(cr, 16, 6, 20, 26, 3);
+    cairo_set_line_width(cr, 1.5); cairo_stroke(cr);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.9);
+    cairo_rounded_rect(cr, 10, 12, 20, 26, 3);
+    cairo_set_line_width(cr, 2); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_move_file() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Orange gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.95, 0.6, 0.15);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.85, 0.45, 0.08);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Page */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.8);
+    cairo_rounded_rect(cr, 10, 10, 16, 22, 3);
+    cairo_set_line_width(cr, 2); cairo_stroke(cr);
+    /* Arrow */
+    cairo_set_line_width(cr, 2.5);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_move_to(cr, 26, 24); cairo_line_to(cr, 38, 24); cairo_stroke(cr);
+    cairo_move_to(cr, 34, 19); cairo_line_to(cr, 39, 24); cairo_line_to(cr, 34, 29); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_file_info() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Cyan gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.15, 0.65, 0.85);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.1, 0.5, 0.7);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Info "i" */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_arc(cr, sz/2, 14, 3, 0, 2*M_PI); cairo_fill(cr);
+    cairo_set_line_width(cr, 3.5);
+    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+    cairo_move_to(cr, sz/2, 22); cairo_line_to(cr, sz/2, 38); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_browser() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Blue gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.2, 0.45, 0.95);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.15, 0.35, 0.8);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Globe */
+    double cx = sz/2.0, cy = sz/2.0;
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.8);
+    cairo_set_line_width(cr, 1.5);
+    cairo_arc(cr, cx, cy, 13, 0, 2*M_PI); cairo_stroke(cr);
+    /* Meridians */
+    cairo_save(cr);
+    cairo_translate(cr, cx, cy);
+    cairo_scale(cr, 0.5, 1);
+    cairo_arc(cr, 0, 0, 13, 0, 2*M_PI); cairo_stroke(cr);
+    cairo_restore(cr);
+    /* Equator */
+    cairo_move_to(cr, cx-13, cy); cairo_line_to(cr, cx+13, cy); cairo_stroke(cr);
+    /* Vertical */
+    cairo_move_to(cr, cx, cy-13); cairo_line_to(cr, cx, cy+13); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_tictactoe() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Pink gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.85, 0.3, 0.55);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.7, 0.2, 0.45);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Hash grid */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.7);
+    cairo_set_line_width(cr, 2);
+    cairo_move_to(cr, 18, 8); cairo_line_to(cr, 18, 40); cairo_stroke(cr);
+    cairo_move_to(cr, 30, 8); cairo_line_to(cr, 30, 40); cairo_stroke(cr);
+    cairo_move_to(cr, 8, 18); cairo_line_to(cr, 40, 18); cairo_stroke(cr);
+    cairo_move_to(cr, 8, 30); cairo_line_to(cr, 40, 30); cairo_stroke(cr);
+    /* X */
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_set_line_width(cr, 2.5);
+    cairo_move_to(cr, 10, 21); cairo_line_to(cr, 16, 27); cairo_stroke(cr);
+    cairo_move_to(cr, 16, 21); cairo_line_to(cr, 10, 27); cairo_stroke(cr);
+    /* O */
+    cairo_arc(cr, 36, 13, 4, 0, 2*M_PI); cairo_stroke(cr);
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_generic() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Gray gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.35, 0.35, 0.42);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.25, 0.25, 0.32);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* Gear-like symbol */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.6);
+    cairo_set_font_size(cr, 24);
+    cairo_move_to(cr, 14, 34);
+    cairo_show_text(cr, "⚡");
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+static GdkPixbuf* draw_icon_file_generic() {
+    int sz = 48;
+    cairo_surface_t *s = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, sz, sz);
+    cairo_t *cr = cairo_create(s);
+    /* Light blue gradient */
+    cairo_pattern_t *bg = cairo_pattern_create_linear(0, 0, sz, sz);
+    cairo_pattern_add_color_stop_rgb(bg, 0, 0.4, 0.55, 0.8);
+    cairo_pattern_add_color_stop_rgb(bg, 1, 0.3, 0.42, 0.65);
+    cairo_rounded_rect(cr, 2, 2, sz-4, sz-4, 10);
+    cairo_set_source(cr, bg); cairo_fill(cr);
+    cairo_pattern_destroy(bg);
+    /* File page with folded corner */
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.9);
+    cairo_move_to(cr, 14, 8);
+    cairo_line_to(cr, 30, 8);
+    cairo_line_to(cr, 36, 14);
+    cairo_line_to(cr, 36, 40);
+    cairo_line_to(cr, 14, 40);
+    cairo_close_path(cr);
+    cairo_set_line_width(cr, 1.5); cairo_stroke(cr);
+    /* Fold */
+    cairo_move_to(cr, 30, 8); cairo_line_to(cr, 30, 14); cairo_line_to(cr, 36, 14);
+    cairo_stroke(cr);
+    /* Lines */
+    cairo_set_line_width(cr, 1);
+    cairo_set_source_rgba(cr, 1, 1, 1, 0.5);
+    for (int y = 20; y < 36; y += 5) {
+        cairo_move_to(cr, 18, y); cairo_line_to(cr, 32, y); cairo_stroke(cr);
+    }
+    GdkPixbuf *pb = pixbuf_from_surface(s);
+    cairo_destroy(cr); cairo_surface_destroy(s);
+    return pb;
+}
+
+/* ── Master icon dispatcher ── */
+static GdkPixbuf* get_custom_icon(const std::string& name) {
+    if (name == "Calculator")     return draw_icon_calculator();
+    if (name == "Notepad")        return draw_icon_notepad();
+    if (name == "Snake Game")     return draw_icon_snake();
+    if (name == "Chess")          return draw_icon_chess();
+    if (name == "Music Player")   return draw_icon_music();
+    if (name == "Calendar")       return draw_icon_calendar();
+    if (name == "AI Copilot")     return draw_icon_copilot();
+    if (name == "Terminal")       return draw_icon_terminal();
+    if (name == "File Explorer")  return draw_icon_folder();
+    if (name == "Settings")       return draw_icon_settings();
+    if (name == "Minesweeper")    return draw_icon_minesweeper();
+    if (name == "Sudoku")         return draw_icon_sudoku();
+    if (name == "Downloads")      return draw_icon_downloads();
+    if (name == "Task Manager")   return draw_icon_task_manager();
+    if (name == "System Info")    return draw_icon_system_info();
+    if (name == "Digital Clock")  return draw_icon_clock();
+    if (name == "Process Killer") return draw_icon_process_killer();
+    if (name == "Flappy Bird")    return draw_icon_flappy_bird();
+    if (name == "Photo Viewer")   return draw_icon_photo_viewer();
+    if (name == "AMS Studio")     return draw_icon_ams_studio();
+    if (name == "Create File")    return draw_icon_create_file();
+    if (name == "Delete File")    return draw_icon_delete_file();
+    if (name == "Copy File")      return draw_icon_copy_file();
+    if (name == "Move File")      return draw_icon_move_file();
+    if (name == "File Info")      return draw_icon_file_info();
+    if (name == "Web Browser")    return draw_icon_browser();
+    if (name == "Tic Tac Toe")    return draw_icon_tictactoe();
+
+    /* Check for file-like names (has extension) */
+    if (name.find('.') != std::string::npos) return draw_icon_file_generic();
+
+    return draw_icon_generic();
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -747,12 +1583,15 @@ static void populate_grid() {
         gtk_widget_set_halign(emoji_wrapper, GTK_ALIGN_CENTER);
         gtk_widget_set_valign(emoji_wrapper, GTK_ALIGN_CENTER);
 
-        const char *icon_name = get_icon_for_app(TASKS[i].name);
+        GdkPixbuf *icon_pb;
         if (TASKS[i].exec_path.find("xdg-open") != std::string::npos) {
-            icon_name = "folder";
+            icon_pb = draw_icon_folder();
+        } else {
+            icon_pb = get_custom_icon(TASKS[i].name);
         }
-        GtkWidget *emoji = gtk_image_new_from_icon_name(icon_name, GTK_ICON_SIZE_DIALOG);
-        add_class(emoji, "app-icon-emoji"); // Keep class for possible CSS
+        GtkWidget *emoji = gtk_image_new_from_pixbuf(icon_pb);
+        g_object_unref(icon_pb);
+        add_class(emoji, "app-icon-emoji");
         gtk_box_pack_start(GTK_BOX(emoji_wrapper), emoji, TRUE, TRUE, 0);
         gtk_box_pack_start(GTK_BOX(inner), emoji_wrapper, FALSE, FALSE, 0);
 
@@ -1085,7 +1924,7 @@ static void show_desktop() {
 
     /* ── Icon Grid ── */
     S.flow_box = gtk_flow_box_new();
-    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(S.flow_box), 6);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(S.flow_box), 7);
     gtk_flow_box_set_min_children_per_line(GTK_FLOW_BOX(S.flow_box), 4);
     gtk_flow_box_set_column_spacing(GTK_FLOW_BOX(S.flow_box), 10);
     gtk_flow_box_set_row_spacing(GTK_FLOW_BOX(S.flow_box), 10);
@@ -1108,7 +1947,7 @@ static void show_desktop() {
     GtkWidget *dock = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     add_class(dock, "dock");
 
-    int pinned[] = {17, 7, 6, 8, 16, 10, 18, 19, 11, 12, 9};
+    int pinned[] = {17, 7, 6, 8, 16, 10, 18, 19, 25, 11, 12, 9};
     for (int p : pinned) {
         for (int i = 0; i < TASK_COUNT; i++) {
             if (TASKS[i].id != p) continue;
@@ -1122,8 +1961,11 @@ static void show_desktop() {
             gtk_widget_set_halign(de_wrapper, GTK_ALIGN_CENTER);
             gtk_widget_set_valign(de_wrapper, GTK_ALIGN_CENTER);
 
-            const char *icon_name = get_icon_for_app(TASKS[i].name);
-            GtkWidget *de = gtk_image_new_from_icon_name(icon_name, GTK_ICON_SIZE_DND);
+            GdkPixbuf *raw_pb = get_custom_icon(TASKS[i].name);
+            GdkPixbuf *scaled_pb = gdk_pixbuf_scale_simple(raw_pb, 32, 32, GDK_INTERP_BILINEAR);
+            g_object_unref(raw_pb);
+            GtkWidget *de = gtk_image_new_from_pixbuf(scaled_pb);
+            g_object_unref(scaled_pb);
             add_class(de, "dock-emoji");
             gtk_box_pack_start(GTK_BOX(de_wrapper), de, TRUE, TRUE, 0);
 

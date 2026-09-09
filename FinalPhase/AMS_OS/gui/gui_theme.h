@@ -47,21 +47,21 @@ headerbar button:hover { background-color: rgba(255,255,255,0.1); color: white; 
 
 /* ── Buttons ── */
 button {
-    background-color: rgba(255,255,255,0.07);
+    background-image: linear-gradient(to bottom, rgba(255,255,255,0.09), rgba(255,255,255,0.05));
     color: rgba(255,255,255,0.9);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 10px;
     padding: 8px 16px;
     font-size: 13px;
-    transition: all 150ms ease-in-out;
+    transition: all 180ms ease-in-out;
     min-height: 20px;
 }
-button:hover  { background-color: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.35); }
-button:active { background-color: rgba(139,92,246,0.35); }
-button.suggested-action       { background-color: rgba(99,102,241,0.4);  border-color: rgba(99,102,241,0.5);  color: white; }
-button.suggested-action:hover { background-color: rgba(99,102,241,0.55); }
-button.destructive-action       { background-color: rgba(220,38,38,0.3);  border-color: rgba(220,38,38,0.4);  color: #fca5a5; }
-button.destructive-action:hover { background-color: rgba(220,38,38,0.45); }
+button:hover  { background-image: linear-gradient(to bottom, rgba(139,92,246,0.25), rgba(139,92,246,0.15)); border-color: rgba(139,92,246,0.35); box-shadow: 0 4px 16px rgba(139,92,246,0.12); }
+button:active { background-image: linear-gradient(to bottom, rgba(139,92,246,0.40), rgba(139,92,246,0.25)); }
+button.suggested-action       { background-image: linear-gradient(to bottom, rgba(99,102,241,0.5), rgba(99,102,241,0.35));  border-color: rgba(99,102,241,0.5);  color: white; }
+button.suggested-action:hover { background-image: linear-gradient(to bottom, rgba(99,102,241,0.65), rgba(99,102,241,0.45)); box-shadow: 0 4px 20px rgba(99,102,241,0.2); }
+button.destructive-action       { background-image: linear-gradient(to bottom, rgba(220,38,38,0.35), rgba(220,38,38,0.2));  border-color: rgba(220,38,38,0.4);  color: #fca5a5; }
+button.destructive-action:hover { background-image: linear-gradient(to bottom, rgba(220,38,38,0.5), rgba(220,38,38,0.35)); box-shadow: 0 4px 16px rgba(220,38,38,0.15); }
 
 /* ── Entries ── */
 entry {
@@ -72,8 +72,9 @@ entry {
     padding: 8px 12px;
     caret-color: white;
     font-size: 13px;
+    transition: all 180ms ease-in-out;
 }
-entry:focus { border-color: rgba(139,92,246,0.5); background-color: rgba(255,255,255,0.1); }
+entry:focus { border-color: rgba(139,92,246,0.5); background-color: rgba(255,255,255,0.1); box-shadow: 0 0 0 3px rgba(139,92,246,0.1); }
 
 /* ── Labels ── */
 label         { color: rgba(255,255,255,0.88); }
@@ -90,12 +91,12 @@ textview      { background-color: rgba(0,0,0,0.25); color: rgba(255,255,255,0.88
 textview text { background-color: transparent; color: rgba(255,255,255,0.88); }
 
 /* ── Scrollbar ── */
-scrollbar slider       { background-color: rgba(255,255,255,0.12); border-radius: 100px; min-width: 6px; min-height: 6px; }
-scrollbar slider:hover { background-color: rgba(255,255,255,0.22); }
+scrollbar slider       { background-color: rgba(255,255,255,0.10); border-radius: 100px; min-width: 5px; min-height: 5px; }
+scrollbar slider:hover { background-color: rgba(255,255,255,0.20); min-width: 7px; }
 
 /* ── Progress Bar ── */
 progressbar trough   { background-color: rgba(255,255,255,0.06); border-radius: 100px; min-height: 8px; }
-progressbar progress { background-image: linear-gradient(to right, #6366f1, #a855f7); border-radius: 100px; min-height: 8px; }
+progressbar progress { background-image: linear-gradient(to right, #6366f1, #a855f7); border-radius: 100px; min-height: 8px; box-shadow: 0 0 12px rgba(139,92,246,0.3); }
 
 /* ── Calendar Widget ── */
 calendar               { background-color: rgba(255,255,255,0.04); color: white; border-radius: 12px; padding: 12px; font-size: 13px; }
@@ -105,7 +106,7 @@ calendar:indeterminate { color: rgba(255,255,255,0.2); }
 /* ── TreeView ── */
 treeview          { background-color: rgba(0,0,0,0.2); color: rgba(255,255,255,0.85); font-size: 12px; }
 treeview:selected { background-color: rgba(139,92,246,0.25); }
-treeview header button { background-color: rgba(255,255,255,0.04); color: rgba(255,255,255,0.5); border: none; border-bottom: 1px solid rgba(255,255,255,0.08); border-radius: 0; font-weight: 600; font-size: 11px; }
+treeview header button { background-color: rgba(255,255,255,0.04); background-image: none; color: rgba(255,255,255,0.5); border: none; border-bottom: 1px solid rgba(255,255,255,0.08); border-radius: 0; font-weight: 600; font-size: 11px; }
 
 /* ── Separator ── */
 separator { background-color: rgba(255,255,255,0.06); min-height: 1px; }
@@ -113,7 +114,7 @@ separator { background-color: rgba(255,255,255,0.06); min-height: 1px; }
 /* ── Scale (slider) ── */
 scale trough    { background-color: rgba(255,255,255,0.08); border-radius: 100px; min-height: 4px; }
 scale highlight { background-image: linear-gradient(to right, #6366f1, #a855f7); border-radius: 100px; min-height: 4px; }
-scale slider    { background-color: white; border-radius: 100px; min-width: 16px; min-height: 16px; }
+scale slider    { background-color: white; border-radius: 100px; min-width: 16px; min-height: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
 /* ── Spinner ── */
 spinner { color: #a78bfa; }
@@ -121,22 +122,31 @@ spinner { color: #a78bfa; }
 /* ── Card Panel ── */
 .card { background-color: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 16px; }
 
+/* ── Glass Card (Premium Frosted Glass) ── */
+.glass-card {
+    background-color: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
 /* ═══ Calculator ═══ */
 .calc-display { background-color: rgba(0,0,0,0.4); border-radius: 12px; padding: 16px 20px; margin: 8px; }
 .calc-result  { font-size: 42px; font-weight: 300; color: white; }
 .calc-expr    { font-size: 14px; color: rgba(255,255,255,0.4); }
-.calc-num     { background-color: rgba(255,255,255,0.1);  color: white; font-size: 20px; font-weight: 500; border-radius: 50px; min-width: 60px; min-height: 60px; border: none; }
+.calc-num     { background-color: rgba(255,255,255,0.1); background-image: none; color: white; font-size: 20px; font-weight: 500; border-radius: 50px; min-width: 60px; min-height: 60px; border: none; }
 .calc-num:hover { background-color: rgba(255,255,255,0.18); }
-.calc-op      { background-color: rgba(245,158,11,0.7);  color: white; font-size: 20px; font-weight: 600; border-radius: 50px; min-width: 60px; min-height: 60px; border: none; }
+.calc-op      { background-color: rgba(245,158,11,0.7); background-image: none; color: white; font-size: 20px; font-weight: 600; border-radius: 50px; min-width: 60px; min-height: 60px; border: none; }
 .calc-op:hover  { background-color: rgba(245,158,11,0.9); }
-.calc-func    { background-color: rgba(255,255,255,0.05); color: rgba(255,255,255,0.7); font-size: 18px; border-radius: 50px; min-width: 60px; min-height: 60px; border: none; }
+.calc-func    { background-color: rgba(255,255,255,0.05); background-image: none; color: rgba(255,255,255,0.7); font-size: 18px; border-radius: 50px; min-width: 60px; min-height: 60px; border: none; }
 .calc-func:hover { background-color: rgba(255,255,255,0.12); }
 
 /* ═══ Snake / Minesweeper ═══ */
 .game-area       { background-color: #0a0a0a; border-radius: 8px; }
 .game-score      { color: #34d399; font-size: 16px; font-weight: 700; }
 .game-over-label { font-size: 32px; font-weight: 800; color: #f87171; }
-.mine-btn          { background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; min-width: 36px; min-height: 36px; font-size: 16px; padding: 0; }
+.mine-btn          { background-color: rgba(255,255,255,0.08); background-image: none; border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; min-width: 36px; min-height: 36px; font-size: 16px; padding: 0; }
 .mine-btn:hover    { background-color: rgba(255,255,255,0.15); }
 .mine-revealed     { background-color: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.03); }
 .mine-flag         { background-color: rgba(234,179,8,0.2); }
@@ -144,10 +154,10 @@ spinner { color: #a78bfa; }
 /* ═══ Music Player ═══ */
 .now-playing { font-size: 18px; font-weight: 700; color: white; }
 .artist      { font-size: 13px; color: rgba(255,255,255,0.5); }
-.player-btn  { background: transparent; border: none; color: white; font-size: 24px; border-radius: 100px; min-width: 48px; min-height: 48px; }
-.player-btn:hover { background-color: rgba(255,255,255,0.1); }
-.play-btn    { background-color: rgba(139,92,246,0.4); border: none; color: white; font-size: 28px; border-radius: 100px; min-width: 56px; min-height: 56px; }
-.play-btn:hover { background-color: rgba(139,92,246,0.6); }
+.player-btn  { background: transparent; background-image: none; border: none; color: white; font-size: 24px; border-radius: 100px; min-width: 48px; min-height: 48px; }
+.player-btn:hover { background-color: rgba(255,255,255,0.1); background-image: none; }
+.play-btn    { background-color: rgba(139,92,246,0.4); background-image: none; border: none; color: white; font-size: 28px; border-radius: 100px; min-width: 56px; min-height: 56px; }
+.play-btn:hover { background-color: rgba(139,92,246,0.6); background-image: none; }
 
 /* ═══ File/Info Cards ═══ */
 .info-row   { padding: 6px 0; }
