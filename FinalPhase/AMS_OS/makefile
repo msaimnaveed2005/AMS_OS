@@ -24,94 +24,25 @@ GUI_BIN := $(BUILD_DIR)/ams_desktop
 GTK_CFLAGS = $(shell pkg-config --cflags gtk+-3.0 2>/dev/null)
 GTK_LIBS   = $(shell pkg-config --libs   gtk+-3.0 2>/dev/null)
 
-KERNEL_SRC := \
-	$(KERNEL_DIR)/main.cpp \
-	$(KERNEL_DIR)/resource_manager.cpp \
-	$(KERNEL_DIR)/process_manager.cpp \
-	$(KERNEL_DIR)/task_catalog.cpp \
-	$(KERNEL_DIR)/ready_queue.cpp \
-	$(KERNEL_DIR)/scheduler.cpp \
-	$(KERNEL_DIR)/logger.cpp \
-	$(KERNEL_DIR)/deadlock_manager.cpp \
-	$(KERNEL_DIR)/sync_manager.cpp
+KERNEL_SRC := $(wildcard $(KERNEL_DIR)/*.cpp)
+KERNEL_HEADERS := $(wildcard $(KERNEL_DIR)/*.h)
 
-KERNEL_HEADERS := \
-	$(KERNEL_DIR)/resource_manager.h \
-	$(KERNEL_DIR)/process_manager.h \
-	$(KERNEL_DIR)/task_catalog.h \
-	$(KERNEL_DIR)/ready_queue.h \
-	$(KERNEL_DIR)/scheduler.h \
-	$(KERNEL_DIR)/logger.h \
-	$(KERNEL_DIR)/deadlock_manager.h \
-	$(KERNEL_DIR)/sync_manager.h \
-	$(KERNEL_DIR)/ui.h
-
-# Strip \r carriage returns to handle Windows CRLF line endings on Linux
-KERNEL_SRC := $(subst $(shell printf '\r'),,$(KERNEL_SRC))
-KERNEL_HEADERS := $(subst $(shell printf '\r'),,$(KERNEL_HEADERS))
 # ── Terminal-based tasks (CMD mode) ──
-TASK_NAMES := \
-	calculator \
-	calendar \
-	clock \
-	create_file \
-	delete_file \
-	download_simulator \
-	file_copy \
-	file_info \
-	minesweeper \
-	move_file \
-	music_player \
-	notepad \
-	process_killer \
-	snake \
-	system_info \
-	task_manager
-
-# Strip \r carriage returns to handle Windows CRLF line endings on Linux
-CR_X := $(shell printf '\rX')
-CR := $(subst X,,$(CR_X))
-TASK_NAMES := $(subst $(CR),,$(TASK_NAMES))
-TASK_BINS := $(addprefix $(BUILD_DIR)/,$(TASK_NAMES))
+TASK_SRCS := $(wildcard $(TASK_DIR)/*.cpp)
+TASK_BINS := $(patsubst $(TASK_DIR)/%.cpp,$(BUILD_DIR)/%,$(TASK_SRCS))
 
 # ── GUI task applications (GUI mode) ──
-GUI_TASK_NAMES := \
-	calculator \
-	calendar \
-	clock \
-	create_file \
-	delete_file \
-	download_simulator \
-	file_copy \
-	file_info \
-	minesweeper \
-	move_file \
-	music_player \
-	notepad \
-	process_killer \
-	snake \
-	system_info \
-	task_manager \
-	ai_copilot \
-	sudoku \
-	chess \
-	tic_tac_toe \
-	terminal \
-	file_explorer \
-	settings \
-	ams_studio \
-	photo_viewer \
-	flappy_bird
-
-# Strip \r carriage returns to handle Windows CRLF line endings on Linux
-GUI_TASK_NAMES := $(subst $(CR),,$(GUI_TASK_NAMES))
-GUI_TASK_BINS := $(addprefix $(BUILD_DIR)/gui_,$(GUI_TASK_NAMES))
+GUI_TASK_SRCS := $(wildcard $(GUI_DIR)/tasks/*.cpp)
+GUI_TASK_BINS := $(patsubst $(GUI_DIR)/tasks/%.cpp,$(BUILD_DIR)/gui_%,$(GUI_TASK_SRCS))
 GUI_THEME_H := $(GUI_DIR)/gui_theme.h
 
-.PHONY: all dirs run gui gui-tasks run-gui check install uninstall clean distclean help
+.PHONY: all cli dirs run run-cli gui gui-tasks run-gui check install uninstall clean distclean help
 
 all: dirs $(OS_BIN) $(TASK_BINS) gui
 	@echo "Build complete. Run './OS' for CMD mode or 'make run-gui' for GUI mode."
+
+cli: dirs $(OS_BIN) $(TASK_BINS)
+	@echo "CLI build complete. Run './OS' or 'make run-cli' to start."
 
 dirs:
 	@mkdir -p $(BUILD_DIR)
@@ -147,6 +78,9 @@ $(BUILD_DIR)/gui_%: $(GUI_DIR)/tasks/%.cpp $(GUI_THEME_H) | dirs
 	fi
 
 run: all
+	./$(OS_BIN) 2 256 8
+
+run-cli: cli
 	./$(OS_BIN) 2 256 8
 
 run-gui: all
