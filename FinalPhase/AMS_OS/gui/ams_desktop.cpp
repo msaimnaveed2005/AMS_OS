@@ -23,6 +23,11 @@ Dynamic app registry loaded from data/desktop_apps.txt.
 #include <sstream>
 #include <dirent.h>
 
+/* GLib < 2.74 compat: G_APPLICATION_DEFAULT_FLAGS was added in 2.74 */
+#if !GLIB_CHECK_VERSION(2, 74, 0)
+#define G_APPLICATION_DEFAULT_FLAGS ((GApplicationFlags)0)
+#endif
+
 /* ═══════════════════════════════════════════════════════
    Custom Cairo Icon Renderer — Professional desktop icons
    ═══════════════════════════════════════════════════════ */
