@@ -312,10 +312,9 @@ static GdkPixbuf* draw_icon_settings() {
     double cx = sz/2.0, cy = sz/2.0;
     cairo_set_source_rgb(cr, 0.9, 0.9, 0.92);
     int teeth = 8;
-    double outer_r = 14, inner_r = 10;
+    double outer_r = 14;
     for (int i = 0; i < teeth; i++) {
         double a = i * 2 * M_PI / teeth;
-        double a2 = a + M_PI / teeth;
         cairo_move_to(cr, cx + outer_r * cos(a-0.15), cy + outer_r * sin(a-0.15));
         cairo_line_to(cr, cx + (outer_r+3) * cos(a), cy + (outer_r+3) * sin(a));
         cairo_line_to(cr, cx + outer_r * cos(a+0.15), cy + outer_r * sin(a+0.15));
@@ -2202,7 +2201,7 @@ int main(int argc, char *argv[]) {
     g_timeout_add(500, check_refresh_flag, NULL);
 
     S.argc = argc; S.argv = argv;
-    S.app = gtk_application_new("com.ams.os.desktop", G_APPLICATION_DEFAULT_FLAGS);
+    S.app = gtk_application_new("com.ams.os.desktop", G_APPLICATION_FLAGS_NONE);
     g_signal_connect(S.app, "activate", G_CALLBACK(on_activate), NULL);
     int status = g_application_run(G_APPLICATION(S.app), 0, NULL);
     g_object_unref(S.app);

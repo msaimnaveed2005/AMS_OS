@@ -66,7 +66,7 @@ static bool black_rook_q_moved = false;
 static const char *CHESS_CSS = R"CSS(
 
 .chess-light {
-    background-color: #f0d9b5 !important;
+    background-color: #ffffff !important;
     background-image: none !important;
     border: none;
     border-radius: 0px;
@@ -78,7 +78,7 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .chess-dark {
-    background-color: #b58863 !important;
+    background-color: #2a2a2a !important;
     background-image: none !important;
     border: none;
     border-radius: 0px;
@@ -123,8 +123,8 @@ static const char *CHESS_CSS = R"CSS(
 }
 
 .chess-board {
-    background-color: #5d3a1a;
-    border: 3px solid #3e2210;
+    background-color: #1a1a1a;
+    border: 3px solid #000000;
     border-radius: 6px;
     padding: 6px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.08);
