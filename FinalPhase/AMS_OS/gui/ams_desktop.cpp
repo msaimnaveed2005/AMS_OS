@@ -2201,7 +2201,7 @@ int main(int argc, char *argv[]) {
     g_timeout_add(500, check_refresh_flag, NULL);
 
     S.argc = argc; S.argv = argv;
-    S.app = gtk_application_new("com.ams.os.desktop", G_APPLICATION_FLAGS_NONE);
+    S.app = gtk_application_new("com.ams.os.desktop", G_APPLICATION_DEFAULT_FLAGS);
     g_signal_connect(S.app, "activate", G_CALLBACK(on_activate), NULL);
     int status = g_application_run(G_APPLICATION(S.app), 0, NULL);
     g_object_unref(S.app);

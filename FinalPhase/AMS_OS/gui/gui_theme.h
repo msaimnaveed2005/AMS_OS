@@ -24,6 +24,11 @@ Include this header in any GUI task .cpp file for consistent styling.
 #include <sys/statvfs.h>
 #include <sys/utsname.h>
 
+/* GLib < 2.74 compat: G_APPLICATION_DEFAULT_FLAGS was added in 2.74 */
+#if !GLIB_CHECK_VERSION(2, 74, 0)
+#define G_APPLICATION_DEFAULT_FLAGS ((GApplicationFlags)0)
+#endif
+
 /* ══════════════════════════════════════════════════════════════
    CSS Theme — Premium Dark Mode for all AMS OS GUI Tasks
    ══════════════════════════════════════════════════════════════ */
